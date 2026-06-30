@@ -1,0 +1,253 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+Chương 4 đã trình bày kiến trúc, thiết kế cơ sở dữ liệu, các module phần mềm và kết quả triển khai của hệ thống. Vì vậy, chương này không lặp lại cấu trúc lớp hoặc mô tả giao diện, mà tập trung phân tích những bài toán khó, các quyết định kỹ thuật và phần đóng góp mà sinh viên trực tiếp đề xuất, hiện thực và kiểm chứng trong quá trình thực hiện đồ án.
+
+Năm đóng góp chính được lựa chọn gồm: thiết kế vòng học tập khép kín dựa trên dữ liệu cá nhân; điều chỉnh thuật toán SM-2 cho luồng học bốn mức đánh giá; xây dựng AI Review Pipeline có khả năng sinh nội dung và phục hồi khi đầu ra mô hình không hoàn chỉnh; xây dựng AI Tutor đa phương thức gắn hội thoại với dữ liệu ôn tập; và xây dựng pipeline GraphRAG để lựa chọn nghĩa của từ đa nghĩa trong văn bản chuyên ngành. Các nội dung này không hoàn toàn độc lập. Chúng được liên kết bởi một nguyên tắc chung: dữ liệu phát sinh ở một hoạt động học phải có khả năng trở thành đầu vào hữu ích cho hoạt động tiếp theo.
+
+\section{Xây dựng vòng học tập tích hợp cho người học tiếng Nhật}
+\label{section:5.1}
+
+\subsection{Giới thiệu bài toán}
+\label{subsection:5.1.1}
+
+Khi tự học tiếng Nhật, người học thường phải sử dụng nhiều ứng dụng phân mảnh cho các tác vụ tra từ, học flashcard, làm bài tập và luyện nói. Việc thiếu liên kết dữ liệu giữa các công cụ này khiến thông tin học tập bị phân mảnh: từ vựng vừa tra cứu không tự động chuyển thành thẻ ôn tập; lỗi ngữ pháp khi hội thoại không được đưa vào bài tập củng cố; và kết quả của mỗi phiên học không tác động đến kế hoạch học tiếp theo. Đối với tiếng Nhật, một từ vựng có nhiều thuộc tính phức tạp (kanji, cách đọc, nghĩa, ví dụ, cấp độ JLPT) và yêu cầu rèn luyện cả khả năng ghi nhớ lẫn vận dụng ngữ cảnh. Do đó, bài toán đặt ra là xây dựng một vòng học tập tích hợp giúp tự động chuyển tiếp dữ liệu kiến thức, lịch ôn, lỗi sai và kết quả giữa các phân hệ một cách có chủ đích, đồng thời đảm bảo tính độc lập và phân định rõ ràng trách nhiệm của từng thành phần.
+
+\subsection{Giải pháp}
+\label{subsection:5.1.2}
+
+Đồ án đề xuất giải pháp tổ chức hệ thống theo một vòng dữ liệu khép kín gồm năm giai đoạn (Hình \ref{fig:5.1}): \textbf{tiếp nhận tri thức} (chuẩn hóa kết quả tra từ điển sang flashcard nhưng giữ quyền chủ động lưu thẻ cho người dùng); \textbf{lập lịch ghi nhớ} (tách biệt nội dung thẻ và trạng thái SRS để thay đổi thuật toán lập lịch mà không mất lịch sử ôn); \textbf{kiểm tra trong ngữ cảnh} (Review Pipeline nhận dữ liệu thẻ đến hạn/mới, cấp độ JLPT và lỗi gần đây từ backend); \textbf{vận dụng qua hội thoại} (AI Tutor tương tác dựa trên từ mục tiêu và phản hồi cấu trúc chi tiết); và \textbf{phản hồi lại kế hoạch ôn tập} (các lỗi sai từ AI Tutor được lưu và gửi lại cho Review Service để sinh bài tập củng cố).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1.0\textwidth]{Hinhve/5.1.drawio.png}
+\caption{Vòng học tập khép kín dựa trên dữ liệu cá nhân}
+\label{fig:5.1}
+\end{figure}
+
+Để tránh liên kết chặt, hệ thống sử dụng backend làm tầng điều phối dữ liệu trung tâm. PostgreSQL lưu trữ thông tin tài khoản, flashcard, SRS và lịch sử; Python AI service xử lý nghiệp vụ AI phi trạng thái; còn Neo4j chỉ lưu tri thức từ vựng phục vụ dịch chuyên sâu. Sự phân vai trách nhiệm được tổng hợp trong Bảng \ref{table:5.1}.
+
+\begin{longtable}{|p{3.3cm}|p{5.0cm}|p{5.5cm}|}
+\hline
+\textbf{Thành phần} & \textbf{Dữ liệu chịu trách nhiệm} & \textbf{Nguyên tắc} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Thành phần} & \textbf{Dữ liệu chịu trách nhiệm} & \textbf{Nguyên tắc} \\
+\hline
+\endhead
+Frontend & Trạng thái tương tác tạm thời & Không tự quyết định lịch ôn hoặc quyền truy cập. \\
+\hline
+Backend và PostgreSQL & Người dùng, flashcard, SRS, phiên học, kết quả & Là nguồn dữ liệu chính và kiểm tra quyền sở hữu. \\
+\hline
+Python AI và Neo4j & Sinh nội dung, phân tích ngôn ngữ, tri thức nghĩa từ & Không trực tiếp thay đổi dữ liệu học cá nhân. \\
+\hline
+\caption{Phân chia trách nhiệm trong vòng học tập}
+\label{table:5.1}\\
+\end{longtable}
+
+\subsection{Kết quả đạt được}
+\label{subsection:5.1.3}
+
+Hệ thống đã hiện thực hóa các đường chuyển dữ liệu cốt lõi và tích hợp thành công trên môi trường thử nghiệm. Đóng góp nổi bật là chuyển hóa dữ liệu học từ dạng tĩnh sang dữ liệu có vòng đời (một mục từ có thể lần lượt làm thẻ học, câu hỏi ôn tập, từ mục tiêu hội thoại, và lỗi sai quay lại làm tài liệu ôn tập tiếp theo). Kiến trúc này giúp dễ dàng nâng cấp hoặc thay thế từng thành phần (như đổi mô hình LLM, đổi thuật toán SRS) nhờ các hợp đồng dữ liệu rõ ràng ở backend. 
+
+Hạn chế hiện tại là chưa tự động điều chỉnh thông số SRS dựa trên điểm số Quiz/Story, và từ mới phát sinh trong Tutor cần xác nhận của người học trước khi lưu. Đây là những lựa chọn thiết kế an toàn để bảo đảm quyền kiểm soát tối đa cho người dùng.
+
+\section{Điều chỉnh thuật toán SM-2 cho luồng học bốn mức đánh giá}
+\label{section:5.2}
+
+\subsection{Giới thiệu bài toán}
+\label{subsection:5.2.1}
+
+Để tối ưu hóa thời gian ghi nhớ từ vựng, hệ thống cần cá nhân hóa khoảng cách thời gian ôn tập cho từng thẻ thay vì hiển thị chúng đồng đều. Thuật toán SM-2 \cite{wozniak1990optimization} được chọn nhờ ưu điểm không cần dữ liệu huấn luyện và có trạng thái nhỏ gọn. Tuy nhiên, việc áp dụng nguyên bản SM-2 vào ứng dụng thực tế gặp hai bất cập: (1) SM-2 sử dụng thang điểm từ 0 đến 5, không tương thích trực tiếp với trải nghiệm người dùng hiện đại vốn quen thuộc với 4 nút đánh giá nhanh là \textbf{Lại, Khó, Được, Dễ}; (2) Khoảng cách khởi đầu của SM-2 cổ điển chưa phân biệt rõ ý nghĩa của các lựa chọn này. Ngoài ra, hệ thống cần giải quyết đồng thời việc lập lịch dài hạn lẫn quản lý hàng đợi hiển thị tạm thời trong phiên (ví dụ: thẻ chọn "Lại" phải xuất hiện lại ngay trong phiên hiện tại).
+
+\subsection{Giải pháp}
+\label{subsection:5.2.2}
+
+Đồ án đề xuất ánh xạ 4 lựa chọn giao diện vào thang chất lượng SM-2 (Bảng \ref{table:5.2}), đồng thời tích hợp xử lý hàng đợi phiên học.
+
+\begin{longtable}{|p{2.5cm}|p{3cm}|p{8cm}|}
+\hline
+\textbf{Lựa chọn} & \textbf{Chất lượng \(q\)} & \textbf{Ý nghĩa xử lý} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Lựa chọn} & \textbf{Chất lượng \(q\)} & \textbf{Ý nghĩa xử lý} \\
+\hline
+\endhead
+Lại & 1 & Không nhớ; đặt số lần lặp về 0 và đưa lại trong phiên. \\
+\hline
+Khó & 3 & Nhớ có khó khăn; tăng khoảng cách chậm. \\
+\hline
+Được & 4 & Nhớ bình thường; tăng khoảng cách theo hệ số dễ nhớ. \\
+\hline
+Dễ & 5 & Nhớ chắc; tăng nhanh và chuyển sớm sang ôn dài hạn. \\
+\hline
+\caption{Ánh xạ phản hồi người học sang chất lượng SM-2}
+\label{table:5.2}\\
+\end{longtable}
+
+Trạng thái SRS của mỗi thẻ bao gồm: hệ số dễ nhớ \(EF\) (mặc định 2.5), số lần ôn thành công liên tiếp \(n\), và khoảng cách hiện tại \(I\). Hệ số \(EF\) được cập nhật theo công thức kinh điển \cite{wozniak1990optimization}:
+\[
+EF' = \max\left(1{,}3;\ EF + 0{,}1 - (5-q)\left[0{,}08 + (5-q)\times0{,}02\right]\right)
+\]
+Nếu chọn \textbf{Lại} (\(q=1\)), hệ thống đặt \(n'=0, I'=0\), đưa thẻ về hàng đợi tạm trong phiên. Nếu chọn các nút đạt (\(q \geq 3\)), tại lần đầu tiên (\(n=0\)), khoảng cách khởi tạo tương ứng là \(1, 2\) và \(4\) ngày cho \textbf{Khó, Được, Dễ}. Tại lần thứ hai (\(n=1\)), khoảng cách là 6 ngày với \textbf{Khó/Được} và 4 ngày với \textbf{Dễ}. Từ lần thứ ba (\(n \geq 2\)):
+\[
+I' = \operatorname{round}(I\times m_q)
+\]
+Với hệ số điều chỉnh \(m_3 = 1{,}2\), \(m_4 = EF'\), và \(m_5 = 1{,}3\times EF'\). 
+
+Trạng thái nghiệp vụ được tách biệt khỏi khoảng cách: \textbf{Lại} đưa thẻ về \texttt{LEARNING}; \textbf{Khó} và \textbf{Được} chỉ chuyển sang \texttt{REVIEW} sau lần lượt 3 và 2 lần thành công liên tiếp; còn \textbf{Dễ} chuyển thẳng sang \texttt{REVIEW}. Logic tính toán được đóng gói dạng hàm thuần \texttt{SM2Algorithm.calculate} độc lập, đảm bảo an toàn giao dịch ở backend và dễ dàng kiểm thử.
+
+\subsection{Kết quả đạt được}
+\label{subsection:5.2.3}
+
+Kết quả là mỗi thẻ được tự động lập lịch ôn tập riêng biệt dựa trên phản hồi của người học. Việc phân biệt rõ các nhóm trạng thái giúp tối ưu luồng ôn tập và hiển thị trực quan khoảng cách dự kiến ngay trên các nút bấm. Kiểm thử tích hợp tại Mục 4.4.2 xác nhận thuật toán tính toán chính xác trong mọi trường hợp biên. Đóng góp cốt lõi của giải pháp là chuyển đổi hiệu quả thuật toán SM-2 thành luồng học 4 mức trực quan, kết hợp quản lý hàng đợi phiên học và tách biệt logic tính toán khỏi phần lưu trữ. Hạn chế hiện tại là chưa tích hợp thời gian phản hồi hoặc điểm số các bài tập bổ trợ để tự động tinh chỉnh các tham số thuật toán.
+
+\section{Sinh nội dung ôn tập thông minh bằng AI Review Pipeline}
+\label{section:5.3}
+
+\subsection{Giới thiệu bài toán}
+\label{subsection:5.3.1}
+
+Học từ vựng qua flashcard giúp ghi nhớ nghĩa nhanh nhưng chưa đủ để đánh giá khả năng sử dụng từ trong ngữ cảnh thực tế. Việc biên soạn thủ công các bài tập trắc nghiệm (Quiz) hay câu chuyện (Story) cho mọi tổ hợp từ vựng, cấp độ JLPT và lỗi sai cá nhân là bất khả thi về mặt chi phí. Mô hình ngôn ngữ lớn (LLM) có thể tự động sinh nội dung ôn tập cá nhân hóa, nhưng thường gặp rủi ro về độ ổn định: trả về sai cấu trúc JSON, thiếu số lượng câu hỏi, hoặc bị cắt cụt phản hồi giữa chừng. Do giao diện ứng dụng yêu cầu dữ liệu đầu ra có cấu trúc nghiêm ngặt (câu hỏi, đáp án, giải thích) để chấm điểm, bài toán đặt ra là thiết kế một pipeline sinh nội dung ôn tập thông minh từ dữ liệu bộ thẻ của người dùng, có khả năng tự động xử lý và phục hồi dữ liệu khi LLM trả về kết quả không hoàn hảo.
+
+\subsection{Giải pháp}
+\label{subsection:5.3.2}
+
+Giải pháp gồm hai tầng kiểm soát chặt chẽ:
+\begin{itemize}
+    \item \textbf{Tầng backend:} Điều phối dữ liệu đầu vào bằng cách chọn thẻ ưu tiên (thẻ đến hạn, thẻ mới), giới hạn số lượng từ và tích hợp tối đa 10 lỗi sai gần đây.
+    \item \textbf{Tầng Python AI:} Nhận yêu cầu đã chuẩn hóa (như trong Listing \ref{lst:5.1}) để thiết lập prompt cho mô hình với nhiệt độ thấp (0.3). Đối với Quiz, mô hình sinh câu hỏi điền vào chỗ trống tích hợp sửa lỗi. Đối với Story, mô hình sinh chuỗi tình huống liên kết từ vựng.
+\end{itemize}
+
+\begin{lstlisting}[caption={Ví dụ đầu vào của AI Review Pipeline}, label={lst:5.1}, captionpos=b]
+{
+  "words": [
+    {"surface": "yoyaku", "reading": "yoyaku", "meaning": "dat truoc"}
+  ],
+  "level": "N3",
+  "question_count": 10,
+  "recent_mistakes": [
+    {"original": "eki wo ikimasu", "corrected": "eki ni ikimasu"}
+  ]
+}
+\end{lstlisting}
+
+Đóng góp kỹ thuật cốt lõi là chiến lược phục hồi dữ liệu theo nguyên tắc \textbf{suy giảm có kiểm soát}: (1) Loại bỏ bao Markdown \texttt{json}; (2) Phân tích JSON toàn bộ; (3) Nếu lỗi, dùng Regex trích xuất mảng \texttt{questions} hoặc \texttt{segments}; (4) Lọc và chỉ giữ các câu hỏi/phân đoạn có đủ trường tối thiểu; (5) Thử lại tối đa 2 lần nếu thiếu số lượng; (6) Trả về phần dữ liệu hợp lệ kèm cảnh báo thay vì hủy bỏ toàn bộ phiên ôn tập. Kết quả sau khi người học hoàn thành được lưu độc lập tại backend để theo dõi lịch sử học tập lâu dài.
+
+\subsection{Kết quả đạt được}
+\label{subsection:5.3.3}
+
+Review Pipeline đã hỗ trợ sinh thành công hai dạng nội dung ôn tập là Quiz và Story trực quan. Các ca kiểm thử tại Mục 4.4.3 chứng minh cơ chế suy giảm có kiểm soát hoạt động ổn định: khi mô hình chỉ trả về một phần câu hỏi hợp lệ (ví dụ 6/10 câu), hệ thống vẫn hiển thị phần nội dung tốt kèm cảnh báo thay vì báo lỗi toàn trang. Đóng góp chính của giải pháp là quy trình phối hợp và phục hồi đầu ra có cấu trúc để cá nhân hóa nội dung ôn tập theo thẻ học và lỗi sai thực tế. Hạn chế hiện tại là tính chính xác ngôn ngữ vẫn phụ thuộc hoàn toàn vào LLM, chưa có bộ lọc kiểm chứng chất lượng sư phạm tự động, và cơ chế gọi lại (retry) có thể làm tăng chi phí và độ trễ.
+
+\section{Xây dựng AI Tutor đa phương thức}
+\label{section:5.4}
+
+\subsection{Giới thiệu bài toán}
+\label{subsection:5.4.1}
+
+Việc chuyển tiếp từ nhận biết từ vựng sang vận dụng trôi chảy trong hội thoại là thử thách lớn đối với người học ngoại ngữ do thiếu môi trường thực hành phản hồi thời gian thực. Các chatbot AI đa năng có thể trò chuyện trôi chảy nhưng thiếu định hướng sư phạm: không kiểm soát được cấp độ từ vựng, dễ bỏ qua lỗi sai của người học hoặc không tích hợp được các từ cần ôn tập. Đồng thời, việc truyền tải dữ liệu âm thanh dung lượng lớn phục vụ STT/TTS trực tiếp lên máy chủ thường tạo ra độ trễ cao và dễ gián đoạn do lỗi kết nối hoặc thiếu thiết bị đầu vào (microphone). Vì vậy, bài toán đặt ra là xây dựng một AI Tutor đa phương thức vừa ràng buộc chặt chẽ cuộc hội thoại theo mục tiêu học tập (cấp độ JLPT, từ vựng đích), vừa xử lý tương tác giọng nói tối ưu và thích ứng linh hoạt với các lỗi phần cứng hoặc mạng tại client.
+
+\subsection{Giải pháp}
+\label{subsection:5.4.2}
+
+AI Tutor hoạt động theo từng phiên độc lập liên kết chặt chẽ với backend. Khi tạo phiên, người học cung cấp cấp độ JLPT, chủ đề hoặc chế độ tự chọn chủ đề, thời lượng và danh sách từ cần luyện. Backend tạo \texttt{ConversationSession}, kiểm tra quyền sở hữu ở mọi thao tác và gọi AI để sinh lời mở đầu.
+
+Nếu không có chủ đề cụ thể, pipeline tự chọn một trong sáu nhóm: nhà hàng, mua sắm, du lịch, phỏng vấn, trường học và sinh hoạt hằng ngày. Điểm chủ đề được tính từ hai nguồn. Từ tiếng Nhật khớp với \texttt{surface} hoặc \texttt{reading} được nhân trọng số 2; từ khóa tiếng Việt khớp với \texttt{meaning} được tính trọng số 1. Cách làm này ưu tiên trực tiếp dữ liệu tiếng Nhật nhưng vẫn tận dụng nghĩa tiếng Việt khi từ không trùng hoàn toàn. Nếu không có tín hiệu, pipeline chọn một chủ đề mặc định ngẫu nhiên để vẫn khởi tạo được phiên.
+
+Trong mỗi lượt, prompt chỉ chứa tối đa năm log gần nhất. Giới hạn này là sự đánh đổi giữa tính liên tục và kích thước ngữ cảnh. Với một phiên luyện ngắn, năm lượt đủ để duy trì câu hỏi hiện tại; phần lịch sử cũ vẫn được lưu ở backend để tổng hợp cuối phiên nhưng không phải gửi lặp lại cho mô hình.
+
+Mỗi prompt yêu cầu mô hình thực hiện song song hai tác vụ: (1) kiểm tra và phát hiện lỗi ngữ pháp (trợ từ, chia động từ, mức độ lịch sự), và (2) phản hồi hội thoại kèm 2--3 mẫu câu gợi ý và từ vựng mới theo đúng schema JSON (Listing \ref{lst:5.2}).
+
+\begin{lstlisting}[caption={Schema phản hồi của AI Tutor}, label={lst:5.2}, captionpos=b]
+{
+  "content_ja": "Phan hoi va cau hoi tiep theo",
+  "content_vn": "Ban dich hoac giai thich ngan",
+  "corrections": [
+    {"original": "...", "corrected": "...", "note": "..."}
+  ],
+  "suggestions": ["...", "..."],
+  "newVocabulary": [
+    {"surface": "...", "reading": "...", "meaning": "..."}
+  ]
+}
+\end{lstlisting}
+
+Để tối ưu hóa hiệu năng truyền tải, hệ thống chuyển giao hoàn toàn tác vụ STT và TTS về phía client thông qua Web Speech API trên trình duyệt. Khi người học tương tác bằng giọng nói, đối tượng \texttt{SpeechRecognition} sẽ nhận dạng và chuyển đổi âm thanh cục bộ thành văn bản trước khi gửi đến server. Ngược lại, trình duyệt sử dụng đối tượng \texttt{SpeechSynthesis} để chuyển văn bản phản hồi của AI thành giọng đọc tiếng Nhật tự nhiên. Thiết kế này giúp toàn bộ giao tiếp client-server ở dạng văn bản gọn nhẹ. Nếu client phát sinh lỗi thiết bị (không có microphone, trình duyệt không hỗ trợ API) hoặc mất kết nối, giao diện tự động chuyển đổi linh hoạt sang chế độ nhập liệu bằng bàn phím kèm theo thông báo hướng dẫn.
+
+\subsection{Kết quả đạt được}
+\label{subsection:5.4.3}
+
+Chức năng AI Tutor hoạt động ổn định trên cả giao diện văn bản và giọng nói. Kết quả kiểm thử tích hợp (Mục 4.4.3) chứng minh hệ thống vượt qua 100\% các ca kiểm thử đại diện (TUT-01 đến TUT-05), tự động xử lý tốt lỗi mất kết nối hoặc thiếu thiết bị thu âm. Đóng góp lớn nhất của AI Tutor là ràng buộc hội thoại theo cấp độ và từ vựng mục tiêu của người học, đồng thời tận dụng Web Speech API để giảm tải cho server và chuyển đổi các lỗi hội thoại thành dữ liệu ôn tập có ích. Hạn chế hiện tại là các chỉ số đánh giá phát âm chi tiết (fluency, accuracy, pronunciation) chưa được triển khai do giới hạn kỹ thuật của Web Speech API thông thường.
+
+\section{Xây dựng GraphRAG lựa chọn nghĩa cho dịch thuật chuyên ngành}
+\label{section:5.5}
+
+\subsection{Giới thiệu bài toán}
+\label{subsection:5.5.1}
+
+Trong dịch thuật Nhật--Việt chuyên ngành, các mô hình ngôn ngữ lớn (LLM) thường gặp lỗi lựa chọn nghĩa sai đối với các từ đa nghĩa (homonyms/polysemes), gây ảnh hưởng nghiêm trọng đến độ chính xác kỹ thuật mặc dù câu dịch vẫn đảm bảo độ trôi chảy. Khó khăn này đặc biệt rõ ràng trên các mô hình có kích thước nhỏ và chi phí thấp như \texttt{llama-3.1-8b-instant}. Để đảm bảo độ chính xác thuật ngữ chuyên môn, các giải pháp thông thường phải sử dụng các mô hình có số lượng tham số rất lớn và đắt tiền như \texttt{qwen/qwen3-32b}, điều này làm tăng đáng kể chi phí vận hành (inference cost) và độ trễ phản hồi. Việc lưu trữ từ điển quan hệ thông thường cũng gặp khó khăn trong việc biểu diễn mối liên kết động giữa từ vựng, miền chuyên ngành và các tín hiệu ngữ cảnh trực quan (cues). Trong khi đó, việc đưa toàn bộ cơ sở dữ liệu từ điển vào prompt của mô hình là không khả thi do giới hạn độ dài ngữ cảnh và chi phí. Do đồ án không có tập dữ liệu gán nhãn đủ lớn để huấn luyện một mô hình giải quyết nhập nhằng nghĩa từ (WSD) chuyên dụng, bài toán đặt ra là xây dựng một pipeline GraphRAG (Retrieval-Augmented Generation dựa trên đồ thị) gọn nhẹ để tự động truy xuất và xếp hạng các nghĩa từ phù hợp nhất từ ngữ liệu và từ điển sẵn có trước khi thực hiện dịch. Giải pháp này nhằm nâng cao chất lượng bản dịch của các mô hình kích thước nhỏ có chi phí rẻ như \texttt{llama-3.1-8b-instant} lên mức tiệm cận các mô hình lớn và đắt đỏ hơn, tối ưu hóa sự cân bằng giữa chi phí và chất lượng.
+
+\subsection{Giải pháp}
+\label{subsection:5.5.2}
+
+Giải pháp gồm hai phần: xây dựng đồ thị tri thức ngoại tuyến và truy xuất--xếp hạng nghĩa khi dịch.
+
+\textbf{Xây dựng dữ liệu ngoại tuyến.} Trích xuất nguồn JMdict thu được 3.321 từ đa nghĩa có nghĩa chuyên ngành thuộc 6 miền ánh xạ: \texttt{technology, medicine, academic, business, culture, general}. Đồ thị tri thức được mô tả trong Hình \ref{fig:5.2}. Các tín hiệu ngữ cảnh (\texttt{SUPPORTED\_BY}) được xây dựng bằng cách quét 248.678 câu tiếng Nhật từ Tatoeba qua thuật toán Aho--Corasick để đếm tần suất đồng xuất hiện. Đồ thị sau khi nạp vào Neo4j bao gồm 6 miền, 3.321 \texttt{Lexeme}, 9.514 \texttt{Sense} và 24.153 cạnh liên kết ngữ cảnh.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{Hinhve/5.2.drawio.png}
+\caption{Mô hình đồ thị tri thức phục vụ lựa chọn nghĩa}
+\label{fig:5.2}
+\end{figure}
+
+\textbf{Truy xuất và xếp hạng khi dịch.} Văn bản cần dịch được phân tích cú pháp bằng SudachiPy (Mode B). Pipeline thực hiện hai lượt truy vấn Neo4j:
+\begin{enumerate}
+    \item \textbf{Phát hiện miền:} Các token bỏ phiếu cho các miền chuyên ngành liên kết. Miền chuyên ngành \(d\) được giữ lại nếu số phiếu \(v_d \geq \max(1;\ 0{,}3\times v_{max})\) (với \(v_{max}\) là số phiếu cao nhất).
+    \item \textbf{Xếp hạng nghĩa:} Tính điểm cho mỗi nghĩa \(s\) theo công thức:
+    \[
+    score(s)=0{,}60\times domainMatch(s)+0{,}40\times \left(N_m/N_t\right)
+    \]
+    Trong đó, \(domainMatch(s)\) là 1 nếu nghĩa khớp miền đã phát hiện, và \(N_m/N_t\) là tỷ lệ số tín hiệu ngữ cảnh xuất hiện thực tế trên tổng số tín hiệu của nghĩa.
+\end{enumerate}
+
+Nghĩa có điểm cao nhất (\texttt{top\_sense}) cùng ngữ cảnh bổ trợ được chèn trực tiếp làm bằng chứng đồ thị (graph evidence) vào prompt. Mô hình LLM dịch văn bản dựa trên các bằng chứng này để tạo ra bản dịch chuyên ngành chính xác và có thể kiểm chứng.
+
+\subsection{Kết quả đạt được}
+\label{subsection:5.5.3}
+
+Chức năng dịch thuật chuyên sâu tích hợp GraphRAG đã được triển khai và hoạt động tốt trên môi trường thử nghiệm. Đóng góp nổi bật nhất của giải pháp là đã nâng cao chất lượng dịch thuật chuyên ngành của mô hình ngôn ngữ nhỏ, chi phí vận hành rẻ như \texttt{llama-3.1-8b-instant} để đạt được kết quả chính xác tương đương với các mô hình lớn hơn như \texttt{qwen/qwen3-32b}. Nhờ việc đưa bằng chứng đồ thị (graph evidence) có cấu trúc từ Neo4j vào prompt một cách chọn lọc, mô hình nhỏ có thể lựa chọn chính xác nghĩa chuyên ngành của thuật ngữ kỹ thuật dựa trên điểm số đánh giá trực quan rõ ràng theo miền và ngữ cảnh. Sự kết hợp này mang lại hiệu quả kinh tế lớn cho hệ thống thực tế bằng việc giảm đáng kể tài nguyên tính toán cần thiết khi suy luận mà vẫn duy trì chất lượng dịch chuyên môn ở mức tốt. Hạn chế hiện tại là hệ thống chưa có bộ dữ liệu chuẩn lớn để đánh giá định lượng chính xác tỉ lệ cải thiện chất lượng dịch, và các từ không nằm trong đồ thị vẫn phải dựa vào phán đoán mặc định của mô hình ngôn ngữ.
+
+\section{Tổng kết}
+\label{section:5.6}
+
+Chương này đã làm rõ năm đóng góp chính của đồ án từ khâu phát biểu bài toán, đề xuất giải pháp kỹ thuật cụ thể tới đánh giá kết quả đạt được. Các nội dung được tổng hợp trong Bảng \ref{table:5.3}.
+
+\begin{longtable}{|p{3.6cm}|p{5cm}|p{5.7cm}|}
+\hline
+\textbf{Đóng góp} & \textbf{Vấn đề trung tâm} & \textbf{Giá trị đạt được} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Đóng góp} & \textbf{Vấn đề trung tâm} & \textbf{Giá trị đạt được} \\
+\hline
+\endhead
+Vòng học tập tích hợp & Dữ liệu bị chia cắt giữa tra cứu, ghi nhớ và vận dụng & Tạo luồng dữ liệu hai chiều giữa từ điển, flashcard, Review và Tutor. \\
+\hline
+SM-2 bốn mức & Khác biệt giữa thang 0--5 và trải nghiệm bốn nút & Lập lịch xác định, có trạng thái trong phiên và kiểm thử được. \\
+\hline
+AI Review Pipeline & LLM sinh nội dung không ổn định về cấu trúc & Sinh Quiz/Story cá nhân hóa và giữ phần hợp lệ khi phản hồi thiếu. \\
+\hline
+AI Tutor đa phương thức & Chatbot tổng quát không gắn mục tiêu học & Hội thoại theo JLPT/từ mục tiêu, sửa lỗi, hỗ trợ STT/TTS và lưu kết quả. \\
+\hline
+GraphRAG lựa chọn nghĩa & Thuật ngữ đa nghĩa phụ thuộc miền và ngữ cảnh & Truy xuất, xếp hạng nghĩa giúp nâng cao chất lượng dịch của LLM giá rẻ (như \texttt{llama-3.1-8b-instant}) ngang tầm mô hình lớn, tối ưu chi phí. \\
+\hline
+\caption{Tổng hợp các giải pháp và đóng góp nổi bật}
+\label{table:5.3}\\
+\end{longtable}
+
+Đóng góp bao trùm của đồ án là thiết kế một hệ thống hỗ trợ học tập thông minh, trong đó tính xác định (PostgreSQL, lập lịch SRS, quyền truy cập) do backend quản lý, còn tính linh hoạt ngôn ngữ do AI đảm nhiệm dưới sự kiểm soát chặt chẽ của các pipeline lọc và định dạng. Các kết quả kiểm thử bước đầu chứng minh tính khả thi của mô hình đề xuất và mở ra định hướng nghiên cứu sâu hơn.
+
+\end{document}

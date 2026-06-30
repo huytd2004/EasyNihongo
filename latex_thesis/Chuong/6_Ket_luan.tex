@@ -1,0 +1,70 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+Chương 5 đã trình bày các giải pháp và đóng góp nổi bật của đồ án. Chương này tổng kết lại quá trình thực hiện, so sánh kết quả với các sản phẩm tương tự, tự đánh giá ưu khuyết điểm, đóng góp nổi bật, rút ra bài học kinh nghiệm và đề xuất hướng phát triển tương lai.
+
+\section{Kết luận}
+\label{section:6.1}
+
+\subsection{So sánh với các sản phẩm tương tự}
+
+Khảo sát hiện trạng cho thấy các nhóm sản phẩm hiện nay (như từ điển Mazii/Jisho, flashcard Anki, ứng dụng học Duolingo/Bunpo, dịch thuật DeepL và các chatbot AI) đều có thế mạnh chuyên biệt rất lớn về dữ liệu và hạ tầng. Tuy nhiên, chúng thường hoạt động độc lập khiến dữ liệu học tập bị phân tán. 
+
+Sản phẩm nguyên mẫu của đồ án tuy chưa thể cạnh tranh về quy mô dữ liệu và độ hoàn thiện nhưng đã bước đầu giải quyết được hạn chế này thông qua việc xây dựng một vòng học tập tích hợp liên tục. Dữ liệu từ vựng tra cứu được chuyển tiếp làm flashcard, lên lịch ôn tập SRS, làm từ vựng mục tiêu trong Quiz, Story và AI Tutor, đồng thời lỗi phát sinh khi hội thoại lại quay về phục vụ cá nhân hóa phiên học. Ngoài ra, việc bổ sung GraphRAG với cơ sở dữ liệu đồ thị Neo4j giúp nâng cao tính chính xác và khả năng giải thích ngữ cảnh của bản dịch chuyên ngành.
+
+\subsection{Đánh giá kết quả thực hiện}
+
+Trong suốt quá trình thực hiện đồ án, sinh viên đã hoàn thành và nhận diện các nội dung sau:
+
+\textbf{Những nội dung đã thực hiện được:}
+\begin{itemize}[itemsep=0pt,parsep=0pt,topsep=2pt,partopsep=0pt]
+    \item Phân tích và thiết kế hệ thống; xây dựng các chức năng cơ bản (xác thực, tra cứu từ điển, quản lý bộ thẻ, flashcard).
+    \item Tích hợp và điều chỉnh thuật toán lặp lại ngắt quãng SM-2 sang thang đánh giá bốn mức độ ghi nhớ.
+    \item Thiết lập AI Review Pipeline để tự động sinh câu hỏi Quiz, Story và AI Tutor tương tác thoại tiếng Nhật có phản hồi sửa lỗi.
+    \item Xây dựng quy trình GraphRAG kết nối Neo4j nhằm gợi ý nghĩa thuật ngữ chuyên ngành dựa trên miền tri thức ngữ cảnh.
+    \item Thực hiện tích hợp hệ thống trên môi trường cục bộ và đánh giá kịch bản qua kiểm thử.
+\end{itemize}
+
+\textbf{Những nội dung chưa thực hiện được và hạn chế:}
+\begin{itemize}[itemsep=0pt,parsep=0pt,topsep=2pt,partopsep=0pt]
+    \item Nguyên mẫu chỉ chạy thử nghiệm ở localhost, chưa triển khai môi trường cloud để đánh giá độ ổn định tải và hiệu năng thực tế.
+    \item Dữ liệu từ điển và đồ thị tri thức Neo4j còn giới hạn độ phủ, chưa bao quát được nhiều lĩnh vực chuyên sâu.
+    \item Chưa tổ chức thử nghiệm lâm sàng dài hạn với người học và thiếu tập dữ liệu đối chứng định lượng để chứng minh tỷ lệ cải thiện chất lượng dịch của GraphRAG.
+\end{itemize}
+
+\subsection{Đóng góp nổi bật và bài học kinh nghiệm}
+
+\textbf{Đóng góp nổi bật của đồ án:}
+\begin{itemize}[itemsep=0pt,parsep=0pt,topsep=2pt,partopsep=0pt]
+    \item Thiết kế và hiện thực thành công vòng học tập tích hợp dữ liệu liên tục giữa các tác vụ tra cứu, ôn tập và luyện giao tiếp.
+    \item Gắn lỗi hội thoại và từ vựng mục tiêu thành dữ liệu đầu vào cho hoạt động ôn tập thông minh của AI.
+    \item Xây dựng pipeline AI có ràng buộc cấu trúc (parser, validation) và GraphRAG phân tích nghĩa chuyên ngành có khả năng giải thích.
+\end{itemize}
+
+\textbf{Bài học kinh nghiệm rút ra:}
+\begin{itemize}[itemsep=0pt,parsep=0pt,topsep=2pt,partopsep=0pt]
+    \item Khi làm việc với LLM, luôn cần thiết kế cơ chế kiểm soát lỗi, parser kết quả và các phương án dự phòng khi dịch vụ AI gặp sự cố.
+    \item Tách biệt rõ ràng vai trò: các logic nghiệp vụ cố định (xác thực, lịch SRS) phải do backend xử lý; AI chỉ đóng vai trò sinh ngữ cảnh.
+    \item Kiểm thử tích hợp cần triển khai sớm để phát hiện bất cập trong cấu hình phân quyền bảo mật của các luồng đa phương thức.
+\end{itemize}
+
+\section{Hướng phát triển}
+\label{section:6.2}
+
+Định hướng phát triển sản phẩm trong tương lai được phân chia thành hai giai đoạn rõ rệt: hoàn thiện các chức năng hiện tại và nghiên cứu mở rộng các hướng đi mới.
+
+\subsection{Hoàn thiện các chức năng hiện tại}
+\begin{itemize}[itemsep=0pt,parsep=0pt,topsep=2pt,partopsep=0pt]
+    \item \textbf{Khắc phục bảo mật và kiểm thử:} Thống nhất quyền truy cập tệp âm thanh TTS với Spring Security và tăng độ bao phủ của unit/integration test.
+    \item \textbf{Tối ưu hóa pipeline AI:} Thêm giới hạn thời gian phản hồi (timeout), cơ chế tự động thử lại, và tinh chỉnh chất lượng Quiz/Story thông qua tập đánh giá của chuyên gia.
+    \item \textbf{Nâng cấp dữ liệu và triển khai:} Làm sạch cơ sở dữ liệu từ điển, mở rộng các nút quan hệ đồ thị Neo4j, đồng thời đóng gói Docker và triển khai ứng dụng lên môi trường production (Cloud).
+\end{itemize}
+
+\subsection{Nâng cấp và mở rộng hướng nghiên cứu mới}
+\begin{itemize}[itemsep=0pt,parsep=0pt,topsep=2pt,partopsep=0pt]
+    \item \textbf{Cá nhân hóa thích ứng:} Xây dựng mô hình năng lực người học dựa trên tần suất tương tác, thời gian phản hồi để gợi ý bài học phù hợp.
+    \item \textbf{Nâng cấp AI Tutor thoại:} Tích hợp cơ chế đánh giá phát âm trực tiếp từ âm thanh người học (thay vì qua văn bản transcript) và đa dạng hóa kịch bản giao tiếp công sở.
+    \item \textbf{Nghiên cứu GraphRAG chuyên sâu:} Tổ chức kiểm thử đối chứng định lượng chất lượng dịch thuật và mở rộng đồ thị tri thức sang các miền kỹ thuật khác như y tế, kinh tế, cơ khí.
+\end{itemize}
+
+\end{document}

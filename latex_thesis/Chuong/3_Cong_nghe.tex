@@ -1,0 +1,76 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+Chương 2 đã xác định các yêu cầu chính của hệ thống gồm giao diện học tập dễ sử dụng, backend bảo vệ dữ liệu cá nhân, lưu trữ nhất quán, ôn tập theo lịch, sinh nội dung bằng AI, hội thoại bằng văn bản hoặc giọng nói và dịch thuật có phân tích ngữ cảnh. Chương này trình bày các công nghệ và nền tảng được lựa chọn để đáp ứng những yêu cầu đó. Nội dung tập trung tóm tắt đặc điểm kỹ thuật có liên quan trực tiếp đến đồ án; các thiết kế chi tiết và hiện thực được dành cho Chương 4.
+
+Các công nghệ được nhóm theo vấn đề cần giải quyết thay vì liệt kê riêng lẻ. Với mỗi nhóm, đồ án giới thiệu khái quát, phân tích ưu nhược điểm, cách ứng dụng thực tế và so sánh với giải pháp thay thế để làm rõ lý do lựa chọn.
+
+\section{Công nghệ phát triển frontend}
+\label{section:3.1}
+
+Frontend của hệ thống sử dụng Vue 3, Vite, Tailwind CSS, Pinia và Axios, giải quyết yêu cầu về tính dễ sử dụng, khả năng tương thích trình duyệt và tổ chức giao diện thành các thành phần tái sử dụng độc lập (mục 2.4). Vue 3 cung cấp giải pháp xây dựng giao diện theo component linh hoạt với Composition API \cite{vue-docs}, trong khi Vite đóng vai trò môi trường phát triển và đóng gói tốc độ cao \cite{vite-guide}. Trạng thái toàn cục được quản lý tập trung thông qua kho lưu trữ gọn nhẹ Pinia \cite{pinia-docs}, còn các yêu cầu HTTP giao tiếp với backend được Axios thực hiện và xử lý nhất quán nhờ cơ chế interceptor \cite{axios-docs}. Bố cục responsive và giao diện người dùng được định hình nhanh chóng bằng các lớp tiện ích của Tailwind CSS \cite{tailwind-docs}.
+
+Sự kết hợp này mang lại ưu điểm lớn về hiệu năng biên dịch nhanh của Vite, cú pháp trực quan của Vue và tính nhất quán giao diện của Tailwind CSS. Tuy nhiên, lập trình viên cần duy trì quy tắc tổ chức mã nguồn chặt chẽ để tránh làm phình to component hoặc lạm dụng trạng thái toàn cục trong Pinia. Trong đồ án, Vue 3 được ứng dụng để phát triển toàn bộ các màn hình chức năng (xác thực, từ điển, flashcard, ôn tập, AI Tutor và dịch thuật chuyên ngành). Axios đảm nhận việc tự động đính kèm và làm mới JWT token, còn Tailwind CSS đảm bảo giao diện hiển thị tối ưu trên mọi kích thước màn hình.
+
+Khi xem xét phương án thay thế, React và Angular là hai đối thủ lớn nhất. Tuy nhiên, React yêu cầu cấu hình thêm nhiều thư viện bên thứ ba cho định tuyến và quản lý trạng thái, làm tăng độ phức tạp ban đầu; trong khi Angular lại quá đồ sộ và đòi hỏi chi phí học tập lớn đối với một hệ thống nguyên mẫu. Vue 3 được chọn nhờ sự cân bằng giữa tính đơn giản và hiệu năng. Pinia được chọn thay cho Vuex vì cú pháp tối giản và tương thích tốt hơn với Composition API, còn Axios được ưu tiên hơn \texttt{fetch} thuần của trình duyệt để xử lý vòng đời JWT token một cách tự động và đồng bộ thông qua interceptor.
+
+\section{Công nghệ backend và bảo mật}
+\label{section:3.2}
+
+Tầng nghiệp vụ và bảo mật hệ thống sử dụng Java 21, Spring Boot, Spring Security và cơ chế JSON Web Token (JWT). Nhóm công nghệ này đáp ứng yêu cầu quản lý nhiều miền nghiệp vụ phức tạp, bảo vệ dữ liệu cá nhân, kiểm tra quyền sở hữu và cung cấp API RESTful có cấu trúc thống nhất. Spring Boot cung cấp nền tảng vững chắc với cơ chế Dependency Injection, validation dữ liệu và khả năng tích hợp mô-đun mạnh mẽ \cite{spring-boot-docs}. Spring Security thiết lập chuỗi bộ lọc bảo mật tập trung \cite{spring-security-docs}, phối hợp với định dạng token tự chứa JWT \cite{jwt-rfc7519} để xác thực không trạng thái (stateless) cho mỗi yêu cầu từ frontend gửi lên.
+
+Kiến trúc Spring Boot giúp mã nguồn backend có tính phân tách rõ ràng (Controller - Service - Repository - DTO) và dễ viết kiểm thử đơn vị. Tuy nhiên, Spring Boot tiêu tốn bộ nhớ lớn hơn và có thời gian khởi chạy chậm hơn các framework tối giản. Spring Security cũng đòi hỏi cấu hình chuỗi bộ lọc chuẩn xác để tránh lỗ hổng bảo mật. Để giải quyết hạn chế của JWT về việc khó thu hồi token tức thời, hệ thống sử dụng cặp access token ngắn hạn và refresh token lưu ở cơ sở dữ liệu. Trong đồ án, Spring Boot đóng vai trò cổng điều phối trung tâm: tiếp nhận yêu cầu, kiểm tra quyền sở hữu đối với flashcard hay phiên chat, xử lý nghiệp vụ lưu trữ PostgreSQL và chỉ gọi module AI Python khi cần thiết.
+
+Các phương án thay thế bao gồm Node.js (Express/NestJS) và Python (Django/FastAPI). Dù Node.js có lợi thế đồng nhất ngôn ngữ Javascript, cấu hình transaction và phân quyền của nó phức tạp hơn; còn Django lại nằm ngoài định hướng phát triển backend bằng Java của hệ thống. Spring Boot và Spring Security được lựa chọn nhờ khả năng cung cấp các tính năng bảo mật cấp doanh nghiệp được tích hợp sẵn, cùng cơ chế JPA giúp thao tác dữ liệu an toàn. Dịch vụ Python vẫn được duy trì nhưng tách biệt hoàn toàn làm module xử lý AI riêng.
+
+\section{Lưu trữ dữ liệu quan hệ với PostgreSQL và JPA}
+\label{section:3.3}
+
+Hệ thống sử dụng cơ sở dữ liệu quan hệ PostgreSQL phối hợp cùng tầng ánh xạ đối tượng JPA (Java Persistence API) thông qua Spring Data JPA. Giải pháp này nhằm giải quyết yêu cầu lưu trữ thông tin có cấu trúc chặt chẽ và đảm bảo tính nhất quán cao, bao gồm dữ liệu tài khoản người dùng, tiến trình học tập, trạng thái thuật toán SM-2, hệ thống bình luận và lịch sử hội thoại. PostgreSQL nổi tiếng với khả năng hỗ trợ giao dịch ACID, ràng buộc khóa ngoại mạnh mẽ và lập chỉ mục tối ưu \cite{postgresql-docs}, trong khi JPA giúp trừu tượng hóa các truy vấn SQL thành các thao tác hướng đối tượng an toàn \cite{spring-boot-docs}.
+
+Sự kết hợp này giúp lập trình viên thao tác với dữ liệu nhanh chóng, đảm bảo tính toàn vẹn thông tin nhờ cơ chế transaction khi thực hiện các tác vụ phức tạp (ví dụ: tạo flashcard đồng thời khởi tạo bản ghi tiến trình SRS). Nhược điểm của hướng đi này là nguy cơ phát sinh các truy vấn kém tối ưu (như lỗi N+1 truy vấn) nếu không cấu hình nạp dữ liệu (lazy/eager loading) cẩn thận. Trong đồ án, PostgreSQL lưu trữ tất cả thông tin quan hệ cốt lõi, còn Spring Data JPA ánh xạ các thực thể thành đối tượng Java để xử lý nghiệp vụ, sử dụng transaction để đảm bảo tính nhất quán dữ liệu khi người dùng cập nhật kết quả ôn tập hoặc xóa bộ thẻ.
+
+MySQL và MongoDB là hai phương án thay thế được cân nhắc. MySQL đáp ứng tốt nghiệp vụ tương tự nhưng PostgreSQL được chọn nhờ khả năng mở rộng tốt hơn, hỗ trợ kiểu dữ liệu JSONB tối ưu cho các phản hồi AI có cấu trúc động và các tính năng giao dịch nâng cao. MongoDB mang lại sự linh hoạt của NoSQL nhưng không đảm bảo ràng buộc chặt chẽ giữa các thực thể như người dùng, bộ thẻ và flashcard, điều vốn là cốt lõi của nghiệp vụ học tập SRS trong hệ thống.
+
+\section{Python, FastAPI và mô hình ngôn ngữ lớn}
+\label{section:3.4}
+
+Để thực hiện các tác vụ thông minh như sinh câu hỏi ôn tập, viết câu chuyện tương tác và duy trì hội thoại AI Tutor, đồ án sử dụng ngôn ngữ Python kết hợp framework FastAPI và các mô hình ngôn ngữ lớn (LLM). FastAPI đóng vai trò dịch vụ web nội bộ gọn nhẹ, xử lý bất đồng bộ tốt dựa trên type hint và tự động sinh tài liệu API \cite{fastapi-docs}. Các mô hình ngôn ngữ lớn được tích hợp bao gồm Gemini thông qua Gemini API \cite{gemini-api-docs} và Qwen3-32B thông qua Groq API \cite{yang2025qwen3}, cung cấp năng lượng cho các pipeline xử lý ngôn ngữ tự nhiên.
+
+Hệ sinh thái Python rất mạnh về các thư viện xử lý ngôn ngữ tiếng Nhật và tích hợp LLM. Tuy nhiên, việc tách biệt thành một microservice AI riêng làm tăng độ phức tạp khi triển khai, đồng thời phải đối mặt với tính không chắc chắn (probabilistic) của kết quả sinh ra từ LLM (như lỗi cấu trúc JSON hoặc lỗi dịch vụ ngoại vi). Để hạn chế nhược điểm này, hệ thống triển khai \texttt{LLMClient} làm cổng trừu tượng hóa chung, cho phép cấu hình linh hoạt giữa các nhà cung cấp và áp dụng cơ chế kiểm tra schema JSON nghiêm ngặt. Phản hồi AI chỉ đóng vai trò sinh nội dung gợi ý, không can thiệp vào các quy tắc nghiệp vụ cốt lõi tại backend.
+
+Có thể gọi trực tiếp API của mô hình từ Spring Boot hoặc viết toàn bộ backend bằng Python Django. Tuy nhiên, gọi trực tiếp từ Java làm tăng độ phức tạp mã nguồn và khó tích hợp các công cụ tiền xử lý tiếng Nhật; trong khi Django lại quá nặng nề cho một dịch vụ API phi trạng thái. FastAPI được lựa chọn nhờ sự gọn nhẹ và hiệu năng vượt trội. Gemini là mô hình chủ đạo nhờ khả năng sinh JSON có cấu trúc ổn định, trong khi Qwen3-32B được chọn làm phương án dự phòng hiệu quả nhờ tốc độ suy luận nhanh từ Groq và khả năng hỗ trợ tiếng Nhật tốt, giúp hệ thống hoạt động ổn định ngay cả khi một nhà cung cấp gặp sự cố.
+
+\section{Neo4j, GraphRAG và SudachiPy}
+\label{section:3.5}
+
+Đối với chức năng dịch thuật chuyên ngành chuyên sâu, hệ thống áp dụng cơ sở dữ liệu đồ thị Neo4j kết hợp kỹ thuật GraphRAG (Retrieval-Augmented Generation dựa trên đồ thị) \cite{lewis2020rag} và công cụ phân tách từ vựng SudachiPy \cite{sudachipy-docs}. Nhóm công nghệ này giải quyết yêu cầu phân tích từ đa nghĩa và tối ưu hóa bản dịch dựa trên ngữ cảnh chuyên ngành bằng cách kết nối các thực thể từ vựng, nghĩa dịch tiếng Việt và các từ đồng xuất hiện hỗ trợ làm tín hiệu dẫn đường.
+
+Cơ sở dữ liệu đồ thị Neo4j cho phép mô hình hóa tự nhiên quan hệ đa chiều phức tạp giữa từ vựng và chuyên ngành, giúp truy vấn nhanh chóng mà không cần các phép join bảng nặng nề. Kỹ thuật GraphRAG giúp bổ sung tri thức có cấu trúc vào prompt để hướng dẫn mô hình ngôn ngữ lớn dịch chính xác mà không cần fine-tune. Nhược điểm của giải pháp là yêu cầu tài nguyên để vận hành Neo4j và độ trễ tăng thêm do các bước phân tách từ, truy vấn đồ thị và tính toán xếp hạng nghĩa. Trong đồ án, SudachiPy thực hiện tách từ tiếng Nhật thành các token, Neo4j cung cấp các nghĩa ứng viên cùng ngữ cảnh đồng xuất hiện, làm cơ sở để thuật toán xếp hạng lựa chọn bằng chứng phù hợp trước khi gửi sang LLM dịch thuật \cite{neo4j-cypher-manual}.
+
+Các lựa chọn thay thế là lưu từ điển dạng bảng trong PostgreSQL hoặc sử dụng Vector RAG thông thường. PostgreSQL gặp khó khăn và kém trực quan khi biểu diễn đồ thị ngữ nghĩa nhiều bậc; còn Vector RAG tuy tốt cho việc tìm văn bản tương tự nhưng không thể trích xuất chính xác các quan hệ ngữ nghĩa có cấu trúc cần thiết cho việc phân tích từ vựng chuyên ngành. Neo4j GraphRAG được lựa chọn vì nó giải quyết triệt để bài toán truy vết nguồn gốc nghĩa từ vựng và tối ưu ngữ cảnh chuyên ngành một cách tường minh.
+
+\section{Thuật toán lặp lại ngắt quãng SM-2}
+\label{section:3.6}
+
+Thuật toán lặp lại ngắt quãng SM-2 được sử dụng làm cốt lõi cho tính năng quản lý lịch ôn tập flashcard cá nhân hóa của hệ thống \cite{wozniak1990optimization}. Thuật toán này giải quyết yêu cầu tối ưu hóa thời gian học tập bằng cách tính toán ngày ôn tập tiếp theo dựa trên lịch sử lặp lại và đánh giá chất lượng phản hồi từ người học. Các tham số chính được duy trì gồm số lần lặp liên tiếp ($n$), khoảng cách ôn ($I$), và hệ số dễ nhớ ($EF$).
+
+Ưu điểm nổi bật của SM-2 là cấu hình cực kỳ đơn giản, chi phí tính toán thấp và có thể chạy độc lập cho từng thẻ mà không cần dữ liệu lịch sử lớn hay máy chủ mạnh. Tuy nhiên, nhược điểm là thuật toán phụ thuộc nhiều vào đánh giá chủ quan của người học và không tự động phản ánh các dữ liệu hành vi khác như thời gian trả lời hay kết quả làm bài quiz. Trong đồ án, thuật toán được cài đặt trực tiếp tại backend Spring Boot. Khi người học hoàn thành ôn tập một thẻ và chọn mức độ nhớ, hệ thống sẽ tính toán ngay lập tức khoảng thời gian ôn tập tiếp theo để cập nhật vào cơ sở dữ liệu.
+
+Các phương án thay thế gồm phương pháp hộp Leitner truyền thống hoặc thuật toán FSRS (Free Spaced Repetition Scheduler) hiện đại. Leitner quá đơn giản và chỉ điều chỉnh lịch ôn ở mức thô; còn FSRS dù dự đoán trí nhớ chính xác hơn nhưng lại đòi hỏi cấu hình phức tạp và lượng dữ liệu lịch sử ôn tập rất lớn để tối ưu hóa tham số. SM-2 được lựa chọn vì tính cân bằng hoàn hảo giữa hiệu quả cá nhân hóa và độ phức tạp triển khai trong giai đoạn thử nghiệm của đồ án.
+
+\section{Công nghệ tương tác giọng nói}
+\label{section:3.7}
+
+Để hiện thực hóa trải nghiệm đàm thoại đa phương thức trong tính năng AI Tutor, hệ thống tích hợp công nghệ Nhận dạng giọng nói (STT) và Tổng hợp giọng nói (TTS). Đồ án sử dụng Web Speech API \cite{web-speech-api} được tích hợp sẵn trên các trình duyệt hiện đại để thực hiện cả hai nhiệm vụ này: giao diện \texttt{SpeechRecognition} đảm nhận lắng nghe phát âm tiếng Nhật của người học để chuyển thành văn bản, và đối tượng \texttt{speechSynthesis} chịu trách nhiệm đọc các câu phản hồi tiếng Nhật sinh ra từ AI Tutor.
+
+Việc sử dụng Web Speech API giúp hệ thống hoạt động hoàn toàn ở phía client, giảm tải tài nguyên xử lý âm thanh cho máy chủ backend và không phát sinh thêm chi phí vận hành. Tuy nhiên, nhược điểm lớn nhất là mức độ hỗ trợ không đồng đều giữa các trình duyệt (hoạt động tốt nhất trên Google Chrome) và chất lượng nhận dạng phụ thuộc nhiều vào thiết bị thu âm cũng như giọng đọc của người học. Trong đồ án, Web Speech API đóng vai trò là giải pháp giao tiếp giọng nói chính trực tiếp tại trình duyệt của người dùng, hoạt động song song với kênh nhập liệu bằng văn bản truyền thống để đảm bảo tính sẵn sàng của ứng dụng.
+
+Các lựa chọn thay thế bao gồm các dịch vụ đám mây trả phí (như Google Cloud Speech-to-Text, Amazon Polly) hoặc tự triển khai mô hình cục bộ như Faster-Whisper \cite{radford2023whisper}. Các dịch vụ đám mây có độ chính xác cao nhưng làm tăng chi phí vận hành và độ trễ mạng; còn Faster-Whisper đòi hỏi tài nguyên máy chủ có cấu hình phần cứng mạnh (GPU) để xử lý. Web Speech API được lựa chọn cho nguyên mẫu hệ thống để tối ưu hóa chi phí và tài nguyên máy chủ, trong khi phương án dự phòng nhập liệu văn bản luôn được duy trì để đảm bảo ứng dụng hoạt động ổn định trên mọi thiết bị.
+
+\section{Tổng kết}
+\label{section:3.8}
+
+Chương 3 đã phân tích và lựa chọn các công nghệ phù hợp để hiện thực hóa các yêu cầu từ Chương 2. Vue 3 cùng Tailwind CSS và Pinia tạo nên giao diện tương tác linh hoạt; Spring Boot phối hợp Spring Security bảo mật hệ thống bằng JWT; PostgreSQL đảm bảo tính nhất quán của dữ liệu quan hệ. FastAPI kết hợp Gemini và Qwen3-32B đóng vai trò động cơ AI; Neo4j cùng GraphRAG hỗ trợ dịch thuật chuyên ngành chuyên sâu; thuật toán SM-2 quản lý lịch ôn tập flashcard; và Web Speech API mang lại khả năng tương tác giọng nói trực quan. Mối liên kết chặt chẽ giữa các công nghệ này tạo nên một hệ thống đồng nhất, sẵn sàng được hiện thực hóa và đánh giá chi tiết trong Chương 4.
+
+\end{document}

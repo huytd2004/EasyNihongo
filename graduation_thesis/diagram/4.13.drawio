@@ -1,0 +1,55 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="u9cQIe5N6VZpdipmqe3S">
+    <mxGraphModel dx="1340" dy="796" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="791LTVTx2SmDZ1JJJlO5-1" parent="1" style="whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;FlashcardService&lt;/b&gt;&lt;/center&gt;&lt;hr&gt;+ getMyFlashcards(): ApiResponse&lt;br&gt;+ getByDeck(deckId: UUID): ApiResponse&lt;br&gt;+ getById(id: UUID): ApiResponse&lt;br&gt;+ create(request: FlashcardRequest): ApiResponse&lt;br&gt;+ update(id: UUID, request: FlashcardRequest): ApiResponse&lt;br&gt;+ submitReview(id: UUID, request: ReviewRequest): ApiResponse&lt;br&gt;+ delete(id: UUID): ApiResponse" vertex="1">
+          <mxGeometry height="190" width="310" x="390" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="791LTVTx2SmDZ1JJJlO5-2" parent="1" style="whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;FlashcardServiceImpl&lt;/b&gt;&lt;/center&gt;&lt;hr&gt;- flashcardRepository: FlashcardRepository&lt;br&gt;- flashcardDeckRepository: FlashcardDeckRepository&lt;br&gt;- srsDetailRepository: SrsDetailRepository&lt;br&gt;- userRepository: UserRepository&lt;hr&gt;+ getMyFlashcards(): ApiResponse&lt;br&gt;+ getByDeck(deckId: UUID): ApiResponse&lt;br&gt;+ getById(id: UUID): ApiResponse&lt;br&gt;+ create(request: FlashcardRequest): ApiResponse&lt;br&gt;+ update(id: UUID, request: FlashcardRequest): ApiResponse&lt;br&gt;+ submitReview(id: UUID, request: ReviewRequest): ApiResponse&lt;br&gt;+ delete(id: UUID): ApiResponse&lt;br&gt;- getOrCreateSrs(card: Flashcard): SrsDetail&lt;br&gt;- resolveCurrentUser(): User" vertex="1">
+          <mxGeometry height="290" width="340" x="375" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="791LTVTx2SmDZ1JJJlO5-3" parent="1" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;FlashcardRepository&lt;/b&gt;&lt;/center&gt;" vertex="1">
+          <mxGeometry height="50" width="160" x="150" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="791LTVTx2SmDZ1JJJlO5-4" parent="1" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;FlashcardDeckRepository&lt;/b&gt;&lt;/center&gt;" vertex="1">
+          <mxGeometry height="50" width="180" x="230" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="791LTVTx2SmDZ1JJJlO5-5" parent="1" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;SrsDetailRepository&lt;/b&gt;&lt;/center&gt;" vertex="1">
+          <mxGeometry height="50" width="160" x="430" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="791LTVTx2SmDZ1JJJlO5-6" parent="1" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;UserRepository&lt;/b&gt;&lt;/center&gt;" vertex="1">
+          <mxGeometry height="50" width="140" x="715" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="791LTVTx2SmDZ1JJJlO5-7" parent="1" style="whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;SM2Algorithm&lt;/b&gt;&lt;/center&gt;&lt;hr&gt;- MIN_EF: double&lt;br&gt;+ DEFAULT_EF: double&lt;hr&gt;+ calculate(ef: double, n: int, interval: int, quality: int): ReviewResult" vertex="1">
+          <mxGeometry height="110" width="340" x="750" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="791LTVTx2SmDZ1JJJlO5-8" edge="1" parent="1" source="791LTVTx2SmDZ1JJJlO5-2" style="endArrow=block;endFill=0;endSize=12;dashed=1;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" target="791LTVTx2SmDZ1JJJlO5-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="791LTVTx2SmDZ1JJJlO5-11" edge="1" parent="1" source="791LTVTx2SmDZ1JJJlO5-2" style="endArrow=open;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="791LTVTx2SmDZ1JJJlO5-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="791LTVTx2SmDZ1JJJlO5-12" edge="1" parent="1" source="791LTVTx2SmDZ1JJJlO5-2" style="endArrow=open;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.7;exitY=1;entryX=0.5;entryY=0;" target="791LTVTx2SmDZ1JJJlO5-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="791LTVTx2SmDZ1JJJlO5-13" edge="1" parent="1" source="791LTVTx2SmDZ1JJJlO5-2" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.9;exitY=1;entryX=0.5;entryY=0;" target="791LTVTx2SmDZ1JJJlO5-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="791LTVTx2SmDZ1JJJlO5-15" edge="1" parent="1" source="791LTVTx2SmDZ1JJJlO5-2" style="endArrow=open;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;entryX=0.389;entryY=0.08;entryDx=0;entryDy=0;entryPerimeter=0;" target="791LTVTx2SmDZ1JJJlO5-4">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="215" y="600" as="sourcePoint" />
+            <mxPoint x="180" y="650" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="791LTVTx2SmDZ1JJJlO5-16" edge="1" parent="1" source="791LTVTx2SmDZ1JJJlO5-2" style="endArrow=open;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;" target="791LTVTx2SmDZ1JJJlO5-3">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="155" y="540" as="sourcePoint" />
+            <mxPoint x="120" y="590" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

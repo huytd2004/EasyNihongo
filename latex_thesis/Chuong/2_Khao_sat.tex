@@ -1,0 +1,401 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+Chương này tập trung khảo sát hiện trạng và phân tích các yêu cầu đối với hệ thống thông minh hỗ trợ học tiếng Nhật. Nội dung khảo sát được xem xét từ ba nguồn chính: nhu cầu của nhóm người dùng mục tiêu, các công cụ đang được sử dụng trong từng hoạt động học và các ứng dụng có chức năng tương tự. Việc khảo sát không nhằm khẳng định một công cụ hiện có tốt hay chưa tốt một cách tuyệt đối, mà nhằm xác định chức năng trọng tâm, phạm vi phục vụ và những điểm còn thiếu khi đặt các công cụ đó trong một quy trình tự học tiếng Nhật liên tục.
+
+Trên cơ sở kết quả khảo sát, chương xác định các nhóm chức năng cần phát triển, tác nhân chính của hệ thống và mối quan hệ giữa các chức năng. Phương pháp phân tích thiết kế hướng đối tượng được sử dụng để mô hình hóa yêu cầu thông qua các biểu đồ use case tổng quát và use case phân rã. Một số use case tiêu biểu được đặc tả chi tiết theo mục tiêu, tiền điều kiện, hậu điều kiện, luồng xử lý chính, luồng thay thế và ngoại lệ. Chương cũng trình bày các yêu cầu phi chức năng liên quan đến bảo mật, tính toàn vẹn dữ liệu, hiệu năng, khả dụng, khả năng mở rộng và tính dễ sử dụng. Đây là cơ sở để lựa chọn công nghệ, thiết kế kiến trúc và đánh giá mức độ đáp ứng của hệ thống trong các chương tiếp theo.
+
+\section{Khảo sát hiện trạng}
+\label{section:2.1}
+
+Quá trình tự học tiếng Nhật gồm nhiều hoạt động liên quan như tra cứu, ghi nhớ, ôn tập, luyện sử dụng, nhận phản hồi và đọc hiểu tài liệu. Trong thực tế, người học thường thực hiện các hoạt động này trên nhiều công cụ riêng biệt. Vì vậy, khảo sát hiện trạng cần xem xét cả khả năng của từng nhóm sản phẩm và mức độ kết nối dữ liệu giữa các hoạt động học.
+
+Trong phạm vi đồ án, khảo sát được thực hiện theo hướng phân tích định tính dựa trên ba nguồn: nhu cầu của người dùng mục tiêu, các công cụ phục vụ từng hoạt động học và các ứng dụng có chức năng tương tự. Đồ án chưa thực hiện khảo sát định lượng trên một mẫu lớn; kết quả khảo sát được sử dụng để xác định yêu cầu cho nguyên mẫu phần mềm, không được xem là kết luận thống kê đại diện cho toàn bộ người học tiếng Nhật.
+
+\subsection{Khảo sát nhu cầu của người dùng mục tiêu}
+\label{subsection:2.1.1}
+
+Người dùng mục tiêu là người Việt Nam đang tự học tiếng Nhật, bao gồm người học theo cấp độ JLPT, sinh viên, người chuẩn bị làm việc trong môi trường sử dụng tiếng Nhật hoặc cần đọc tài liệu chuyên môn. Từ quy trình học của nhóm này có thể xác định các nhu cầu chính sau:
+\begin{itemize}[itemsep=0pt,parsep=0pt,topsep=2pt,partopsep=0pt]
+    \item \textbf{Tra cứu tri thức:} Tra cứu nhanh từ vựng, kanji, ngữ pháp và lưu trực tiếp vào flashcard.
+    \item \textbf{Quản lý và ôn tập flashcard:} Ôn tập theo lịch và thuật toán SRS dựa trên mức độ ghi nhớ.
+    \item \textbf{Ôn tập thông minh:} Sinh bài tập linh hoạt (trắc nghiệm, câu chuyện tương tác) từ dữ liệu học tập riêng.
+    \item \textbf{Luyện hội thoại với AI:} Thực hành giao tiếp có từ vựng mục tiêu và nhận phản hồi sửa lỗi.
+    \item \textbf{Dịch thuật chuyên ngành:} Dịch văn bản kèm phân tích thuật ngữ và ngữ cảnh chuyên ngành.
+    \item \textbf{Tích hợp dữ liệu:} Quản lý tập trung hồ sơ, bộ thẻ, lịch ôn và lỗi sai để cá nhân hóa quá trình học.
+\end{itemize}
+
+\subsection{Khảo sát các hệ thống và ứng dụng tương tự}
+\label{subsection:2.1.2}
+
+Các sản phẩm được phân thành năm nhóm theo chức năng trọng tâm để tránh so sánh trực tiếp những công cụ có mục tiêu khác nhau:
+\begin{itemize}[itemsep=0pt,parsep=0pt,topsep=2pt,partopsep=0pt]
+    \item \textbf{Từ điển trực tuyến (Mazii, Jisho):} Tra cứu nhanh, thông tin ngôn ngữ phong phú nhưng chưa tạo thành một quy trình học thống nhất.
+    \item \textbf{Ứng dụng flashcard (Anki):} Thế mạnh về lặp lại ngắt quãng nhưng người dùng phải tự soạn thẻ, không tích hợp hội thoại và dịch chuyên ngành.
+    \item \textbf{Nền tảng học theo lộ trình (Duolingo, Bunpo, Renshuu):} Bài học và bài tập có cấu trúc nhưng khó phản ánh và ôn tập các nội dung, lỗi sai riêng.
+    \item \textbf{Công cụ dịch và hỏi đáp (Google Translate, DeepL, ChatGPT, Gemini):} Xử lý ngôn ngữ tốt nhưng không quản lý tiến độ học tập và lịch ôn của người học.
+    \item \textbf{Chatbot luyện hội thoại:} Tạo tình huống linh hoạt nhưng dữ liệu hội thoại chưa tự động liên kết với flashcard và lịch ôn.
+\end{itemize}
+
+Bảng sau tổng hợp sự khác biệt về trọng tâm giữa các nhóm công cụ. Các nhận xét mang tính tương đối và được xét theo mục tiêu tích hợp dữ liệu học tập của đồ án; chúng không phủ nhận khả năng một sản phẩm có thể cung cấp thêm chức năng thông qua phiên bản mới, gói dịch vụ hoặc tiện ích mở rộng.
+
+{\footnotesize\singlespacing
+\begin{longtable}{|p{2.5cm}|p{3cm}|p{3cm}|p{4.5cm}|}
+\hline
+\textbf{Nhóm công cụ} & \textbf{Chức năng trọng tâm} & \textbf{Ưu điểm nổi bật} & \textbf{Hạn chế khi đối chiếu với mục tiêu đồ án} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Nhóm công cụ} & \textbf{Chức năng trọng tâm} & \textbf{Ưu điểm nổi bật} & \textbf{Hạn chế khi đối chiếu với mục tiêu đồ án} \\
+\hline
+\endhead
+Mazii, Jisho và từ điển trực tuyến & Tra cứu từ vựng, kanji và ví dụ & Tra cứu nhanh, thông tin ngôn ngữ phong phú & Dữ liệu tra cứu chưa phải lúc nào cũng được nối thành một vòng học gồm ôn tập, hội thoại và phân tích lỗi \\
+\hline
+Anki và ứng dụng flashcard & Tạo thẻ và lặp lại ngắt quãng & Tùy biến thẻ tốt, hỗ trợ ghi nhớ dài hạn & Người học phải chuẩn bị nội dung; tra cứu, hội thoại và dịch không phải chức năng trọng tâm \\
+\hline
+Duolingo, Bunpo, Renshuu và nền tảng theo lộ trình & Bài học và bài tập có cấu trúc & Dễ tiếp cận, tạo động lực và duy trì thói quen & Nội dung chủ yếu theo lộ trình của nền tảng; khó phản ánh đầy đủ bộ thẻ và lỗi sai riêng trong một hệ thống bên ngoài \\
+\hline
+Google Translate, DeepL & Dịch văn bản & Nhanh, thuận tiện và cho bản dịch tự nhiên trong nhiều tình huống & Không tập trung quản lý tiến độ học, flashcard, lịch ôn và lỗi sai của người học \\
+\hline
+ChatGPT, Gemini và chatbot AI & Hỏi đáp, giải thích, sinh nội dung và hội thoại & Năng lực ngôn ngữ rộng, phản hồi linh hoạt & Dữ liệu học tập riêng và căn cứ chọn nghĩa chuyên ngành cần được cung cấp, tổ chức và lưu trữ bởi hệ thống tích hợp \\
+\hline
+Hệ thống đề xuất & Kết nối tra cứu, ghi nhớ, ôn tập, hội thoại và dịch & Dữ liệu của các hoạt động được sử dụng lại trong cùng một tài khoản và quy trình học & Phạm vi dữ liệu, chất lượng AI và quy mô triển khai còn giới hạn ở mức nguyên mẫu \\
+\hline
+\caption{So sánh các nhóm công cụ hỗ trợ học tiếng Nhật theo mục tiêu của đồ án}
+\label{table:2.1}\\
+\end{longtable}
+}
+
+Kết quả so sánh cho thấy mỗi nhóm công cụ giải quyết tốt một số nhu cầu cụ thể. Khoảng trống mà đồ án lựa chọn không nằm ở việc thay thế các sản phẩm này, mà ở việc xây dựng một nguyên mẫu tích hợp kết nối các chức năng: quản lý tài khoản, tra cứu tri thức, bình luận từ điển, quản lý và ôn tập flashcard (SM-2), ôn tập thông minh (sinh trắc nghiệm/câu chuyện), luyện hội thoại với AI Tutor và dịch thuật chuyên ngành. Các hoạt động này tạo thành một vòng học tập liên tục, trong đó dữ liệu từ một hoạt động tự động trở thành đầu vào phục vụ cá nhân hóa cho hoạt động tiếp theo.
+
+\section{Tổng quan chức năng}
+\label{section:2.2}
+
+\subsection{Biểu đồ use case tổng quát}
+\label{subsection:2.2.1}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Hinhve/2.1.png}
+    \caption{Biểu đồ use case tổng quát của hệ thống}
+    \label{fig:2.1}
+\end{figure}
+
+Biểu đồ use case tổng quát gồm hai tác nhân là \textbf{Người học} và \textbf{Dịch vụ AI bên ngoài}. \textbf{Người học} là tác nhân chính, trực tiếp sử dụng hệ thống để tra cứu, quản lý nội dung học, ôn tập, luyện hội thoại và dịch thuật. \textbf{Dịch vụ AI bên ngoài} là tác nhân phụ, đại diện cho các dịch vụ trí tuệ nhân tạo và xử lý ngôn ngữ được tích hợp thông qua API (như Gemini API hoặc Groq API), hỗ trợ hệ thống thực hiện các chức năng dịch thuật, hội thoại với AI Tutor và tạo nội dung ôn tập thông minh. Các thành phần nội bộ như cơ sở dữ liệu và các mô-đun xử lý bên trong hệ thống không được biểu diễn như tác nhân trong biểu đồ use case vì chúng là một phần của kiến trúc triển khai, không phải các thực thể tương tác trực tiếp với hệ thống.
+
+Biểu đồ gồm tám use case chính:
+
+\begin{enumerate}[itemsep=0pt,parsep=0pt,topsep=2pt,partopsep=0pt]
+    \item \textbf{Quản lý tài khoản và hồ sơ:} cho phép người học đăng ký, đăng nhập và quản lý thông tin học tập cá nhân.
+    \item \textbf{Tra cứu tri thức tiếng Nhật:} hỗ trợ tìm kiếm và xem thông tin từ vựng, kanji, ngữ pháp và ví dụ.
+    \item \textbf{Bình luận từ điển:} cho phép người học trao đổi tại các mục nội dung từ điển.
+    \item \textbf{Quản lý flashcard:} cho phép tạo và quản lý bộ thẻ cùng các thẻ học.
+    \item \textbf{Ôn tập flashcard:} hỗ trợ người học ôn thẻ và cập nhật lịch ôn dựa trên kết quả ghi nhớ.
+    \item \textbf{Ôn tập thông minh:} tạo các hình thức luyện tập từ dữ liệu học tập của người dùng.
+    \item \textbf{Luyện hội thoại với AI Tutor:} tạo môi trường thực hành tiếng Nhật và cung cấp phản hồi cho người học.
+    \item \textbf{Dịch thuật:} hỗ trợ dịch nhanh hoặc phân tích văn bản tiếng Nhật theo ngữ cảnh.
+\end{enumerate}
+
+\subsection{Các biểu đồ use case phân rã}
+\label{subsection:2.2.2}
+
+Để làm rõ phạm vi chức năng, các use case chính được phân rã thành các chức năng chi tiết hơn:
+\begin{itemize}[itemsep=0pt,parsep=0pt,topsep=2pt,partopsep=0pt]
+    \item \textbf{Quản lý tài khoản và hồ sơ:} Gồm đăng ký, đăng nhập, đăng xuất, xem và cập nhật hồ sơ cá nhân (Hình~\ref{fig:decomp_group1}a).
+    \item \textbf{Tra cứu tri thức tiếng Nhật:} Gồm tìm kiếm từ vựng, kanji, ngữ pháp, xem chi tiết, ví dụ và quan hệ liên quan (Hình~\ref{fig:decomp_group1}b).
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.42\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Hinhve/2.2.png}
+        \caption{Quản lý tài khoản và hồ sơ}
+        \label{fig:decomp_group1_a}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.42\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Hinhve/2.3.png}
+        \caption{Tra cứu tri thức tiếng Nhật}
+        \label{fig:decomp_group1_b}
+    \end{subfigure}
+    \caption{Biểu đồ use case phân rã Quản lý tài khoản và Tra cứu tri thức}
+    \label{fig:decomp_group1}
+\end{figure}
+
+\begin{itemize}[itemsep=0pt,parsep=0pt,topsep=2pt,partopsep=0pt]
+    \item \textbf{Bình luận từ điển:} Gồm xem, đăng, trả lời và xóa bình luận (Hình~\ref{fig:decomp_group2}a), tạo không gian trao đổi tại từng mục từ.
+    \item \textbf{Quản lý flashcard:} Gồm quản lý bộ thẻ, thẻ học và xem tổng quan bộ thẻ (Hình~\ref{fig:decomp_group2}b).
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.42\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Hinhve/2.4.png}
+        \caption{Bình luận từ điển}
+        \label{fig:decomp_group2_a}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.42\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Hinhve/2.5.png}
+        \caption{Quản lý flashcard}
+        \label{fig:decomp_group2_b}
+    \end{subfigure}
+    \caption{Biểu đồ use case phân rã Bình luận từ điển và Quản lý flashcard}
+    \label{fig:decomp_group2}
+\end{figure}
+
+\begin{itemize}[itemsep=0pt,parsep=0pt,topsep=2pt,partopsep=0pt]
+    \item \textbf{Ôn tập flashcard:} Gồm bắt đầu phiên ôn, xem câu hỏi/đáp án, đánh giá ghi nhớ và xem kết quả (Hình~\ref{fig:decomp_group3}a).
+    \item \textbf{Ôn tập thông minh:} Thiết lập đầu vào, làm trắc nghiệm/câu chuyện tương tác, xem lịch sử ôn (Hình~\ref{fig:decomp_group3}b).
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Hinhve/2.6.png}
+        \caption{Ôn tập flashcard}
+        \label{fig:decomp_group3_a}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.42\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Hinhve/2.7.png}
+        \caption{Ôn tập thông minh}
+        \label{fig:decomp_group3_b}
+    \end{subfigure}
+    \caption{Biểu đồ use case phân rã Ôn tập flashcard và Ôn tập thông minh}
+    \label{fig:decomp_group3}
+\end{figure}
+
+\begin{itemize}[itemsep=0pt,parsep=0pt,topsep=2pt,partopsep=0pt]
+    \item \textbf{Luyện hội thoại với AI Tutor:} Thiết lập phiên, gửi văn bản/ghi âm, nhận phản hồi sửa lỗi và xem kết quả (Hình~\ref{fig:decomp_group4}a).
+    \item \textbf{Dịch thuật:} Gồm dịch nhanh và dịch chuyên sâu phân tích thuật ngữ theo ngữ cảnh (Hình~\ref{fig:decomp_group4}b).
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.42\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Hinhve/2.8.png}
+        \caption{Luyện hội thoại với AI Tutor}
+        \label{fig:decomp_group4_a}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.42\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Hinhve/2.9.png}
+        \caption{Dịch thuật}
+        \label{fig:decomp_group4_b}
+    \end{subfigure}
+    \caption{Biểu đồ use case phân rã Luyện hội thoại với AI Tutor và Dịch thuật}
+    \label{fig:decomp_group4}
+\end{figure}
+
+\subsection{Quy trình nghiệp vụ}
+\label{subsection:2.2.3}
+
+Quy trình nghiệp vụ đáng chú ý của hệ thống là \textbf{quy trình học tập tích hợp}. Quy trình này kết hợp các use case tra cứu tri thức tiếng Nhật, quản lý flashcard, ôn tập flashcard, ôn tập thông minh và luyện hội thoại với AI Tutor. Mục tiêu của quy trình là sử dụng lại dữ liệu phát sinh trong từng hoạt động, giúp người học duy trì một vòng học liên tục thay vì thao tác trên các công cụ tách rời.
+
+Quy trình bắt đầu khi người học tra cứu một nội dung tiếng Nhật. Nếu nội dung cần ghi nhớ, người học thêm nội dung đó vào một bộ thẻ flashcard. Hệ thống lưu thẻ và khởi tạo trạng thái ôn tập. Khi thẻ đến hạn, người học thực hiện phiên ôn tập và đánh giá mức độ ghi nhớ; hệ thống dựa trên kết quả này để cập nhật lịch ôn tiếp theo.
+
+Sau bước ghi nhớ, người học có thể lựa chọn luyện tập bằng trắc nghiệm, câu chuyện tương tác hoặc AI Tutor. Hệ thống sử dụng bộ thẻ, cấp độ JLPT và các lỗi sai gần đây để chuẩn bị nội dung phù hợp. Kết quả làm bài, lỗi hội thoại và từ vựng mới được lưu lại. Những dữ liệu này tiếp tục được sử dụng cho các lần ôn tập sau, tạo thành vòng lặp tra cứu - ghi nhớ - luyện sử dụng - nhận phản hồi - ôn lại.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Hinhve/2.10.png}
+    \caption{Biểu đồ hoạt động của quy trình học tập tích hợp}
+    \label{fig:2.10}
+\end{figure}
+
+Điểm quan trọng của quy trình là dữ liệu không chỉ được lưu sau mỗi hoạt động mà còn được chuyển thành đầu vào cho hoạt động tiếp theo. Kết quả tra cứu có thể trở thành flashcard; trạng thái flashcard quyết định nội dung cần ôn; bộ thẻ và lỗi sai được sử dụng để tạo bài tập hoặc phiên hội thoại; phản hồi từ quá trình luyện tập lại bổ sung dữ liệu cho lần ôn sau.
+
+\section{Đặc tả chức năng}
+\label{section:2.3}
+
+Phần này lựa chọn bốn use case quan trọng nhất để đặc tả chi tiết. Các use case được chọn bao phủ vòng học chính của hệ thống, từ tiếp nhận tri thức, ôn tập, luyện sử dụng đến hỗ trợ đọc hiểu văn bản chuyên ngành. Mỗi đặc tả trình bày tác nhân, tiền điều kiện, hậu điều kiện, luồng sự kiện chính và các luồng phát sinh.
+
+\subsection{Đặc tả use case tra cứu mục từ và thêm vào flashcard}
+\label{subsection:2.3.1}
+
+{\footnotesize\singlespacing
+\begin{longtable}{|p{2.8cm}|p{1.0cm}|p{2.2cm}|p{7.5cm}|}
+\hline
+\textbf{Mã usecase} & \textbf{UC001} & \textbf{Tên usecase} & \multicolumn{1}{l|}{Tra cứu mục từ và thêm vào flashcard} \\
+\hline
+\textbf{Tác nhân chính} & \multicolumn{3}{p{11.1cm}|}{Người học} \\
+\hline
+\textbf{Mô tả} & \multicolumn{3}{p{11.1cm}|}{Người học tìm kiếm từ vựng, kanji hoặc ngữ pháp, xem nội dung chi tiết và lưu mục cần ghi nhớ vào một bộ thẻ flashcard} \\
+\hline
+\textbf{Tiền điều kiện} & \multicolumn{3}{p{11.1cm}|}{Người học đã đăng nhập; dữ liệu từ điển đã được nạp vào hệ thống} \\
+\hline
+ & \textbf{STT} & \textbf{Thực hiện bởi} & \textbf{Hành động} \\
+\hline
+\multirow{4}{2.8cm}{\textbf{Luồng sự kiện chính}} & 1 & Người học & Mở chức năng tra cứu, chọn loại nội dung và nhập từ khóa. \\
+\cline{2-4}
+ & 2 & Hệ thống & Tìm kiếm, hiển thị danh sách kết quả và hiển thị chi tiết khi người học click chọn. \\
+\cline{2-4}
+ & 3 & Người học & Chọn chức năng thêm vào flashcard, chọn bộ thẻ đích và xác nhận tạo thẻ. \\
+\cline{2-4}
+ & 4 & Hệ thống & Tạo flashcard trong bộ thẻ, khởi tạo trạng thái SRS và thông báo thành công. \\
+\hline
+ & \textbf{STT} & \textbf{Thực hiện bởi} & \textbf{Hành động} \\
+\hline
+\multirow{2}{2.8cm}{\textbf{Luồng sự kiện thay thế}} & 2a & Hệ thống & Không tìm thấy kết quả: hiển thị trạng thái rỗng để người học đổi từ khóa. \\
+\cline{2-4}
+ & 3a & Người học & Chưa có bộ thẻ: tạo bộ thẻ mới trực tiếp rồi tiếp tục bước 3. \\
+\hline
+\textbf{Ngoại lệ} & \multicolumn{3}{p{11.1cm}|}{Phiên đăng nhập hết hạn và không thể làm mới; mục từ hoặc bộ thẻ không còn tồn tại; người học cố thêm thẻ vào bộ thẻ không thuộc sở hữu; kết nối đến backend bị gián đoạn} \\
+\hline
+\textbf{Hậu điều kiện} & \multicolumn{3}{p{11.1cm}|}{Một flashcard được tạo trong bộ thẻ do người học lựa chọn; trạng thái SRS ban đầu của thẻ được khởi tạo} \\
+\hline
+\caption{Đặc tả use case tra cứu mục từ và thêm vào flashcard}
+\label{table:UC001}\\
+\end{longtable}
+}
+
+\subsection{Đặc tả use case ôn tập flashcard}
+\label{subsection:2.3.2}
+
+{\footnotesize\singlespacing
+\begin{longtable}{|p{2.8cm}|p{1.0cm}|p{2.2cm}|p{7.5cm}|}
+\hline
+\textbf{Mã usecase} & \textbf{UC003} & \textbf{Tên usecase} & \multicolumn{1}{l|}{Ôn tập flashcard} \\
+\hline
+\textbf{Tác nhân chính} & \multicolumn{3}{p{11.1cm}|}{Người học} \\
+\hline
+\textbf{Mô tả} & \multicolumn{3}{p{11.1cm}|}{Người học ôn các thẻ mới hoặc đến hạn; hệ thống cập nhật lịch ôn tiếp theo dựa trên đánh giá mức độ ghi nhớ} \\
+\hline
+\textbf{Tiền điều kiện} & \multicolumn{3}{p{11.1cm}|}{Người học đã đăng nhập; bộ thẻ được chọn thuộc sở hữu của người học và có ít nhất một thẻ mới hoặc đến hạn} \\
+\hline
+ & \textbf{STT} & \textbf{Thực hiện bởi} & \textbf{Hành động} \\
+\hline
+\multirow{5}{2.8cm}{\textbf{Luồng sự kiện chính}} & 1 & Người học & Chọn một bộ thẻ và bắt đầu phiên ôn tập. \\
+\cline{2-4}
+ & 2 & Hệ thống & Lấy danh sách thẻ cần ôn và hiển thị mặt trước của thẻ đầu tiên. \\
+\cline{2-4}
+ & 3 & Người học & Suy nghĩ câu trả lời, chọn xem đáp án và đánh giá mức độ ghi nhớ (Again/Hard/Good/Easy). \\
+\cline{2-4}
+ & 4 & Hệ thống & Tính lại các tham số SRS theo thuật toán SM-2, lưu trạng thái mới và hiển thị thẻ tiếp theo. \\
+\cline{2-4}
+ & 5 & Hệ thống & Hiển thị kết quả tổng hợp khi hoàn thành toàn bộ danh sách thẻ ôn tập. \\
+\hline
+ & \textbf{STT} & \textbf{Thực hiện bởi} & \textbf{Hành động} \\
+\hline
+\multirow{2}{2.8cm}{\textbf{Luồng sự kiện thay thế}} & 2a & Hệ thống & Không có thẻ cần ôn: thông báo người học đã hoàn thành nội dung đến hạn. \\
+\cline{2-4}
+ & 3a & Người học & Kết thúc phiên trước khi hết thẻ: hệ thống giữ nguyên trạng thái các thẻ chưa học. \\
+\hline
+\textbf{Ngoại lệ} & \multicolumn{3}{p{11.1cm}|}{Không tải được danh sách thẻ; cập nhật SRS thất bại; thẻ bị xóa trong khi phiên đang diễn ra; phiên đăng nhập hết hạn} \\
+\hline
+\textbf{Hậu điều kiện} & \multicolumn{3}{p{11.1cm}|}{Trạng thái SRS của các thẻ đã đánh giá được cập nhật; hệ thống ghi nhận thời điểm ôn tiếp theo} \\
+\hline
+\caption{Đặc tả use case ôn tập flashcard}
+\label{table:UC003}\\
+\end{longtable}
+}
+
+\subsection{Đặc tả use case luyện hội thoại với AI Tutor}
+\label{subsection:2.3.3}
+
+{\footnotesize\singlespacing
+\begin{longtable}{|p{2.8cm}|p{1.0cm}|p{2.2cm}|p{7.5cm}|}
+\hline
+\textbf{Mã usecase} & \textbf{UC005} & \textbf{Tên usecase} & \multicolumn{1}{l|}{Luyện hội thoại với AI Tutor} \\
+\hline
+\textbf{Tác nhân chính} & \multicolumn{3}{p{11.1cm}|}{Người học} \\
+\hline
+\textbf{Mô tả} & \multicolumn{3}{p{11.1cm}|}{Người học luyện giao tiếp tiếng Nhật trong một tình huống xác định bằng văn bản hoặc giọng nói và nhận phản hồi sửa lỗi} \\
+\hline
+\textbf{Tiền điều kiện} & \multicolumn{3}{p{11.1cm}|}{Người học đã đăng nhập; các thành phần hỗ trợ hội thoại của hệ thống đang hoạt động; trình duyệt hỗ trợ và được cấp quyền microphone nếu sử dụng giọng nói} \\
+\hline
+ & \textbf{STT} & \textbf{Thực hiện bởi} & \textbf{Hành động} \\
+\hline
+\multirow{5}{2.8cm}{\textbf{Luồng sự kiện chính}} & 1 & Người học & Mở chức năng AI Tutor, chọn chủ đề, cấp độ JLPT hoặc bộ thẻ mục tiêu. \\
+\cline{2-4}
+ & 2 & Hệ thống & Tạo phiên hội thoại mới và sinh câu chào mở đầu tương ứng với thiết lập. \\
+\cline{2-4}
+ & 3 & Người học & Nhập câu tiếng Nhật (bằng văn bản hoặc giọng nói) và gửi đi. \\
+\cline{2-4}
+ & 4 & Hệ thống & Phân tích ngữ cảnh để tạo câu trả lời tiếng Nhật, bản dịch, nhận xét lỗi ngữ pháp và gợi ý sửa. \\
+\cline{2-4}
+ & 5 & Hệ thống & Đóng phiên, tổng hợp lỗi sai, từ vựng mới và hiển thị báo cáo khi người học chọn kết thúc. \\
+\hline
+ & \textbf{STT} & \textbf{Thực hiện bởi} & \textbf{Hành động} \\
+\hline
+\multirow{2}{2.8cm}{\textbf{Luồng sự kiện thay thế}} & 3a & Người học & Chọn ghi âm: trình duyệt thu âm; hệ thống chuyển giọng nói thành văn bản rồi tiếp tục bước 4. \\
+\cline{2-4}
+ & 4a & Hệ thống & Phát hiện lỗi ngữ pháp: hiển thị câu sửa lỗi kèm giải thích chi tiết trong phản hồi. \\
+\hline
+\textbf{Ngoại lệ} & \multicolumn{3}{p{11.1cm}|}{Tệp âm thanh vượt giới hạn hoặc sai định dạng; phiên không thuộc người học; phiên đã kết thúc; hệ thống không thể tạo phản hồi; dữ liệu phản hồi không đúng cấu trúc} \\
+\hline
+\textbf{Hậu điều kiện} & \multicolumn{3}{p{11.1cm}|}{Phiên hội thoại, tin nhắn, lỗi sai, từ vựng mới và kết quả tổng hợp được lưu; lỗi sai có thể được sử dụng cho ôn tập thông minh} \\
+\hline
+\caption{Đặc tả use case luyện hội thoại với AI Tutor}
+\label{table:UC005}\\
+\end{longtable}
+}
+
+\subsection{Đặc tả use case dịch chuyên sâu}
+\label{subsection:2.3.4}
+
+{\footnotesize\singlespacing
+\begin{longtable}{|p{2.8cm}|p{1.0cm}|p{2.2cm}|p{7.5cm}|}
+\hline
+\textbf{Mã usecase} & \textbf{UC006} & \textbf{Tên usecase} & \multicolumn{1}{l|}{Dịch chuyên sâu} \\
+\hline
+\textbf{Tác nhân chính} & \multicolumn{3}{p{11.1cm}|}{Người học} \\
+\hline
+\textbf{Mô tả} & \multicolumn{3}{p{11.1cm}|}{Người học dịch văn bản tiếng Nhật và nhận thêm thông tin phân tích về thuật ngữ, nghĩa được lựa chọn và ngữ cảnh chuyên ngành} \\
+\hline
+\textbf{Tiền điều kiện} & \multicolumn{3}{p{11.1cm}|}{Người học đã đăng nhập; chức năng dịch thuật và các nguồn dữ liệu cần thiết của hệ thống đang khả dụng} \\
+\hline
+ & \textbf{STT} & \textbf{Thực hiện bởi} & \textbf{Hành động} \\
+\hline
+\multirow{4}{2.8cm}{\textbf{Luồng sự kiện chính}} & 1 & Người học & Mở chức năng dịch thuật, nhập văn bản tiếng Nhật và chọn dịch chuyên sâu. \\
+\cline{2-4}
+ & 2 & Hệ thống & Phân tích văn bản, trích xuất thuật ngữ quan trọng và truy xuất nghĩa chuyên ngành từ Neo4j. \\
+\cline{2-4}
+ & 3 & Hệ thống & Lựa chọn nghĩa phù hợp nhất theo ngữ cảnh để tạo bản dịch và ghi chú giải thích thuật ngữ. \\
+\cline{2-4}
+ & 4 & Hệ thống & Hiển thị bản dịch chuyên sâu kèm danh sách thuật ngữ, nghĩa tương ứng và miền tri thức. \\
+\hline
+ & \textbf{STT} & \textbf{Thực hiện bởi} & \textbf{Hành động} \\
+\hline
+\multirow{2}{2.8cm}{\textbf{Luồng sự kiện thay thế}} & 1a & Người học & Chọn dịch nhanh: hệ thống bỏ qua phân tích Neo4j GraphRAG và hiển thị bản dịch thuần. \\
+\cline{2-4}
+ & 2a & Hệ thống & Không phát hiện thuật ngữ chuyên ngành: dịch theo ngữ cảnh chung và hiển thị bản dịch. \\
+\hline
+\textbf{Ngoại lệ} & \multicolumn{3}{p{11.1cm}|}{Văn bản đầu vào trống hoặc vượt giới hạn; nguồn dữ liệu phục vụ phân tích không khả dụng; hệ thống không thể tạo hoặc chuẩn hóa kết quả; thời gian xử lý vượt quá giới hạn cho phép} \\
+\hline
+\textbf{Hậu điều kiện} & \multicolumn{3}{p{11.1cm}|}{Hệ thống hiển thị bản dịch, danh sách thuật ngữ quan trọng, nghĩa được lựa chọn, miền tri thức và ghi chú phân tích nếu có} \\
+\hline
+\caption{Đặc tả use case dịch chuyên sâu}
+\label{table:UC006}\\
+\end{longtable}
+}
+
+\section{Yêu cầu phi chức năng}
+\label{section:2.4}
+
+Để đảm bảo khả năng vận hành ổn định trong môi trường thử nghiệm, hệ thống cần đáp ứng các yêu cầu phi chức năng sau:
+\begin{itemize}[itemsep=0pt,parsep=0pt,topsep=2pt,partopsep=0pt]
+    \item \textbf{Hiệu năng:} Phản hồi nhanh đối với các tác vụ tra cứu, lưu trữ; hiển thị trạng thái chờ khi gọi API AI.
+    \item \textbf{Độ tin cậy:} Bảo đảm toàn vẹn dữ liệu khi đồng bộ flashcard, lịch ôn tập và lưu vết lỗi sai.
+    \item \textbf{Bảo mật:} Mã hóa mật khẩu người dùng, kiểm tra quyền sở hữu tài nguyên ở phía máy chủ (backend).
+    \item \textbf{Khả dụng:} Giao diện tiếng Việt rõ ràng, tương thích với các kích thước màn hình phổ biến.
+    \item \textbf{Kỹ thuật:} Sử dụng các tiêu chuẩn HTTP/JSON, hỗ trợ Unicode tiếng Việt và tiếng Nhật.
+    \item \textbf{Bảo trì:} Thiết kế dạng mô-đun tách biệt các lớp giao diện, nghiệp vụ và xử lý AI để dễ mở rộng.
+\end{itemize}
+
+\section{Tổng kết}
+\label{section:2.5}
+
+Chương này đã thực hiện khảo sát hiện trạng nhu cầu tự học tiếng Nhật và phân tích các nhóm công cụ tương tự để xác định khoảng trống tích hợp dữ liệu học tập. Dựa trên kết quả khảo sát, hệ thống được mô hình hóa thành tám nhóm chức năng với tác nhân chính là người học thông qua các biểu đồ use case tổng quát, biểu đồ phân rã, biểu đồ hoạt động quy trình học tập tích hợp và bốn đặc tả chi tiết. Chương cũng đã xác định các yêu cầu phi chức năng cơ bản về hiệu năng, độ tin cậy, bảo mật và khả năng bảo trì.
+
+Các kết quả phân tích trong chương này là cơ sở để lựa chọn công nghệ ở Chương 3, thiết kế kiến trúc ở Chương 4 và làm tiêu chí đánh giá mức độ đáp ứng mục tiêu của sản phẩm ở các chương tiếp theo.
+\end{document}

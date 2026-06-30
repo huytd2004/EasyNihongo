@@ -1,0 +1,949 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+Chương 3 đã trình bày các công nghệ được lựa chọn để xây dựng hệ thống. Chương này mô tả quá trình thiết kế và triển khai ứng dụng dựa trên các công nghệ đó. Nội dung chương bao gồm thiết kế kiến trúc tổng thể, thiết kế chi tiết các thành phần chính, mô hình cơ sở dữ liệu, các chức năng đã xây dựng, hoạt động kiểm thử và mô hình triển khai thử nghiệm.
+
+\section{Thiết kế kiến trúc}
+\label{section:4.1}
+
+\subsection{Lựa chọn kiến trúc phần mềm}
+\label{subsection:4.1.1}
+
+\subsubsection{Lựa chọn kiến trúc: kiến trúc ba lớp}
+
+Trong đồ án này, kiến trúc ba lớp được lựa chọn để xây dựng hệ thống thông minh hỗ trợ học tiếng Nhật. Đây là kiến trúc phần mềm chia ứng dụng thành ba phần có trách nhiệm riêng biệt gồm lớp trình diễn, lớp nghiệp vụ và lớp truy cập dữ liệu.
+
+Kiến trúc ba lớp phù hợp với hệ thống vì ứng dụng cần đồng thời xử lý giao diện web, các quy tắc học tập, xác thực người dùng, lưu trữ dữ liệu và tích hợp chức năng trí tuệ nhân tạo. Việc phân tách trách nhiệm giúp mã nguồn dễ tổ chức, kiểm thử và bảo trì hơn. Khi giao diện hoặc phương thức lưu trữ thay đổi, các quy tắc nghiệp vụ cốt lõi ít bị ảnh hưởng.
+
+Hệ thống được triển khai theo mô hình client-server. Phía client cung cấp giao diện cho người học và gửi yêu cầu đến server qua REST API. Phía server xử lý xác thực, nghiệp vụ và truy cập dữ liệu trước khi trả kết quả. Các chức năng AI được xem là dịch vụ hỗ trợ cho lớp nghiệp vụ, không được gọi trực tiếp từ phía client.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{Hinhve/4.1.drawio.png}
+    \caption{Mô hình kiến trúc ba lớp}
+    \label{fig:4.1}
+\end{figure}
+
+\subsubsection{Lớp trình diễn}
+
+Lớp trình diễn chịu trách nhiệm hiển thị thông tin và tiếp nhận thao tác của người học thông qua giao diện Vue 3, giao tiếp với backend qua các REST API. Lớp này đảm nhiệm các nhiệm vụ chính:
+
+\begin{itemize}
+    \item Hiển thị giao diện các màn hình chức năng (từ điển, flashcard, ôn tập, dịch thuật, AI Tutor) và tiếp nhận tương tác người dùng.
+    \item Quản lý trạng thái giao diện, điều hướng màn hình và gửi/nhận dữ liệu JSON/FormData.
+    \item Hiển thị kết quả học tập và thông báo phản hồi từ backend.
+\end{itemize}
+
+\subsubsection{Lớp nghiệp vụ}
+
+Lớp nghiệp vụ (Spring Boot) đóng vai trò trung tâm điều phối hệ thống, xử lý logic học tập và tích hợp dịch vụ. Lớp này đảm nhiệm:
+
+\begin{itemize}
+    \item Xác thực, phân quyền người dùng và quản lý phiên đăng nhập bằng JWT.
+    \item Xử lý nghiệp vụ cốt lõi: tra cứu từ điển, quản lý bộ thẻ và tính lịch ôn tập lặp lại ngắt quãng (SM-2).
+    \item Điều phối phiên hội thoại AI Tutor và chuẩn bị dữ liệu cá nhân hóa cho bài ôn tập (quiz, story).
+    \item Kết nối tầng xử lý AI (Python) và chuẩn hóa kết quả trước khi phản hồi client.
+\end{itemize}
+
+Việc sử dụng các giao diện trung gian cho dịch vụ AI và âm thanh giúp lớp nghiệp vụ độc lập với công nghệ cụ thể, dễ dàng thay thế hoặc nâng cấp mô hình.
+
+\subsubsection{Lớp truy cập dữ liệu}
+
+Lớp truy cập dữ liệu chịu trách nhiệm giao tiếp với các nguồn lưu trữ vật lý để thực hiện các thao tác truy vấn và chuyển dữ liệu theo yêu cầu từ lớp nghiệp vụ. Các nhiệm vụ chính gồm:
+
+\begin{itemize}
+    \item Lưu trữ thông tin tài khoản, hồ sơ người học, dữ liệu từ điển và bình luận.
+    \item Lưu trữ thông số học tập SRS, lịch ôn tập, lịch sử hội thoại và kết quả học tập.
+    \item Cung cấp dữ liệu tri thức chuyên ngành phục vụ dịch thuật.
+\end{itemize}
+
+Hệ thống kết hợp PostgreSQL (dữ liệu nghiệp vụ quan hệ có cấu trúc) và Neo4j (đồ thị tri thức ngữ nghĩa tiếng Nhật) để tối ưu hóa hiệu quả lưu trữ và truy vấn.
+
+\subsubsection{Thành phần xử lý AI mở rộng}
+
+Thành phần xử lý AI bằng Python đóng vai trò mở rộng, hỗ trợ các tác vụ xử lý ngôn ngữ tự nhiên phức tạp như sinh nội dung ôn tập, phản hồi hội thoại, sửa lỗi và dịch chuyên ngành.
+
+Thành phần này hoạt động không trạng thái (stateless) dưới sự điều phối của backend Spring Boot. Cách tổ chức này đảm bảo giao diện không phụ thuộc trực tiếp vào mô hình AI hay khóa dịch vụ, đồng thời dễ dàng nâng cấp mô hình độc lập.
+
+Tóm lại, kiến trúc hệ thống duy trì cấu trúc ba lớp cốt lõi với thành phần AI là phần mở rộng linh hoạt. Các gói chi tiết và mối quan hệ giữa chúng sẽ được trình bày ở các mục tiếp theo.
+
+\subsection{Thiết kế tổng quan}
+\label{subsection:4.1.2}
+
+Ở mức tổng quan, hệ thống được chia thành bốn gói chính gồm \texttt{frontend}, \texttt{backend}, \texttt{database} và \texttt{python\_pipeline}. Các gói được sắp xếp theo hướng từ tầng trình diễn xuống tầng nghiệp vụ, tầng xử lý AI và tầng dữ liệu. Mỗi gói đảm nhiệm một nhóm trách nhiệm riêng, giao tiếp qua giao diện xác định và không phụ thuộc vòng lẫn nhau.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\textwidth]{Hinhve/4.2.drawio.png}
+    \caption{Biểu đồ phụ thuộc gói tổng quan của hệ thống}
+    \label{fig:4.2}
+\end{figure}
+
+\subsubsection{Gói \texttt{frontend}}
+
+Gói \texttt{frontend} (Vue 3) cung cấp giao diện web và tương tác trực tiếp với người dùng. Các nhiệm vụ chính:
+\begin{itemize}
+    \item Hiển thị các màn hình chức năng: từ điển, flashcard, ôn tập, dịch thuật, hồ sơ, AI Tutor.
+    \item Quản lý điều hướng, trạng thái client và trao đổi dữ liệu với backend qua REST API.
+\end{itemize}
+Gói chỉ kết nối với \texttt{backend}, độc lập hoàn toàn với \texttt{database} và \texttt{python\_pipeline}.
+
+\subsubsection{Gói \texttt{backend}}
+
+Gói \texttt{backend} (Spring Boot) điều phối toàn bộ nghiệp vụ hệ thống. Các nhiệm vụ chính:
+\begin{itemize}
+    \item Cung cấp REST API bảo mật qua JWT và quản lý người dùng.
+    \item Xử lý logic từ điển, flashcard (thuật toán SM-2) và kết quả học tập.
+    \item Gọi \texttt{python\_pipeline} cho tác vụ AI và thao tác cơ sở dữ liệu qua JPA Repository.
+\end{itemize}
+
+\subsubsection{Gói \texttt{database}}
+
+Gói \texttt{database} gồm PostgreSQL (dữ liệu quan hệ) và Neo4j (đồ thị tri thức). Các nhiệm vụ chính:
+\begin{itemize}
+    \item Lưu trữ thông tin người dùng, từ điển, flashcard, lịch học SRS và lịch sử hội thoại.
+    \item Lưu trữ các quan hệ ngữ nghĩa từ vựng tiếng Nhật phục vụ dịch chuyên ngành.
+\end{itemize}
+Backend truy cập PostgreSQL qua JPA, còn \texttt{python\_pipeline} kết nối Neo4j bằng Neo4j Driver.
+
+\subsubsection{Gói \texttt{python\_pipeline}}
+
+Gói \texttt{python\_pipeline} (Python) thực hiện các tác vụ AI. Các nhiệm vụ chính:
+\begin{itemize}
+    \item Sinh nội dung ôn tập cá nhân hóa (quiz, story) từ dữ liệu đầu vào của backend.
+    \item Xử lý hội thoại AI Tutor (phản hồi, sửa lỗi, gợi ý từ vựng).
+    \item Thực hiện dịch thuật chuyên ngành bằng GraphRAG kết hợp LLM và Neo4j.
+\end{itemize}
+
+\subsubsection{Quan hệ phụ thuộc giữa các gói}
+
+Mối quan hệ phụ thuộc được thiết lập một chiều từ trên xuống dưới, tránh phụ thuộc vòng:
+\begin{itemize}
+    \item \textbf{\texttt{frontend} $\rightarrow$ \texttt{backend}:} Giao tiếp qua REST API; không truy cập database hay AI pipeline.
+    \item \textbf{\texttt{backend} $\rightarrow$ \texttt{database}:} Lưu trữ dữ liệu nghiệp vụ PostgreSQL thông qua JPA.
+    \item \textbf{\texttt{backend} $\rightarrow$ \texttt{python\_pipeline}:} Gọi dịch vụ AI qua REST API nội bộ (FastAPI) hoặc CLI.
+    \item \textbf{\texttt{python\_pipeline} $\rightarrow$ \texttt{database}:} Truy cập Neo4j Driver để lấy dữ liệu tri thức hỗ trợ dịch thuật.
+\end{itemize}
+Kiến trúc này đảm bảo tính đóng gói cao, giúp dễ dàng bảo trì và phát triển độc lập các phân hệ.
+
+\subsection{Thiết kế chi tiết gói}
+\label{subsection:4.1.3}
+
+Phần này trình bày thiết kế lớp bên trong từng gói chính. Để biểu đồ dễ đọc, các lớp được nhóm theo chức năng liên quan và chỉ hiển thị tên lớp, không liệt kê thuộc tính hoặc phương thức. Đường nét đứt biểu diễn quan hệ phụ thuộc; tam giác rỗng biểu diễn kế thừa hoặc thực thi interface; hình thoi rỗng biểu diễn kết tập; hình thoi đặc biểu diễn hợp thành; đường liền biểu diễn liên kết.
+
+\subsubsection{Thiết kế gói \texttt{frontend}}
+
+Gói \texttt{frontend} được tổ chức thành các nhóm \texttt{views}, \texttt{components}, \texttt{stores} và \texttt{services}. View sử dụng component để tạo giao diện, phụ thuộc store để quản lý trạng thái và gọi service để trao đổi với backend. Các service chức năng sử dụng chung lớp cấu hình API.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{Hinhve/4.3.drawio.png}
+    \caption{Biểu đồ lớp đại diện của gói frontend}
+    \label{fig:4.3}
+\end{figure}
+
+\texttt{DictionaryView} hợp thành từ các component tìm kiếm và bình luận, đồng thời phụ thuộc \texttt{DictionaryService} để lấy dữ liệu. Nhóm màn hình Review dùng chung \texttt{ReviewStore}; nhóm màn hình Tutor dùng chung \texttt{TutorStore}. Store lưu trạng thái của luồng chức năng và phụ thuộc service tương ứng. Các service cuối cùng sử dụng \texttt{ApiClient}, nơi cấu hình Axios, JWT và cơ chế làm mới token.
+
+\subsubsection{Thiết kế gói \texttt{backend}}
+
+Gói \texttt{backend} tuân theo luồng Controller--Service--Repository. Controller chỉ tiếp nhận yêu cầu và phụ thuộc vào service interface. Lớp \texttt{ServiceImpl} thực thi interface, chứa nghiệp vụ và phụ thuộc repository hoặc lớp tiện ích.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Hinhve/4.4.drawio.png}
+    \caption{Thiết kế các lớp nghiệp vụ từ điển và flashcard trong gói backend}
+    \label{fig:4.4}
+\end{figure}
+
+Nhóm từ điển tách \texttt{DictionaryController} khỏi lớp cài đặt bằng \texttt{DictionaryService}. \texttt{DictionaryServiceImpl} sử dụng các repository riêng cho mục từ, ví dụ và quan hệ mục từ. Nhóm flashcard cũng tách nghiệp vụ bộ thẻ và từng thẻ thành hai service. \texttt{FlashcardServiceImpl} sử dụng \texttt{SM2Algorithm} để tính trạng thái ôn tập, sau đó lưu kết quả qua các repository.
+
+Các chức năng AI Tutor và ôn tập thông minh sử dụng cùng cấu trúc nhưng bổ sung adapter để tách nghiệp vụ khỏi phương thức gọi Python.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/4.5.drawio.png}
+    \caption{Thiết kế các lớp AI Tutor và Review trong gói backend}
+    \label{fig:4.5}
+\end{figure}
+
+\texttt{TutorServiceImpl} điều phối phiên học, lưu lịch sử và gọi các interface AI, STT, TTS hoặc lưu trữ âm thanh. \texttt{RestAiAdapter} thực thi \texttt{AiAdapter} và phụ trách giao tiếp với FastAPI. \texttt{ReviewServiceImpl} lấy flashcard và lỗi gần đây, gọi pipeline tạo nội dung, sau đó lưu kết quả quiz hoặc story. Thiết kế qua interface cho phép thay thế adapter thật bằng lớp mock khi kiểm thử.
+
+\subsubsection{Thiết kế gói \texttt{python\_pipeline}}
+
+Gói \texttt{python\_pipeline} gồm ba pipeline chính: hội thoại, ôn tập và dịch chuyên ngành. Các pipeline sử dụng chung \texttt{LLMClient}; pipeline dịch bổ sung \texttt{Neo4jClient} và \texttt{Ranker}. Các adapter STT/TTS sử dụng quan hệ kế thừa để thay đổi phương thức xử lý âm thanh.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Hinhve/4.6.drawio.png}
+    \caption{Biểu đồ lớp của gói python\_pipeline}
+    \label{fig:4.7}
+\end{figure}
+
+\texttt{TutorPipeline} xây dựng ngữ cảnh hội thoại, sử dụng \texttt{LLMClient} để sinh phản hồi và lựa chọn một cài đặt STT/TTS phù hợp. \texttt{ReviewPipeline} sử dụng cùng client để sinh quiz hoặc story. Lớp \texttt{Pipeline} điều phối luồng dịch: truy vấn tri thức qua \texttt{Neo4jClient}, xếp hạng nghĩa bằng \texttt{Ranker}, tạo prompt và gọi \texttt{LLMClient}. Các lớp kế thừa \texttt{STTAdapter} cung cấp nhiều phương án nhận dạng giọng nói nhưng giữ cùng một giao diện sử dụng.
+
+Thiết kế trên duy trì hướng phụ thuộc từ lớp điều phối đến interface hoặc lớp hạ tầng. Các lớp lưu trữ và pipeline không phụ thuộc ngược vào controller hay giao diện. Nhờ vậy, từng gói có thể được kiểm thử hoặc thay đổi cài đặt với phạm vi ảnh hưởng được giới hạn.
+
+\section{Thiết kế chi tiết}
+\label{section:4.2}
+
+\subsection{Thiết kế giao diện}
+\label{subsection:4.2.1}
+
+Giao diện của hệ thống được thiết kế cho ứng dụng web hỗ trợ học tiếng Nhật. Mục tiêu là cung cấp bố cục thống nhất giữa các chức năng, giúp người học dễ nhận biết vị trí điều hướng và tập trung vào nội dung học. Các hình trong mục này là wireframe dùng để xác định cấu trúc màn hình và vị trí thành phần, không phải giao diện của sản phẩm sau cùng.
+
+\subsubsection{Thông số kỹ thuật}
+
+Wireframe được xây dựng trên độ phân giải cơ sở 1920 $\times$ 1080 pixel, tương ứng với tỷ lệ 16:9. Đây là kích thước tham chiếu để xác định tỷ lệ giữa header, sidebar và vùng nội dung. Khi hiện thực, giao diện sử dụng thiết kế responsive để thích nghi với các độ phân giải nhỏ hơn.
+
+\begin{longtable}{|p{1.2cm}|p{5.2cm}|p{7cm}|}
+\hline
+\textbf{STT} & \textbf{Thông tin} & \textbf{Chi tiết} \\
+\hline
+\endfirsthead
+\hline
+\textbf{STT} & \textbf{Thông tin} & \textbf{Chi tiết} \\
+\hline
+\endhead
+1 & Độ phân giải thiết kế cơ sở & 1920 $\times$ 1080 pixel \\
+\hline
+2 & Độ phân giải máy tính tối thiểu & 1366 $\times$ 768 pixel \\
+\hline
+3 & Tỷ lệ khung hình ưu tiên & 16:9 \\
+\hline
+4 & Kích thước màn hình mục tiêu & Máy tính cá nhân từ 13 inch trở lên \\
+\hline
+5 & Số lượng màu hỗ trợ & Không gian màu RGB, tối thiểu 24 bit \\
+\hline
+6 & Trình duyệt hỗ trợ & Chrome, Edge, Firefox và Safari phiên bản hiện đại \\
+\hline
+7 & Chiều cao header & 60 pixel trên bản thiết kế cơ sở \\
+\hline
+8 & Chiều rộng sidebar & 250 pixel trên bản thiết kế cơ sở \\
+\hline
+9 & Kiểu chữ & Plus Jakarta Sans cho tiêu đề; Inter cho nội dung \\
+\hline
+10 & Cỡ chữ thông thường & 14--16 pixel; tiêu đề từ 24 pixel \\
+\hline
+11 & Nút bấm & Chiều cao tối thiểu 40 pixel; vùng bấm rõ ràng \\
+\hline
+12 & Màu sắc chủ đạo & Xanh \texttt{\#45617D}, nền \texttt{\#F9F9F9}, chữ \texttt{\#2D3435} \\
+\hline
+13 & Vị trí thông báo & Gần thao tác phát sinh; thông báo chung ở góc trên bên phải \\
+\hline
+\caption{Thông số kỹ thuật thiết kế giao diện}
+\label{table:4.1}\\
+\end{longtable}
+
+Các màn hình sử dụng chung một số quy chuẩn. Nút chính có nền xanh, chữ sáng và được bo tròn; nút phụ dùng nền trung tính. Ô nhập liệu có nhãn hoặc nội dung gợi ý rõ ràng và hiển thị trạng thái khi được chọn. Các khối nội dung dùng góc bo mềm, khoảng trắng và màu nền khác nhau để phân tách. Thông báo lỗi được đặt gần trường nhập hoặc thao tác gây lỗi; phản hồi thành công ngắn được hiển thị ở vị trí dễ quan sát nhưng không che nội dung chính.
+
+\subsubsection{Bố cục giao diện}
+
+\textbf{Bố cục tổng thể.} Giao diện chính gồm ba vùng: sidebar, header và content. Sidebar nằm cố định bên trái với chiều rộng 250 pixel. Header nằm phía trên vùng content và có chiều cao 60 pixel. Phần diện tích còn lại được dành cho nội dung của từng chức năng. Cấu trúc này giữ vị trí điều hướng ổn định khi người dùng chuyển giữa từ điển, dịch thuật, flashcard, ôn tập và AI Tutor.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/4.7.png}
+    \caption{Wireframe bố cục chung trên máy tính}
+    \label{fig:4.8}
+\end{figure}
+
+\textbf{Bố cục header.} Header tập trung các thao tác dùng chung của hệ thống. Phía bên phải lần lượt bố trí biểu tượng thông báo, thiết lập, đăng xuất và thông tin người dùng. Thông tin người dùng gồm tên, cấp độ JLPT và ảnh đại diện. Các thành phần được căn theo chiều ngang để không chiếm nhiều không gian của vùng content.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Hinhve/4.8.png}
+    \caption{Wireframe bố cục header}
+    \label{fig:4.9}
+\end{figure}
+
+\textbf{Bố cục sidebar.} Sidebar là khu vực điều hướng chính. Phần trên cùng chứa logo và tên hệ thống; bên dưới là danh sách các chức năng kèm biểu tượng. Chức năng đang được sử dụng được làm nổi bật để người dùng nhận biết vị trí hiện tại. Thứ tự các chức năng được giữ thống nhất trên mọi màn hình.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{Hinhve/4.9.png}
+    \caption{Wireframe bố cục sidebar}
+    \label{fig:4.10}
+\end{figure}
+
+\subsubsection{Màn hình minh họa}
+
+Do các màn hình sử dụng chung header và sidebar, phần này trình bày hai wireframe đại diện cho hai chức năng quan trọng là tra cứu tiếng Nhật và quản lý bộ thẻ. Các hình chỉ mô tả bố cục dự kiến, chưa thể hiện màu sắc, hiệu ứng hoặc dữ liệu của sản phẩm hoàn thiện.
+
+\textbf{Màn hình tra cứu tiếng Nhật.} Màn hình tra cứu đặt ô nhập từ khóa ở đầu vùng content để người học có thể thao tác ngay khi mở trang. Kết quả tìm kiếm chiếm phần lớn diện tích trung tâm. Khối phân tích kanji nằm bên phải nhằm cung cấp thông tin bổ sung mà không làm gián đoạn quá trình đọc kết quả. Phần bình luận được đặt phía dưới, tách khỏi nội dung tra cứu chính nhưng vẫn thuộc cùng màn hình.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Hinhve/4.10.png}
+    \caption{Wireframe màn hình tra cứu tiếng Nhật}
+    \label{fig:4.11}
+\end{figure}
+
+\textbf{Màn hình quản lý bộ thẻ.} Màn hình quản lý bộ thẻ sử dụng bố cục lưới ba cột trên độ phân giải thiết kế cơ sở. Mỗi khối đại diện cho một bộ thẻ và là điểm truy cập đến danh sách thẻ hoặc phiên học tương ứng. Cách bố trí dạng lưới giúp người học quan sát nhiều bộ thẻ cùng lúc. Nút thêm mới được đặt nổi ở góc dưới bên phải để dễ nhận biết nhưng không chiếm diện tích của danh sách.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Hinhve/4.11.png}
+    \caption{Wireframe màn hình quản lý bộ thẻ}
+    \label{fig:4.12}
+\end{figure}
+
+Các wireframe trên xác định cấu trúc chung, vị trí điều hướng và mức độ ưu tiên của thông tin. Trong quá trình hiện thực, màu sắc, khoảng cách, kích thước thẻ và số cột có thể được điều chỉnh theo độ rộng thiết bị, nhưng quan hệ giữa header, sidebar và content vẫn được duy trì thống nhất.
+
+\subsection{Thiết kế lớp}
+\label{subsection:4.2.2}
+
+Phần này trình bày thiết kế chi tiết cho ba lớp nghiệp vụ cốt lõi: \texttt{FlashcardServiceImpl}, \texttt{TutorServiceImpl} và \texttt{ReviewServiceImpl}. Các lớp này chịu trách nhiệm hiện thực hóa các chức năng chính của hệ thống bao gồm học lặp lại ngắt quãng (SM-2), luyện hội thoại với AI và ôn tập cá nhân hóa. Trong các biểu đồ lớp dưới đây, thuộc tính và phương thức private ký hiệu bằng \texttt{-}, public bằng \texttt{+}; các phương thức getter, setter và constructor sinh tự động bằng Lombok được ẩn để tăng tính tường minh.
+
+\subsubsection{Lớp \texttt{FlashcardServiceImpl}}
+
+Lớp \texttt{FlashcardServiceImpl} chịu trách nhiệm quản lý vòng đời của flashcard, kiểm tra quyền sở hữu bộ thẻ và cập nhật lịch ôn tập SRS của người dùng.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{Hinhve/4.12.png}
+    \caption{Thiết kế chi tiết lớp FlashcardServiceImpl}
+    \label{fig:4.13}
+\end{figure}
+
+Các repository (\texttt{flashcard}, \texttt{flashcardDeck}, \texttt{srsDetail}) được tiêm qua constructor để truy xuất dữ liệu. Lớp cung cấp các phương thức chính: \texttt{getMyFlashcards()} và \texttt{getByDeck()} (truy xuất danh sách thẻ); \texttt{getById()} (lấy chi tiết thẻ và trạng thái SRS); \texttt{create()} (tạo thẻ mới kèm SRS mặc định); \texttt{update()} (cập nhật nội dung); \texttt{submitReview()} (gọi thuật toán SM-2 cập nhật lịch ôn tập); và \texttt{delete()} (xóa thẻ sau khi xác minh quyền sở hữu).
+
+\subsubsection{Lớp \texttt{TutorServiceImpl}}
+
+Lớp \texttt{TutorServiceImpl} điều phối các phiên luyện hội thoại AI Tutor, quản lý lịch sử trò chuyện và lưu kết quả đánh giá.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/4.13.png}
+    \caption{Thiết kế chi tiết lớp TutorServiceImpl}
+    \label{fig:4.14}
+\end{figure}
+
+Lớp giao tiếp với mô hình AI thông qua \texttt{aiAdapter} và quản lý âm thanh qua các adapter STT/TTS cùng dịch vụ lưu trữ. Các phương thức nghiệp vụ chính bao gồm: \texttt{createSession()} (khởi tạo phiên hội thoại và tạo lời chào); \texttt{sendMessage()} (tiếp nhận tin nhắn, điều phối xử lý âm thanh, gọi AI và lưu phản hồi dạng JSON); \texttt{finishSession()} (kết thúc phiên, tổng hợp lỗi ngữ pháp, từ vựng mới và lưu kết quả); và \texttt{getRecentMistakes()} (truy xuất các lỗi gần đây phục vụ ôn tập).
+
+\subsubsection{Lớp \texttt{ReviewServiceImpl}}
+
+Lớp \texttt{ReviewServiceImpl} đóng vai trò kết nối dữ liệu học tập cá nhân (flashcard đến hạn, lỗi sai gần đây) với Python pipeline để sinh nội dung ôn tập cá nhân hóa.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{Hinhve/4.14.png}
+    \caption{Thiết kế chi tiết lớp ReviewServiceImpl}
+    \label{fig:4.15}
+\end{figure}
+
+Lớp sử dụng \texttt{httpClient} để gọi các API sinh câu hỏi trắc nghiệm hoặc câu chuyện tương tác từ Python pipeline. Các phương thức cốt lõi gồm: \texttt{generateQuiz()} và \texttt{generateStory()} (chuẩn bị dữ liệu từ vựng/lỗi sai và gọi dịch vụ AI); \texttt{saveQuizResult()} và \texttt{saveStoryResult()} (lưu kết quả làm bài ôn tập); và \texttt{getHistory()} (truy xuất lịch sử ôn tập tổng hợp).
+
+\subsubsection{Luồng truyền thông điệp giữa các đối tượng}
+
+Để minh họa sự phối hợp hoạt động, phần này trình bày hai biểu đồ trình tự cho các use case cốt lõi.
+
+\textbf{Use case ôn tập flashcard.}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/4.15.png}
+    \caption{Biểu đồ trình tự use case ôn tập flashcard}
+    \label{fig:4.16}
+\end{figure}
+
+Mỗi đánh giá của người dùng được chuyển thành điểm chất lượng để đưa vào \texttt{SM2Algorithm}. Lớp thuật toán này không giữ trạng thái, chỉ nhận tham số và trả về kết quả tính toán SRS mới. \texttt{FlashcardServiceImpl} áp kết quả này vào \texttt{SrsDetail} và lưu vào cơ sở dữ liệu trong cùng một giao dịch.
+
+\textbf{Use case gửi tin nhắn trong phiên AI Tutor.}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/4.16.png}
+    \caption{Biểu đồ trình tự use case gửi tin nhắn AI Tutor}
+    \label{fig:4.17}
+\end{figure}
+
+Khi người học gửi tin nhắn, backend xác thực phiên hội thoại và lấy lịch sử tin nhắn gần nhất làm ngữ cảnh. Do việc xử lý giọng nói (STT, TTS) được thực hiện hoàn toàn tại Browser API ở phía client, backend chỉ truyền nhận văn bản và gọi Python AI pipeline. Phản hồi có cấu trúc từ AI (nội dung hội thoại, dịch nghĩa, sửa lỗi ngữ pháp) được lưu dưới dạng JSON trong \texttt{LearningLog} để lưu trữ và hiển thị.
+
+Tóm lại, các lớp service trên thực hiện toàn bộ logic nghiệp vụ cốt lõi, tương tác với cơ sở dữ liệu thông qua repository và kết nối với các phân hệ AI. Việc lập trình hướng giao tiếp qua interface giúp tăng tính đóng gói và linh hoạt cho hệ thống.
+
+\subsection{Thiết kế cơ sở dữ liệu}
+\label{subsection:4.2.3}
+
+Hệ thống sử dụng kết hợp PostgreSQL và Neo4j. PostgreSQL là cơ sở dữ liệu chính, lưu các dữ liệu nghiệp vụ có cấu trúc và yêu cầu ràng buộc toàn vẹn như tài khoản, từ điển, flashcard, trạng thái SRS, phiên AI Tutor và lịch sử ôn tập. Neo4j lưu đồ thị tri thức phục vụ chức năng dịch chuyên sâu, trong đó các nghĩa của từ được liên kết với miền chuyên ngành và các từ gợi ý ngữ cảnh. Việc phân chia này giúp dữ liệu giao dịch được quản lý bằng mô hình quan hệ, còn các truy vấn nhiều bước giữa từ, nghĩa và ngữ cảnh được thực hiện phù hợp hơn trên mô hình đồ thị.
+
+\subsubsection{Biểu đồ thực thể liên kết PostgreSQL}
+
+Các thực thể PostgreSQL được chia thành năm nhóm nghiệp vụ: người dùng và xác thực; từ điển và bình luận; flashcard và SRS; hội thoại AI Tutor; lịch sử ôn tập thông minh. Biểu đồ thực thể liên kết tổng thể được trình bày trong Hình \ref{fig:4.18}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Hinhve/4.17.png}
+    \caption{Sơ đồ cơ sở dữ liệu quan hệ trên PostgreSQL}
+    \label{fig:4.18}
+\end{figure}
+
+Trong biểu đồ, \texttt{PK} là khóa chính, \texttt{FK} là khóa ngoại và \texttt{UK} là thuộc tính duy nhất. Hầu hết bảng sử dụng khóa chính UUID và trường thời gian \texttt{timestamptz} để đồng bộ múi giờ. Các quan hệ chính được thiết kế như sau:
+
+\begin{itemize}
+    \item \textbf{Một-Một:} \texttt{users} -- \texttt{user\_profiles} (chia sẻ khóa chính \texttt{user\_id}); \texttt{flashcards} -- \texttt{srs\_details} (chia sẻ khóa chính \texttt{flashcard\_id}).
+    \item \textbf{Một-Nhiều:} Một \texttt{users} sở hữu nhiều bộ thẻ, phiên hội thoại, kết quả Tutor, và kết quả ôn tập (\texttt{quiz}, \texttt{story}). Một \texttt{flashcard\_decks} chứa nhiều \texttt{flashcards}; một \texttt{conversation\_sessions} chứa nhiều \texttt{learning\_logs}. Một \texttt{dictionary\_entries} có nhiều ví dụ \texttt{examples} và bình luận \texttt{comments}.
+    \item \textbf{Tự tham chiếu và Nhiều-Nhiều:} Bảng \texttt{comments} tự tham chiếu qua \texttt{parent\_id} để hỗ trợ trả lời bình luận nhiều cấp. Bảng trung gian \texttt{entry\_relations} liên kết các mục từ trong \texttt{dictionary\_entries} để biểu diễn từ đồng nghĩa, trái nghĩa, từ ghép.
+\end{itemize}
+
+\subsubsection{Thiết kế chi tiết cơ sở dữ liệu PostgreSQL}
+
+Thiết kế chi tiết các bảng được tóm tắt theo từng nhóm nghiệp vụ trong bảng dưới đây. Các thuộc tính có ràng buộc \texttt{NOT NULL} là bắt buộc; các trường JSONB được sử dụng cho dữ liệu động từ phản hồi AI để tránh chia nhỏ bảng phức tạp.
+
+\begin{longtable}{|p{3.8cm}|p{4.3cm}|p{5.8cm}|}
+\hline
+\textbf{Tên bảng} & \textbf{Thuộc tính chính} & \textbf{Mô tả và ràng buộc} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Tên bảng} & \textbf{Thuộc tính chính} & \textbf{Mô tả và ràng buộc} \\
+\hline
+\endhead
+
+\multicolumn{3}{|l|}{\textbf{Nhóm Người dùng và Xác thực}} \\
+\hline
+\texttt{users} & \texttt{id}, \texttt{username}, \texttt{email}, \texttt{password\_hash}, \texttt{role}, \texttt{target\_level}, \texttt{created\_at} & Lưu tài khoản người học; \texttt{username} và \texttt{email} duy nhất; mật khẩu lưu dưới dạng băm; \texttt{role} mặc định \texttt{USER}. \\
+\hline
+\texttt{user\_\allowbreak profiles} & \texttt{user\_id}, \texttt{streak\_count}, \texttt{last\_active} & Thông tin học tập mở rộng; \texttt{user\_id} là PK kiêm FK tới \texttt{users}. \\
+\hline
+\texttt{app\_\allowbreak refresh\_\allowbreak tokens} & \texttt{id}, \texttt{user\_id}, \texttt{token}, \texttt{expiry\_date} & Refresh token phục vụ xoay vòng JWT; \texttt{token} có ràng buộc duy nhất. \\
+\hline
+
+\multicolumn{3}{|l|}{\textbf{Nhóm Từ điển và Bình luận}} \\
+\hline
+\texttt{dictionary\_\allowbreak entries} & \texttt{id}, \texttt{entry\_type}, \texttt{text}, \texttt{reading}, \texttt{meaning\_vn}, \dots & Lưu mục từ (từ vựng, kanji, ngữ pháp); \texttt{entry\_type} nhận \texttt{word}, \texttt{kanji}, \texttt{grammar}. \\
+\hline
+\texttt{entry\_\allowbreak relations} & \texttt{id}, \texttt{source\_id}, \texttt{target\_id}, \texttt{relation\_type}, \texttt{order\_index} & Biểu diễn quan hệ tự liên kết (đồng nghĩa, trái nghĩa, từ ghép) giữa hai mục từ. \\
+\hline
+\texttt{examples} & \texttt{id}, \texttt{entry\_id}, \texttt{japanese\_sentence}, \texttt{vietnamese\_sentence} & Lưu câu ví dụ tiếng Nhật kèm bản dịch tiếng Việt cho mục từ. \\
+\hline
+\texttt{comments} & \texttt{id}, \texttt{entry\_id}, \texttt{user\_id}, \texttt{parent\_id}, \texttt{content}, \dots & Lưu bình luận về mục từ; hỗ trợ phản hồi nhiều cấp. \\
+\hline
+
+\multicolumn{3}{|l|}{\textbf{Nhóm Flashcard và SRS}} \\
+\hline
+\texttt{flashcard\_\allowbreak decks} & \texttt{id}, \texttt{user\_id}, \texttt{name}, \texttt{description}, \texttt{is\_public}, \dots & Lưu bộ thẻ flashcard; \texttt{is\_public} mặc định \texttt{false}. \\
+\hline
+\texttt{flashcards} & \texttt{id}, \texttt{deck\_id}, \texttt{front\_text}, \texttt{front\_reading}, \texttt{back\_text}, \dots & Nội dung flashcard; \texttt{status} nhận \texttt{new}, \texttt{learning}, \texttt{review}. \\
+\hline
+\texttt{srs\_\allowbreak details} & \texttt{flashcard\_id}, \texttt{ease\_factor}, \texttt{interval\_days}, \texttt{repetitions}, \dots & Trạng thái SRS theo thuật toán SM-2; chia sẻ khóa với \texttt{flashcards}. \\
+\hline
+
+\multicolumn{3}{|l|}{\textbf{Nhóm AI Tutor và Ôn tập thông minh}} \\
+\hline
+\texttt{conversation\_\allowbreak sessions} & \texttt{id}, \texttt{user\_id}, \texttt{scenario\_name}, \texttt{target\_words}, \dots & Lưu phiên AI Tutor; từ vựng mục tiêu lưu dạng mảng JSONB. \\
+\hline
+\texttt{learning\_\allowbreak logs} & \texttt{id}, \texttt{session\_id}, \texttt{role}, \texttt{content}, \texttt{created\_at} & Lịch sử hội thoại từng lượt; nội dung hội thoại chi tiết lưu JSONB. \\
+\hline
+\texttt{tutor\_\allowbreak session\_\allowbreak results} & \texttt{id}, \texttt{session\_id}, \texttt{overall\_score}, \texttt{mistakes}, \texttt{new\_vocabulary}, \dots & Kết quả phiên học (điểm, số lượt nói, danh sách lỗi sai và từ mới lưu JSONB). \\
+\hline
+\texttt{quiz\_\allowbreak reviews} & \texttt{id}, \texttt{user\_id}, \texttt{deck\_id}, \texttt{score}, \texttt{total\_questions}, \texttt{questions\_data} & Lịch sử ôn tập quiz; danh sách câu hỏi lưu dạng JSONB. \\
+\hline
+\texttt{story\_\allowbreak reviews} & \texttt{id}, \texttt{user\_id}, \texttt{deck\_id}, \texttt{title}, \texttt{score}, \texttt{story\_data}, \texttt{answers\_data} & Lịch sử ôn tập story; chi tiết story và câu trả lời lưu dạng JSONB. \\
+\hline
+\caption{Thiết kế chi tiết các bảng trong cơ sở dữ liệu PostgreSQL}
+\label{table:4.2}\\
+\end{longtable}
+
+Hệ thống lập chỉ mục (\texttt{index}) trên các trường truy vấn thường xuyên như \texttt{users.email}, \texttt{dictionary\_entries.text}, \texttt{flashcards.deck\_id}, và chỉ mục ghép trên \texttt{(deck\_id, status)} để tối ưu hóa hiệu năng lấy thẻ đến hạn. Các thao tác cập nhật lịch ôn và kết quả hội thoại được thực hiện trong cùng transaction để đảm bảo toàn vẹn dữ liệu.
+
+\subsubsection{Thiết kế cơ sở dữ liệu đồ thị Neo4j}
+
+Neo4j lưu trữ đồ thị tri thức dùng chung cho pipeline dịch chuyên sâu. Mô hình gồm ba loại nút \texttt{Lexeme}, \texttt{Sense}, \texttt{Domain} và ba loại quan hệ \texttt{HAS\_SENSE}, \texttt{BELONGS\_TO}, \texttt{SUPPORTED\_BY}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{Hinhve/4.18.drawio.png}
+    \caption{Mô hình dữ liệu đồ thị Neo4j}
+    \label{fig:4.19}
+\end{figure}
+
+Một \texttt{Lexeme} (từ tiếng Nhật) có thể có nhiều \texttt{Sense} (nghĩa dịch tiếng Việt) để biểu diễn từ đa nghĩa. Mỗi \texttt{Sense} liên kết với một \texttt{Domain} (chuyên ngành) để phân biệt ngữ cảnh. Quan hệ \texttt{SUPPORTED\_BY} kết nối nghĩa dịch với các từ thường đồng xuất hiện để làm tín hiệu gợi ý.
+
+\begin{longtable}{|p{3.2cm}|p{4.8cm}|p{5.8cm}|}
+\hline
+\textbf{Thành phần} & \textbf{Thuộc tính/quan hệ} & \textbf{Vai trò} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Thành phần} & \textbf{Thuộc tính/quan hệ} & \textbf{Vai trò} \\
+\hline
+\endhead
+\texttt{Lexeme} & \texttt{lexemeId}, \texttt{surface}, \texttt{reading}, \texttt{pos} & Biểu diễn từ tiếng Nhật; làm tín hiệu ngữ cảnh cho nghĩa khác. \\
+\hline
+\texttt{Sense} & \texttt{senseId}, \texttt{glossVi}, \texttt{domain} & Biểu diễn nghĩa dịch tiếng Việt; hỗ trợ lọc theo chuyên ngành. \\
+\hline
+\texttt{Domain} & \texttt{domainId}, \texttt{name} & Biểu diễn miền chuyên ngành (y tế, CNTT, kinh tế...). \\
+\hline
+\texttt{HAS\_SENSE} & \texttt{Lexeme} $\rightarrow$ \texttt{Sense} & Xác định các nghĩa tương ứng của một từ vựng. \\
+\hline
+\texttt{BELONGS\_TO} & \texttt{Sense} $\rightarrow$ \texttt{Domain} & Xác định miền chuyên ngành của nghĩa. \\
+\hline
+\texttt{SUPPORTED\_BY} & \texttt{Sense} $\rightarrow$ \texttt{Lexeme} & Biểu diễn các từ đồng xuất hiện hỗ trợ gợi ý ngữ cảnh. \\
+\hline
+\caption{Thiết kế nút và quan hệ trong Neo4j}
+\label{table:4.6}\\
+\end{longtable}
+
+Chỉ mục được tạo trên \texttt{Lexeme.surface} và \texttt{Domain.name} để đẩy nhanh tốc độ duyệt đồ thị. Đồ thị tri thức hoạt động hoàn toàn độc lập với cơ sở dữ liệu quan hệ PostgreSQL; sự tách biệt này đảm bảo các nâng cấp về tri thức từ vựng không gây ảnh hưởng đến dữ liệu cá nhân của người học.
+
+\subsection{Thiết kế module AI}
+\label{subsection:4.2.4}
+
+Module AI có vai trò sinh phản hồi hội thoại, tạo nội dung ôn tập và hỗ trợ dịch văn bản tiếng Nhật theo ngữ cảnh chuyên ngành. Module được tách khỏi backend nghiệp vụ và triển khai bằng Python để tận dụng các thư viện xử lý ngôn ngữ, kết nối mô hình ngôn ngữ lớn và Neo4j. Backend vẫn chịu trách nhiệm xác thực, kiểm tra quyền sở hữu, lựa chọn dữ liệu cá nhân hóa và lưu kết quả; module AI chỉ nhận dữ liệu cần thiết, thực hiện xử lý và trả kết quả có cấu trúc.
+
+Khác với module học máy truyền thống sử dụng một mô hình đã huấn luyện để dự đoán một giá trị, module của đồ án sử dụng các pipeline điều phối mô hình ngôn ngữ lớn. Chất lượng đầu ra không chỉ phụ thuộc vào mô hình mà còn phụ thuộc vào cách xây dựng prompt, dữ liệu ngữ cảnh, bước truy xuất tri thức, cơ chế kiểm tra JSON và phương án xử lý khi dịch vụ ngoài không khả dụng.
+
+\subsubsection{Thiết kế tổng quát}
+
+Module được tổ chức theo mô hình client--server. Spring Boot backend đóng vai trò client nội bộ; Python AI layer đóng vai trò server xử lý AI. Hai thành phần không dùng chung mô hình entity hay truy cập trực tiếp dữ liệu cá nhân của nhau. Dữ liệu được trao đổi bằng JSON hoặc biểu mẫu HTTP theo hợp đồng đã xác định.
+
+Riêng pipeline dịch chuyên sâu được thiết kế stateless và được backend khởi chạy dưới dạng tiến trình Python. Cách tích hợp này phù hợp với tác vụ độc lập, không cần giữ phiên và có đầu vào duy nhất là văn bản. AI Tutor và AI Review cần phục vụ nhiều lời gọi liên tiếp nên được cung cấp qua FastAPI chạy tại cổng nội bộ.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Hinhve/4.19.drawio.png}
+    \caption{Kiến trúc tổng quát của module AI}
+    \label{fig:4.20}
+\end{figure}
+
+Các thành phần chính gồm:
+\begin{itemize}
+    \item \texttt{server.py}: khởi tạo FastAPI, kiểm tra và chuẩn hóa request, gọi pipeline tương ứng và trả phản hồi JSON.
+    \item \texttt{TutorPipeline}: xây dựng ngữ cảnh hội thoại, tạo prompt theo chủ đề và cấp độ, sinh phản hồi, sửa lỗi và từ vựng mới.
+    \item \texttt{ReviewPipeline}: tạo quiz hoặc story từ flashcard, cấp độ JLPT và lỗi gần đây.
+    \item \texttt{Pipeline} trong \texttt{runner.py}: điều phối luồng dịch chuyên sâu từ tách từ, truy vấn đồ thị, xếp hạng nghĩa đến sinh bản dịch.
+    \item \texttt{LLMClient}: cung cấp giao diện gọi mô hình thống nhất; cài đặt hiện tại ưu tiên Gemini và có thể chuyển sang OpenAI hoặc Groq bằng cấu hình.
+    \item \texttt{STTAdapter} và \texttt{TTSAdapter}: trừu tượng hóa nhận dạng và tổng hợp giọng nói, cho phép dùng cài đặt thật hoặc mock khi kiểm thử.
+    \item \texttt{Neo4jClient}: thực hiện truy vấn đọc theo danh sách token, không ghi dữ liệu vào đồ thị trong lúc dịch.
+    \item \texttt{Ranker}: tính điểm và lựa chọn nghĩa phù hợp nhất dựa trên miền chuyên ngành và cue ngữ cảnh.
+\end{itemize}
+
+Thiết kế trên giữ module AI không trạng thái ở mức dịch vụ. Trạng thái phiên Tutor, nhật ký hội thoại và kết quả học tập được lưu tại PostgreSQL bởi backend. Khi gọi AI, backend chỉ truyền lịch sử gần nhất và dữ liệu mục tiêu cần thiết. Nhờ đó, việc khởi động lại AI service không làm mất dữ liệu học của người dùng.
+
+\subsubsection{Thiết kế module API}
+
+FastAPI là cổng giao tiếp cho hai nhóm chức năng AI Tutor và AI Review. Các endpoint chỉ được backend gọi trong mạng nội bộ; frontend không gọi trực tiếp module AI. Dữ liệu người dùng đã được backend xác thực trước khi chuyển sang Python.
+
+\begin{longtable}{|p{4.2cm}|p{3.0cm}|p{3.0cm}|p{3.2cm}|}
+\hline
+\textbf{Phương thức và endpoint} & \textbf{Dữ liệu đầu vào} & \textbf{Dữ liệu đầu ra} & \textbf{Chức năng} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Phương thức và endpoint} & \textbf{Dữ liệu đầu vào} & \textbf{Dữ liệu đầu ra} & \textbf{Chức năng} \\
+\hline
+\endhead
+\texttt{POST /v1/\allowbreak tutor/\allowbreak \{session\_\allowbreak id\}/\allowbreak initial} & Chủ đề, cấp độ, từ vựng mục tiêu & Tin nhắn mở đầu, bản dịch, gợi ý trả lời & Khởi tạo hội thoại theo thiết lập phiên. \\
+\hline
+\texttt{POST /v1/\allowbreak tutor/\allowbreak \{session\_\allowbreak id\}/\allowbreak reply} & Câu người học, từ mục tiêu, lịch sử gần nhất & Phản hồi tiếng Nhật, tiếng Việt, lỗi sửa, gợi ý, từ mới & Sinh lượt trả lời tiếp theo của AI Tutor. \\
+\hline
+\texttt{POST /v1/\allowbreak review/\allowbreak quiz/\allowbreak generate} & Danh sách từ, cấp độ, số câu, lỗi gần đây & Mảng câu hỏi trắc nghiệm và cảnh báo & Sinh quiz cá nhân hóa. \\
+\hline
+\texttt{POST /v1/\allowbreak review/\allowbreak story/\allowbreak generate} & Danh sách từ, cấp độ, lỗi gần đây & Tiêu đề, bối cảnh và các phân đoạn story & Sinh câu chuyện tương tác. \\
+\hline
+\texttt{python -m\allowbreak python\_pipeline.\allowbreak runner\allowbreak --text ...\allowbreak --json} & Văn bản tiếng Nhật & Bản dịch, miền phát hiện, từ quan trọng, ghi chú & Thực hiện dịch chuyên sâu dưới dạng tiến trình độc lập. \\
+\hline
+\caption{Danh sách API của module AI}
+\label{table:4.7}\\
+\end{longtable}
+
+Luồng xử lý chung của API gồm bốn bước: nhận request và chuẩn hóa cấu trúc dữ liệu; chuyển đổi dữ liệu thành các metadata học tập tương ứng; xây dựng prompt và gọi \texttt{LLMClient}; phân tích, định dạng lại kết quả theo schema và trả về backend. Nếu xảy ra lỗi hoặc phản hồi không thể phân tích, API trả về các mã lỗi có kiểm soát để backend xử lý và hiển thị thông báo an toàn.
+
+\subsubsection{Thiết kế AI Tutor Pipeline}
+
+AI Tutor Pipeline nhận thông tin phiên, danh sách từ mục tiêu, lịch sử hội thoại gần nhất và câu người học vừa gửi để thực hiện hai thao tác: tạo lời mở đầu và tạo lượt phản hồi tiếp theo. Với tương tác giọng nói, backend thực hiện nhận dạng (STT) thành văn bản trước khi truyền vào pipeline.
+
+Đầu ra của pipeline được chuẩn hóa thành một cấu trúc JSON thống nhất đóng vai trò hợp đồng dữ liệu giữa Python service và backend. Cấu trúc này bao gồm các trường chính:
+\begin{itemize}
+    \item \texttt{contentJa} (chuỗi): Phản hồi bằng tiếng Nhật phù hợp với cấp độ JLPT của phiên học.
+    \item \texttt{contentVn} (chuỗi): Bản dịch nghĩa hoặc giải thích ngắn gọn bằng tiếng Việt.
+    \item \texttt{corrections} (mảng đối tượng): Danh sách các câu gốc, câu sửa lỗi và giải thích chi tiết lỗi trợ từ, ngữ pháp của người học.
+    \item \texttt{suggestions} (mảng chuỗi): Các gợi ý câu trả lời nhanh giúp người học dễ dàng tiếp tục hội thoại.
+    \item \texttt{newVocabulary} (mảng đối tượng): Các từ vựng mới hữu ích xuất hiện trong câu phản hồi.
+    \item \texttt{audioUrl} (chuỗi hoặc rỗng): Đường dẫn tệp âm thanh phản hồi được tổng hợp bởi dịch vụ TTS.
+\end{itemize}
+
+Toàn bộ trạng thái phiên, nhật ký hội thoại được backend lưu trữ tại PostgreSQL; pipeline hoạt động stateless và không trực tiếp quản lý dữ liệu người dùng. Các thuật toán chi tiết về prompt sửa lỗi và tích hợp âm thanh được trình bày tại Mục 5.4.
+
+\subsubsection{Thiết kế AI Review Pipeline}
+
+AI Review Pipeline cung cấp hai dịch vụ chính là sinh câu hỏi trắc nghiệm (quiz) và sinh câu chuyện tương tác (story). Pipeline hoạt động không trạng thái (stateless): backend chịu trách nhiệm truy vấn PostgreSQL, lựa chọn bộ flashcard, thu thập lỗi gần đây và cấp độ JLPT của người dùng trước khi gửi yêu cầu.
+
+Dữ liệu quiz được cấu trúc thành danh sách câu hỏi trắc nghiệm (chứa câu hỏi điền từ, các lựa chọn, đáp án đúng và giải thích). Dữ liệu story bao gồm tiêu đề, bối cảnh dẫn dắt và danh sách các phân đoạn tương tác. Cả hai phản hồi đều hỗ trợ trường \texttt{warning} giúp thông báo cho hệ thống khi dữ liệu sinh ra chỉ đáp ứng được một phần. Các cơ chế xây dựng prompt, phân tích cú pháp và tự phục hồi dữ liệu được trình bày chi tiết tại Mục 5.3.
+
+\subsubsection{Thiết kế Specialized Translation Pipeline}
+
+Specialized Translation Pipeline nhận văn bản tiếng Nhật và thực hiện dịch thuật chuyên ngành dưới dạng tiến trình độc lập (stateless). Backend khởi chạy pipeline bằng lệnh hệ thống, truyền văn bản qua luồng đầu vào chuẩn (STDIN) và nhận kết quả JSON từ luồng đầu ra chuẩn (STDOUT). Các thành phần cấu thành chính bao gồm tokenizer (SudachiPy), \texttt{Neo4jClient} để lấy nghĩa từ ứng viên, \texttt{Ranker} để xếp hạng bằng chứng dựa trên miền chuyên ngành, và \texttt{LLMClient} để dịch thuật.
+
+Cấu trúc đầu ra JSON của pipeline được định nghĩa chặt chẽ để trả về đầy đủ các thông tin:
+\begin{itemize}
+    \item \texttt{translation} (chuỗi): Bản dịch tiếng Việt hoàn chỉnh của toàn bộ văn bản gốc.
+    \item \texttt{detectedDomains} (mảng chuỗi): Danh sách các miền chuyên ngành được phát hiện.
+    \item \texttt{keyVocabulary} (mảng đối tượng): Các thuật ngữ đa nghĩa quan trọng kèm cách đọc, nghĩa dịch tương ứng, miền chuyên ngành được xác định và điểm số xếp hạng của nghĩa đó.
+    \item \texttt{notes} (mảng đối tượng): Các ghi chú phân tích từ vựng chuyên sâu (sắc thái nghĩa, ngữ cảnh sử dụng).
+\end{itemize}
+
+Nếu tiến trình trả mã lỗi hoặc JSON đầu ra không hợp lệ, backend sẽ phát sinh ngoại lệ nghiệp vụ \texttt{DEEP\_TRANSLATION\_FAILED} để ngăn log kỹ thuật hoặc phản hồi không hoàn chỉnh được trả trực tiếp cho frontend. Mô hình đồ thị Neo4j được trình bày tại Mục 4.2.3; thuật toán xếp hạng và truy xuất được chi tiết hóa tại Mục 5.5.
+
+\subsubsection{Cơ chế tích hợp mô hình và xử lý lỗi}
+
+\texttt{LLMClient} đóng vai trò adapter chung giúp các pipeline độc lập với SDK của từng nhà cung cấp. Tên mô hình và nhà cung cấp được cấu hình linh hoạt qua biến môi trường (ưu tiên Gemini, dự phòng qua Groq hoặc OpenAI). Các pipeline tuân thủ các nguyên tắc thiết kế an toàn: giới hạn chặt chẽ dữ liệu đầu vào, yêu cầu phản hồi có cấu trúc JSON, ánh xạ các lỗi kết nối thành trạng thái có kiểm soát, và luôn hỗ trợ chế độ tương tác văn bản không dùng AI khi các chức năng âm thanh (STT/TTS) bị gián đoạn. Thiết kế phân rã này cho phép cập nhật prompt và mô hình ở module AI mà không ảnh hưởng tới nghiệp vụ cốt lõi tại backend. Các cơ chế tự phục hồi chi tiết được phân tích tại các Mục 5.3, 5.4 và 5.5.
+
+\section{Xây dựng ứng dụng}
+\label{section:4.3}
+
+\subsection{Thư viện và công cụ sử dụng}
+\label{subsection:4.3.1}
+
+Trong quá trình xây dựng hệ thống, đồ án sử dụng các công cụ, ngôn ngữ lập trình, API, thư viện, IDE, công cụ kiểm thử với các phiên bản cụ thể được lấy từ cấu hình phụ thuộc và môi trường phát triển thực tế của dự án. Danh sách các thư viện và công cụ chính được trình bày chi tiết trong bảng dưới đây:
+
+\begin{longtable}{|p{3.5cm}|p{2.5cm}|p{2.0cm}|p{5.0cm}|}
+\hline
+\textbf{Mục đích sử dụng} & \textbf{Công cụ/thư viện} & \textbf{Phiên bản sử dụng} & \textbf{Địa chỉ URL} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Mục đích sử dụng} & \textbf{Công cụ/thư viện} & \textbf{Phiên bản sử dụng} & \textbf{Địa chỉ URL} \\
+\hline
+\endhead
+Ngôn ngữ backend & Java & 21 & \url{https://www.oracle.com/java/} \\
+\hline
+Framework backend & Spring Boot & 4.0.5 & \url{https://spring.io/projects/spring-boot} \\
+\hline
+Bảo mật & Spring Security & 7.0.4 & \url{https://spring.io/projects/spring-security} \\
+\hline
+Ánh xạ dữ liệu ORM & Hibernate ORM & 7.2.7.Final & \url{https://hibernate.org/orm/} \\
+\hline
+Ngôn ngữ frontend & JavaScript & ES2015+ & \url{https://developer.mozilla.org/docs/Web/JavaScript} \\
+\hline
+Framework frontend & Vue.js & 3.5.33 & \url{https://vuejs.org/} \\
+\hline
+Build & Vite & 8.0.10 & \url{https://vite.dev/} \\
+\hline
+Môi trường chạy & Node.js \& npm & 24.15, 11.12 & \url{https://nodejs.org/} \\
+\hline
+Styling & Tailwind CSS & 4.2.4 & \url{https://tailwindcss.com/} \\
+\hline
+Ngôn ngữ AI/Pipeline & Python & 3.12.3 & \url{https://www.python.org/} \\
+\hline
+Framework API cho AI & FastAPI & >= 0.95.0 & \url{https://fastapi.tiangolo.com/} \\
+\hline
+Gọi mô hình Gemini & Google Gen AI SDK & 2.3.0 & \url{https://ai.google.dev/gemini-api/docs} \\
+\hline
+Nhận dạng giọng nói & Faster-Whisper & >= 1.0.0 & \url{https://github.com/SYSTRAN/faster-whisper} \\
+\hline
+Phân tích tiếng Nhật & SudachiPy \& Dict & 0.6.11 & \url{https://github.com/WorksApplications/SudachiPy} \\
+\hline
+Cơ sở dữ liệu chính & PostgreSQL & 16.14 & \url{https://www.postgresql.org/} \\
+\hline
+Cơ sở dữ liệu đồ thị & Neo4j Community & 2026.04.0 & \url{https://neo4j.com/} \\
+\hline
+IDE phát triển & VS Code & 1.119.0 & \url{https://code.visualstudio.com/} \\
+\hline
+Quản lý mã nguồn & Git & 2.43.0 & \url{https://git-scm.com/} \\
+\hline
+Kiểm thử backend & JUnit & 6.0.3 & \url{https://junit.org/} \\
+\hline
+Kiểm thử frontend & Cypress & 15.15.0 & \url{https://www.cypress.io/} \\
+\hline
+\caption{Danh sách thư viện và công cụ sử dụng}
+\label{table:4.10}\\
+\end{longtable}
+
+Các thư viện phụ thuộc gián tiếp do framework tự quản lý không được liệt kê riêng nhằm tránh bảng quá dài.
+
+\subsection{Kết quả đạt được}
+\label{subsection:4.3.2}
+
+Sau quá trình phân tích, thiết kế và xây dựng, đồ án đã hoàn thành một hệ thống web hỗ trợ học tiếng Nhật ở mức nguyên mẫu hoàn chỉnh. Kết quả không chỉ là một giao diện minh họa mà gồm các thành phần có thể build, khởi chạy và giao tiếp với nhau qua API.
+
+\subsubsection{Các sản phẩm được xây dựng}
+
+Sản phẩm phần mềm của hệ thống được đóng gói thành các thành phần độc lập để dễ dàng triển khai, vận hành và nâng cấp. Chi tiết về các sản phẩm đóng gói được trình bày trong bảng dưới đây:
+
+\begin{longtable}{|p{3.0cm}|p{4cm}|p{2.0cm}|p{4cm}|}
+\hline
+\textbf{Sản phẩm} & \textbf{Thành phần đóng gói} & \textbf{Kích thước} & \textbf{Ý nghĩa và vai trò} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Sản phẩm} & \textbf{Thành phần đóng gói} & \textbf{Kích thước} & \textbf{Ý nghĩa và vai trò} \\
+\hline
+\endhead
+Frontend production & Thư mục \texttt{frontend/dist} (HTML, CSS, JS) & 545,5 KB; 155,8 KB nén \texttt{tar.gz} & Giao diện người học, giao tiếp với backend qua REST API. \\
+\hline
+Backend Spring Boot & Tệp \texttt{backend-0.0.1-SNAPSHOT.jar} thực thi độc lập & 63,1 MB & Cung cấp API, bảo mật JWT, nghiệp vụ SRS và điều phối hệ thống. \\
+\hline
+Python AI module & Thư mục \texttt{python\_pipeline} và \texttt{requirements.txt} & 86,6 KB & FastAPI server chạy cổng nội bộ; cung cấp các AI pipeline. \\
+\hline
+Dữ liệu Neo4j & Các tệp CSV (domain, lexeme, sense) & 1,98 MB & Dữ liệu khởi tạo đồ thị tri thức phục vụ dịch chuyên sâu. \\
+\hline
+Thiết kế PostgreSQL & 15 thực thể JPA & Nằm trong backend JAR & Ánh xạ tự động và lưu trữ toàn bộ dữ liệu nghiệp vụ quan hệ. \\
+\hline
+\caption{Các sản phẩm đóng gói của hệ thống}
+\label{table:4.11}\\
+\end{longtable}
+
+Cách đóng gói này giúp hệ thống thuận tiện cho phát triển, kiểm thử và mở rộng về sau.
+
+\subsubsection{Kết quả chức năng}
+
+Hệ thống đã hoàn thiện đầy đủ các chức năng theo yêu cầu thiết kế bao gồm: đăng ký/đăng nhập và quản lý hồ sơ; tra cứu từ điển và bình luận; quản lý bộ thẻ flashcard và ôn tập lặp lại ngắt quãng SM-2; ôn tập cá nhân hóa thông qua hình thức sinh quiz và story từ lỗi sai gần đây; luyện hội thoại đa phương thức với AI Tutor; dịch chuyên sâu tích hợp đồ thị tri thức Neo4j và mô hình ngôn ngữ lớn.
+
+\subsubsection{Thống kê mã nguồn}
+
+Số liệu được thống kê trực tiếp từ mã nguồn tại thời điểm hoàn thiện luận văn. Dòng mã là số dòng vật lý trong các tệp \texttt{.java}, \texttt{.vue}, \texttt{.js}, \texttt{.css} và \texttt{.py}, bao gồm mã chính và mã kiểm thử. Phép đo loại trừ \texttt{node\_modules}, môi trường Python \texttt{.venv}, thư mục build, dữ liệu seed, tệp âm thanh tải lên, cache và tài liệu luận văn.
+
+\begin{longtable}{|p{5.0cm}|p{3.0cm}|p{5.0cm}|}
+\hline
+\textbf{Thông tin thống kê} & \textbf{Giá trị} & \textbf{Mô tả chi tiết} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Thông tin thống kê} & \textbf{Giá trị} & \textbf{Mô tả chi tiết} \\
+\hline
+\endhead
+Tổng quy mô mã nguồn & 17.678 dòng code (176 tệp) & Tổng dòng vật lý của Java, Vue/JS và Python. \\
+\hline
+Phân hệ Backend (Java/Spring Boot) & 6.530 dòng code (121 tệp) & Gồm 16 gói, 15 JPA entity, 36 DTO, 42 REST API endpoint. Dung lượng nguồn: 266 KB. \\
+\hline
+Phân hệ Frontend (Vue 3/Vite) & 9.135 dòng code (27 tệp .vue) & Gồm 20 route, 11 module JS, 40 dòng test. Dung lượng nguồn: 595 KB. \\
+\hline
+Phân hệ AI (Python/FastAPI) & 2.013 dòng code (15 tệp .py) & Gồm 20 class, 3 tệp kiểm thử, các pipeline. Dung lượng nguồn: 86,6 KB. \\
+\hline
+Cơ sở dữ liệu quan hệ PostgreSQL & 15 bảng & Ánh xạ qua JPA entity và lưu trữ dữ liệu nghiệp vụ người dùng. \\
+\hline
+Đồ thị tri thức Neo4j & 12.958 nút, 24.225 cạnh & Dữ liệu từ các tệp CSV seed (1,98 MB) cho pipeline dịch. \\
+\hline
+Tổng dung lượng mã nguồn sạch & Khoảng 0,95 MB & Loại bỏ hoàn toàn thư viện \texttt{node\_modules}, \texttt{.venv} và build artifacts. \\
+\hline
+\caption{Thống kê thông tin ứng dụng}
+\label{table:4.12}\\
+\end{longtable}
+
+Kết quả build cho thấy frontend được Vite chuyển đổi thành 43 tệp production, còn backend biên dịch thành 163 tệp \texttt{.class} và được Spring Boot đóng gói cùng các thư viện runtime.
+
+\subsection{Minh họa các chức năng chính}
+\label{subsection:4.3.3}
+
+Trong quá trình xây dựng hệ thống, giao diện được thiết kế theo hướng trực quan, thống nhất và hỗ trợ người học thực hiện liên tục các hoạt động tra cứu, ghi nhớ, ôn tập và luyện sử dụng tiếng Nhật. Phần này lựa chọn sáu màn hình đại diện cho các chức năng chính, quan trọng và mang tính đặc trưng nhất của hệ thống, gồm: tra cứu từ điển, học flashcard theo SM-2, ôn tập bằng Review Quiz, ôn tập bằng Review Story, luyện hội thoại với AI Tutor và dịch thuật chuyên sâu bằng GraphRAG.
+
+\subsubsection{Giao diện tra cứu từ điển và lưu từ vào flashcard}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Hinhve/4.20.png}
+    \caption{Giao diện tra cứu từ điển và lưu từ vào flashcard}
+    \label{fig:4.21}
+\end{figure}
+
+Giao diện cho phép người học nhập Kanji, Kana hoặc Romaji để tra cứu một mục từ tiếng Nhật. Kết quả hiển thị chữ viết, cách đọc, nghĩa tiếng Việt, cấp độ JLPT, ví dụ sử dụng, các thành phần Kanji và những từ có liên quan. Nút thêm flashcard ở góc thẻ từ mở hộp thoại chọn bộ thẻ; người học cũng có thể tạo bộ thẻ mới ngay trong hộp thoại này. Nhờ đó, nội dung vừa tra cứu có thể được chuyển trực tiếp thành dữ liệu học tập mà không cần nhập lại thủ công.
+
+\subsubsection{Giao diện học flashcard theo thuật toán SM-2}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Hinhve/4.21.png}
+    \caption{Giao diện học flashcard theo thuật toán SM-2}
+    \label{fig:4.22}
+\end{figure}
+
+Màn hình học sử dụng thẻ lật: mặt trước hiển thị từ tiếng Nhật và cách đọc, còn mặt sau hiển thị nghĩa cùng ghi chú. Sau khi xem đáp án, người học tự đánh giá mức độ ghi nhớ bằng bốn lựa chọn \textbf{Lại}, \textbf{Khó}, \textbf{Được} và \textbf{Dễ}. Bên dưới mỗi lựa chọn, hệ thống hiển thị trước khoảng thời gian dự kiến đến lần ôn tiếp theo. Kết quả đánh giá được gửi về backend để cập nhật các tham số SM-2 và lập lịch ôn riêng cho từng thẻ; thanh tiến độ phía trên giúp người học theo dõi số thẻ đã hoàn thành trong phiên.
+
+\subsubsection{Giao diện ôn tập bằng Review Quiz}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Hinhve/4.22.png}
+    \caption{Giao diện ôn tập bằng Review Quiz}
+    \label{fig:4.23}
+\end{figure}
+
+Review Quiz trình bày các câu hỏi trắc nghiệm được AI sinh từ bộ thẻ, cấp độ JLPT và lỗi sai gần đây của người học. Mỗi câu gồm nội dung tiếng Nhật, bản dịch hỗ trợ và các phương án trả lời. Ngay sau khi người học chọn đáp án, giao diện đánh dấu phương án đúng hoặc sai, đồng thời hiển thị lời giải thích ngắn bằng tiếng Việt và gợi ý liên quan. Khu vực phía trên cho biết tiến độ làm bài và số câu trả lời đúng, giúp người học nhận phản hồi ngay trong quá trình ôn tập.
+
+\subsubsection{Giao diện ôn tập bằng Review Story}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Hinhve/4.23.png}
+    \caption{Giao diện ôn tập bằng Review Story}
+    \label{fig:4.24}
+\end{figure}
+
+Review Story đưa từ vựng cần ôn vào một câu chuyện tương tác gồm nhiều phân đoạn. Mỗi phân đoạn hiển thị bối cảnh, lời thoại tiếng Nhật, bản dịch tiếng Việt và các từ vựng nổi bật. Tại những điểm cần tương tác, người học lựa chọn câu trả lời hoặc hành động để tiếp tục câu chuyện; hệ thống chấm lựa chọn và giải thích đáp án trước khi chuyển sang phân đoạn tiếp theo. Cách trình bày này giúp người học gặp lại từ vựng trong ngữ cảnh thay vì chỉ ghi nhớ từng thẻ rời rạc.
+
+\subsubsection{Giao diện luyện hội thoại với AI Tutor}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Hinhve/4.24.png}
+    \caption{Giao diện luyện hội thoại với AI Tutor}
+    \label{fig:4.25}
+\end{figure}
+
+Giao diện AI Tutor được tổ chức theo dạng phòng chat, cho phép người học gửi câu tiếng Nhật bằng văn bản hoặc ghi âm trực tiếp từ trình duyệt. Phản hồi của AI gồm nội dung hội thoại, bản dịch, gợi ý trả lời và thẻ sửa lỗi được đặt gần câu sai để người học dễ đối chiếu. Bảng thông tin bên phải hiển thị tiến độ phiên học, số lượt nói và các từ vựng mới xuất hiện trong hội thoại. Người học có thể bật chế độ tập trung để ẩn bảng phụ hoặc kết thúc phiên để chuyển sang màn hình tổng hợp kết quả.
+
+\subsubsection{Giao diện dịch thuật và phân tích chuyên sâu}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Hinhve/4.25.png}
+    \caption{Giao diện dịch thuật và phân tích chuyên sâu}
+    \label{fig:4.26}
+\end{figure}
+
+Màn hình dịch thuật gồm vùng nhập câu tiếng Nhật và vùng hiển thị bản dịch tiếng Việt. Ngoài chế độ dịch nhanh, người học có thể bật \textbf{Phân tích chuyên sâu} để hệ thống tách các từ quan trọng, xác định miền ngữ cảnh và truy xuất bằng chứng từ đồ thị tri thức Neo4j. Kết quả phân tích trình bày cách đọc, nghĩa theo ngữ cảnh, cấp độ JLPT, nhãn miền và các ghi chú dịch thuật cho từng từ nổi bật. Đây là giao diện thể hiện trực tiếp việc kết hợp xử lý ngôn ngữ tự nhiên, GraphRAG và mô hình ngôn ngữ lớn trong đồ án.
+
+Các giao diện trên cho phép người học chuyển tiếp giữa tra cứu, flashcard, Review và AI Tutor. Mục này chỉ minh họa kết quả giao diện; cơ chế liên kết dữ liệu giữa các hoạt động được trình bày tại Mục 5.1.
+
+\section{Kiểm thử}
+\label{section:4.4}
+
+Kiểm thử được thực hiện song song với quá trình phát triển nhằm phát hiện lỗi nghiệp vụ và lỗi tích hợp giữa các dịch vụ. Hai chức năng cốt lõi được lựa chọn để trình bày chi tiết là: ôn tập flashcard theo thuật toán SM-2 và luyện hội thoại đa phương thức với AI Tutor. Đây là các chức năng có logic chuyển trạng thái phức tạp, tích hợp nhiều dịch vụ (frontend, backend, database, AI) và có tính cá nhân hóa cao. Các kịch bản kiểm thử cho các nhóm chức năng khác (như xác thực, từ điển, hồ sơ, dịch chuyên sâu và AI Review) được chuyển vào phần Phụ lục A để tối ưu hóa không gian trình bày của đồ án.
+
+\subsection{Phương pháp và kỹ thuật kiểm thử}
+\label{subsection:4.4.1}
+
+Kiểm thử hệ thống được thực hiện kết hợp giữa \textbf{kiểm thử hộp đen} (Black-box testing) dưới góc nhìn trải nghiệm của người học và \textbf{kiểm thử tích hợp} (Integration testing) để xác minh tính ổn định khi liên kết giữa các phân hệ Spring Boot, PostgreSQL, Web Speech API của trình duyệt và Python AI service.
+
+Các kỹ thuật kiểm thử cụ thể được áp dụng bao gồm:
+\begin{itemize}
+    \item \textbf{Phân vùng tương đương \& Phân tích giá trị biên:} Áp dụng để xác minh tính đúng đắn khi xử lý tham số đầu vào của thuật toán ôn tập SM-2. Dải giá trị đánh giá chất lượng ôn tập (tham số \texttt{quality} từ $0 - 5$) được chia thành phân vùng hợp lệ ($quality \in [0, 5]$) và phân vùng không hợp lệ ($quality \ge 6$ hoặc $quality < 0$).
+    \item \textbf{Kiểm thử chuyển trạng thái:} Áp dụng để kiểm tra quy trình thay đổi trạng thái của flashcard qua các giai đoạn học tập (\texttt{NEW}, \texttt{LEARNING}, \texttt{REVIEW}) dựa trên lựa chọn phản hồi của người học, cũng như việc cập nhật trạng thái luồng hội thoại của AI Tutor qua các bước gửi và nhận tin nhắn.
+    \item \textbf{Kiểm thử ngoại lệ và Khả năng phục hồi (Robustness \& Exception Testing):} Áp dụng cho các tình huống lỗi môi trường hoặc sự cố ngoài ý muốn của người dùng, cụ thể là trường hợp trình duyệt cũ không hỗ trợ hoặc bị từ chối quyền truy cập Web Speech API (thiết lập cơ chế fallback nhập liệu bằng bàn phím) và trường hợp mất kết nối mạng đột ngột trong khi đang thực hiện nhận dạng giọng nói (hiển thị thông báo lỗi kết nối và cho phép thực hiện lại thao tác).
+\end{itemize}
+
+Để thực hiện các kịch bản kiểm thử này, đồ án kết hợp cả phương pháp tự động hóa và thủ công:
+\begin{itemize}
+    \item \textbf{Kiểm thử tự động ở Backend:} Sử dụng thư viện JUnit kết hợp MockMvc để kiểm tra các API endpoint của hệ thống, giả lập (mock) các lời gọi dịch vụ AI bên ngoài nhằm kiểm tra tính độc lập của logic nghiệp vụ SRS và xử lý ngoại lệ đầu vào.
+    \item \textbf{Kiểm thử giao diện E2E:} Sử dụng Cypress để giả lập các thao tác của người dùng trên giao diện web đối với các luồng nghiệp vụ cơ bản.
+    \item \textbf{Kiểm thử thủ công đa phương thức:} Được áp dụng để trực tiếp thử nghiệm tính năng nhận dạng và tổng hợp giọng nói của Web Speech API, kiểm tra hành vi phản hồi của giao diện khi tương tác với microphone và mô phỏng các sự cố mạng vật lý.
+\end{itemize}
+
+\subsection{Kiểm thử chức năng ôn tập flashcard theo SM-2}
+\label{subsection:4.4.2}
+
+Nhóm này kiểm tra quan hệ giữa đánh giá của người học, khoảng cách ôn và trạng thái thẻ. Thẻ mới khởi tạo có hệ số dễ nhớ 2,5, số lần lặp lại bằng 0 và khoảng cách bằng 0 ngày.
+
+\begin{longtable}{|p{1.2cm}|p{2.8cm}|p{3.0cm}|p{5.0cm}|p{1.0cm}|}
+\hline
+\textbf{Mã} & \textbf{Trường hợp kiểm thử} & \textbf{Dữ liệu đầu vào} & \textbf{Kết quả mong đợi} & \textbf{Đánh giá} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Mã} & \textbf{Trường hợp kiểm thử} & \textbf{Dữ liệu đầu vào} & \textbf{Kết quả mong đợi} & \textbf{Đánh giá} \\
+\hline
+\endhead
+SM2-01 & Không nhớ thẻ & Thẻ mới; chọn \textbf{Lại} (\texttt{quality = 1}) & Số lần lặp lại về 0; khoảng cách 0 ngày; thẻ ở \texttt{LEARNING} và được đưa lại cuối hàng đợi & Đạt \\
+\hline
+SM2-02 & Nhớ nhưng còn khó & Thẻ mới; chọn \textbf{Khó} (\texttt{quality = 3}) & Số lần lặp lại là 1; ôn sau 1 ngày; trạng thái \texttt{LEARNING} & Đạt \\
+\hline
+SM2-03 & Nhớ ở mức bình thường & Thẻ mới; chọn \textbf{Được} (\texttt{quality = 4}) & Số lần lặp lại là 1; ôn sau 2 ngày; trạng thái \texttt{LEARNING} & Đạt \\
+\hline
+SM2-04 & Nhớ dễ dàng & Thẻ mới; chọn \textbf{Dễ} (\texttt{quality = 5}) & Khoảng cách 4 ngày; thẻ chuyển ngay sang \texttt{REVIEW} & Đạt \\
+\hline
+SM2-05 & Chất lượng ngoài miền & \texttt{quality = 6} & Phát sinh \texttt{Illegal\allowbreak Argument\allowbreak Exception}; dữ liệu SRS không được cập nhật & Đạt \\
+\hline
+\caption{Các trường hợp kiểm thử chức năng ôn tập flashcard theo SM-2}
+\label{table:4.13}\\
+\end{longtable}
+
+Các lựa chọn tạo ra khoảng cách ôn đúng thiết kế. \textbf{Lại} đưa thẻ trở lại hàng đợi, còn \textbf{Dễ} chuyển thẻ sớm sang giai đoạn ôn tập. Giá trị ngoài miền bị từ chối nên không làm sai dữ liệu SRS.
+
+\subsection{Kiểm thử chức năng AI Tutor đa phương thức}
+\label{subsection:4.4.3}
+
+Nhóm kiểm thử AI Tutor tập trung xác minh luồng hội thoại kết hợp nhận dạng giọng nói (STT) và tổng hợp giọng nói (TTS) được thực hiện trực tiếp tại client thông qua các API của trình duyệt (Browser Web Speech API).
+
+\begin{longtable}{|p{1.2cm}|p{2.8cm}|p{3.0cm}|p{5.0cm}|p{1.0cm}|}
+\hline
+\textbf{Mã} & \textbf{Trường hợp kiểm thử} & \textbf{Dữ liệu đầu vào} & \textbf{Kết quả mong đợi} & \textbf{Đánh giá} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Mã} & \textbf{Trường hợp kiểm thử} & \textbf{Dữ liệu đầu vào} & \textbf{Kết quả mong đợi} & \textbf{Đánh giá} \\
+\hline
+\endhead
+TUT-01 & Gửi tin nhắn văn bản & Phiên hợp lệ; gửi chuỗi văn bản \texttt{raamen wo hitotsu kudasai} & Hệ thống trả phản hồi dạng JSON có cấu trúc (gồm phản hồi tiếng Nhật, dịch tiếng Việt, sửa lỗi ngữ pháp, gợi ý hội thoại và từ mới) & Đạt \\
+\hline
+TUT-02 & Nhận dạng giọng nói (Browser STT) & Người học nói câu \texttt{raamen wo hitotsu kudasai} vào microphone & Web Speech API (STT) của trình duyệt nhận dạng chính xác giọng nói và chuyển đổi thành văn bản tiếng Nhật thành công & Đạt \\
+\hline
+TUT-03 & Phát âm thanh phản hồi (Browser TTS) & Phản hồi tiếng Nhật dạng văn bản được nhận từ AI & Web Speech API (TTS) của trình duyệt tổng hợp âm thanh và phát giọng đọc tiếng Nhật chuẩn xác, tự nhiên & Đạt \\
+\hline
+TUT-04 & Trình duyệt không hỗ trợ Web Speech API & Khởi chạy ứng dụng trên trình duyệt cũ hoặc không cấp quyền truy cập microphone & Giao diện hiển thị cảnh báo không sử dụng được microphone, ẩn nút ghi âm và cho phép người học nhập liệu bình thường bằng bàn phím & Đạt \\
+\hline
+TUT-05 & Xử lý lỗi kết nối mạng khi đang STT & Thiết bị mất kết nối Internet trong lúc Web Speech API đang nhận dạng giọng nói & Giao diện hiển thị thông báo lỗi kết nối mạng trên thanh trạng thái và cho phép người học bấm nút thử lại & Đạt \\
+\hline
+\caption{Các trường hợp kiểm thử chức năng AI Tutor đa phương thức}
+\label{table:4.15}\\
+\end{longtable}
+
+\subsection{Tổng kết kết quả kiểm thử}
+\label{subsection:4.4.4}
+
+Hệ thống đã trải qua tổng cộng 10 ca kiểm thử tiêu biểu cho các phân hệ, bao gồm các ca kiểm thử chính được phân tích chi tiết ở trên. Kết quả cho thấy cả 10 trường hợp đều hoạt động đúng thiết kế, đạt tỷ lệ thành công 100\%.
+
+\begin{longtable}{|p{5.5cm}|p{2.0cm}|p{1.2cm}|p{2.2cm}|p{2.0cm}|}
+\hline
+\textbf{Nhóm chức năng} & \textbf{Số ca test} & \textbf{Đạt} & \textbf{Không đạt} & \textbf{Tỷ lệ đạt} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Nhóm chức năng} & \textbf{Số ca test} & \textbf{Đạt} & \textbf{Không đạt} & \textbf{Tỷ lệ đạt} \\
+\hline
+\endhead
+Flashcard và thuật toán SM-2 & 5 & 5 & 0 & 100\% \\
+\hline
+AI Tutor đa phương thức & 5 & 5 & 0 & 100\% \\
+\hline
+\textbf{Tổng cộng} & \textbf{10} & \textbf{10} & \textbf{0} & \textbf{100\%} \\
+\hline
+\caption{Tổng hợp kết quả kiểm thử các chức năng chính}
+\label{table:4.16}\\
+\end{longtable}
+
+Nhìn chung, các chức năng cốt lõi đáp ứng yêu cầu ở mức nguyên mẫu hoàn chỉnh. Sự kết hợp giữa kiểm thử tự động (JUnit, pytest, Cypress) và kiểm thử thủ công đã giúp phát hiện sớm các vấn đề giao tiếp liên dịch vụ và cấu hình bảo mật.
+
+\section{Triển khai}
+\label{section:4.5}
+
+Trong phạm vi đồ án, hệ thống được triển khai thử nghiệm trên máy tính cá nhân theo mô hình localhost. Mục tiêu của lần triển khai này là đánh giá khả năng tương thích và vận hành đồng thời của các phân hệ, kết nối giữa các dịch vụ, và tính đúng đắn của các luồng nghiệp vụ cốt lõi.
+
+\subsection{Mô hình triển khai thử nghiệm}
+\label{subsection:4.5.1}
+
+Mô hình triển khai thử nghiệm bao gồm năm thành phần chính chạy trên cùng một thiết bị: frontend Vue, backend Spring Boot, Python AI service, PostgreSQL và Neo4j.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{Hinhve/4.26.png}
+    \caption{Mô hình triển khai thử nghiệm trên localhost}
+    \label{fig:4.27}
+\end{figure}
+
+Trình duyệt của người dùng truy cập vào frontend tại địa chỉ \url{http://localhost:5173}. Cấu hình reverse proxy của Vite sẽ chuyển tiếp các yêu cầu API có tiền tố \texttt{/api} và \texttt{/auth} đến backend Spring Boot chạy tại cổng \texttt{8080}. Backend đảm nhận việc xác thực, kiểm tra quyền và truy xuất cơ sở dữ liệu PostgreSQL (cổng \texttt{5432}). Đối với các tính năng thông minh như AI Tutor và AI Review, backend giao tiếp với Python AI service qua giao thức HTTP REST tại cổng \texttt{8001}. Khi thực hiện dịch chuyên sâu, Python AI service sẽ truy vấn cơ sở dữ liệu đồ thị Neo4j qua cổng \texttt{7687} (giao thức Bolt). 
+
+Quy trình khởi chạy hệ thống được thực hiện bằng cách khởi động các cơ sở dữ liệu PostgreSQL và Neo4j, tiếp theo chạy AI service (FastAPI) bằng lệnh \texttt{python server.py}, backend Spring Boot bằng lệnh \texttt{./mvnw spring-boot:run}, và cuối cùng là frontend Vue bằng lệnh \texttt{npm run dev} trên các cửa sổ terminal độc lập.
+
+\subsection{Thiết bị và môi trường triển khai}
+\label{subsection:4.5.2}
+
+Hệ thống được triển khai thử nghiệm trực tiếp từ mã nguồn trên một laptop Lenovo 82K2 chạy hệ điều hành Ubuntu 24.04 LTS (kiến trúc x86-64). Cấu hình chi tiết của thiết bị bao gồm bộ vi xử lý AMD Ryzen 5 5600H (6 nhân, 12 luồng), bộ nhớ RAM 16 GB, và ổ cứng SSD 512 GB. Các công cụ runtime được cài đặt gồm OpenJDK 25.0.3 (cho Java 21), Python 3.12.3, Node.js 24.15.0 và Google Chrome làm trình duyệt kiểm thử. Việc chạy trực tiếp trên môi trường máy chủ cục bộ giúp lập trình viên dễ dàng theo dõi log hệ thống, gỡ lỗi nhanh và tối ưu hóa hiệu năng của các pipeline AI trước khi triển khai thực tế.
+
+\subsection{Kết quả triển khai thử nghiệm}
+\label{subsection:4.5.3}
+
+Kết quả thử nghiệm thực tế cho thấy các dịch vụ khởi động bình thường và kết nối thông suốt với nhau. Người phát triển có thể thao tác hoàn chỉnh tất cả các luồng nghiệp vụ của ứng dụng: từ đăng ký tài khoản, tra cứu từ điển, quản lý flashcard, ôn tập SM-2 đến hội thoại tiếng Nhật và dịch GraphRAG.
+
+Vì đồ án hiện đang dừng lại ở mức xây dựng nguyên mẫu thử nghiệm (prototype), hệ thống mới chỉ được chạy bởi một lập trình viên duy nhất trên máy cục bộ phục vụ công tác kiểm thử tích hợp. Do đó, đồ án chưa triển khai cho nhóm người dùng bên ngoài, chưa có số liệu thống kê về lượt truy cập thực tế, phản hồi người dùng hay thực hiện kiểm thử tải (load testing) để xác định khả năng chịu tải tối đa của hệ thống. Đồng thời, thời gian phản hồi của các tính năng AI phụ thuộc nhiều vào chất lượng kết nối Internet đến nhà cung cấp mô hình ngôn ngữ lớn (Gemini API) nên chưa có phép đo thống kê chính thức.
+
+Để đưa ứng dụng vào vận hành thực tế (production), đồ án định hướng đóng gói các thành phần bằng Docker container, cấu hình reverse proxy bảo mật bằng Nginx, tách biệt các thông tin cấu hình nhạy cảm, sử dụng giao thức HTTPS, và thực hiện kiểm thử tải bằng các công cụ chuyên dụng (như JMeter hay Locust) trước khi triển khai lên các dịch vụ đám mây.
+
+\section{Tổng kết}
+\label{section:4.6}
+
+Chương 4 đã trình bày quá trình thiết kế chi tiết, kiểm thử và triển khai thử nghiệm hệ thống học tiếng Nhật thông minh. Dựa trên các yêu cầu phân tích từ Chương 3, hệ thống đã được xây dựng theo kiến trúc nhiều tầng sử dụng các công nghệ hiện đại bao gồm Spring Boot, Vue 3, FastAPI, PostgreSQL và Neo4j. Các biểu đồ lớp và biểu đồ trình tự được thiết kế chi tiết cho các ca sử dụng quan trọng đã cung cấp tài liệu kỹ thuật rõ ràng cho việc hiện thực hóa mã nguồn.
+
+Đồ án đã hiện thực hóa thành công các chức năng cốt lõi hỗ trợ một quy trình học tiếng Nhật toàn diện. Kết quả kiểm thử tiêu biểu đạt tỷ lệ thành công 100\% (10/10 ca test chính đạt yêu cầu), chứng minh tính đúng đắn và độ tin cậy của hệ thống. Quá trình triển khai thử nghiệm thành công trên môi trường localhost đã khẳng định tính khả thi trong việc kết hợp xử lý ngôn ngữ tự nhiên, đồ thị tri thức và mô hình ngôn ngữ lớn để hỗ trợ cá nhân hóa học tập. Những kết quả thực nghiệm và triển khai này là cơ sở thực tế quan trọng để Chương 5 trình bày và đánh giá chi tiết các đóng góp giải pháp cốt lõi của đồ án.
+
+\end{document}

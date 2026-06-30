@@ -1,0 +1,100 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="LAC57nf-6Z6BJQXscCVo">
+    <mxGraphModel dx="1340" dy="796" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-1" parent="1" style="whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;dashed=1;dashPattern=8 8;align=center;verticalAlign=top;fontColor=#000000;fontSize=13;spacingTop=6;" value="&lt;b&gt;Python AI Module&lt;/b&gt;" vertex="1">
+          <mxGeometry height="390" width="500" x="470" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-2" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;Vue Frontend&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="40" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-3" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;Spring Boot Backend&lt;/b&gt;&lt;br&gt;Xác thực, nghiệp vụ,&lt;br&gt;lưu dữ liệu" vertex="1">
+          <mxGeometry height="80" width="180" x="220" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-4" parent="1" style="shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;PostgreSQL&lt;/b&gt;" vertex="1">
+          <mxGeometry height="80" width="120" x="250" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-5" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;FastAPI Server&lt;/b&gt;" vertex="1">
+          <mxGeometry height="50" width="120" x="500" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-6" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;TutorPipeline&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="110" x="670" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-7" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;ReviewPipeline&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="110" x="670" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-8" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;Translation Pipeline&lt;/b&gt;&lt;br&gt;CLI stateless" vertex="1">
+          <mxGeometry height="60" width="140" x="500" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-9" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;LLMClient&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="110" x="830" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-10" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;STT/TTS Adapter&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="110" x="830" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-11" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;Neo4jClient&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="110" x="700" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-12" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;Ranker&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="110" x="700" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-13" parent="1" style="shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;Neo4j&lt;/b&gt;" vertex="1">
+          <mxGeometry height="80" width="120" x="1050" y="325" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-14" parent="1" style="shape=cloud;whiteSpace=wrap;html=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;Dịch vụ LLM&lt;/b&gt;&lt;br&gt;Gemini/OpenAI/Groq" vertex="1">
+          <mxGeometry height="90" width="150" x="1040" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-15" edge="1" parent="1" source="BSi6Z1l_PRlwyPQTfWoL-2" style="endArrow=classic;html=1;rounded=0;strokeWidth=1.5;strokeColor=#000000;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=11;" target="BSi6Z1l_PRlwyPQTfWoL-3" value="REST API">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-16" edge="1" parent="1" source="BSi6Z1l_PRlwyPQTfWoL-3" style="endArrow=classic;html=1;rounded=0;strokeWidth=1.5;strokeColor=#000000;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=11;" target="BSi6Z1l_PRlwyPQTfWoL-5" value="HTTP nội bộ">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-17" edge="1" parent="1" source="BSi6Z1l_PRlwyPQTfWoL-5" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;strokeColor=#000000;" target="BSi6Z1l_PRlwyPQTfWoL-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-18" edge="1" parent="1" source="BSi6Z1l_PRlwyPQTfWoL-5" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;strokeColor=#000000;" target="BSi6Z1l_PRlwyPQTfWoL-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-19" edge="1" parent="1" source="BSi6Z1l_PRlwyPQTfWoL-3" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;strokeColor=#000000;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=11;" target="BSi6Z1l_PRlwyPQTfWoL-8" value="Tham số dòng lệnh&lt;br&gt;kết quả JSON qua stdout">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="25" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-20" edge="1" parent="1" source="BSi6Z1l_PRlwyPQTfWoL-3" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;strokeColor=#000000;" target="BSi6Z1l_PRlwyPQTfWoL-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-21" edge="1" parent="1" source="BSi6Z1l_PRlwyPQTfWoL-6" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;strokeColor=#000000;" target="BSi6Z1l_PRlwyPQTfWoL-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-22" edge="1" parent="1" source="BSi6Z1l_PRlwyPQTfWoL-6" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;strokeColor=#000000;" target="BSi6Z1l_PRlwyPQTfWoL-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-23" edge="1" parent="1" source="BSi6Z1l_PRlwyPQTfWoL-7" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;strokeColor=#000000;" target="BSi6Z1l_PRlwyPQTfWoL-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-24" edge="1" parent="1" source="BSi6Z1l_PRlwyPQTfWoL-8" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;strokeColor=#000000;" target="BSi6Z1l_PRlwyPQTfWoL-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-25" edge="1" parent="1" source="BSi6Z1l_PRlwyPQTfWoL-8" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;strokeColor=#000000;" target="BSi6Z1l_PRlwyPQTfWoL-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-26" edge="1" parent="1" source="BSi6Z1l_PRlwyPQTfWoL-8" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;strokeColor=#000000;" target="BSi6Z1l_PRlwyPQTfWoL-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-27" edge="1" parent="1" source="BSi6Z1l_PRlwyPQTfWoL-11" style="endArrow=classic;html=1;rounded=0;strokeWidth=1.5;strokeColor=#000000;" target="BSi6Z1l_PRlwyPQTfWoL-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BSi6Z1l_PRlwyPQTfWoL-28" edge="1" parent="1" source="BSi6Z1l_PRlwyPQTfWoL-9" style="endArrow=classic;html=1;rounded=0;strokeWidth=1.5;strokeColor=#000000;" target="BSi6Z1l_PRlwyPQTfWoL-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

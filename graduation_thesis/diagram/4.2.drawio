@@ -1,0 +1,48 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="CRo_z4YJqcZrZRhROddj">
+    <mxGraphModel dx="1340" dy="796" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="VfrugM3ZyuJpn2XnHJHr-9" edge="1" parent="1" source="VfrugM3ZyuJpn2XnHJHr-13" style="dashed=1;endArrow=block;html=1;exitX=0.445;exitY=1.038;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.451;entryY=-0.018;entryDx=0;entryDy=0;entryPerimeter=0;" target="VfrugM3ZyuJpn2XnHJHr-14" value="">
+          <mxGeometry relative="1" x="-0.4606" y="5" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="345.2941176470588" y="100" as="sourcePoint" />
+            <mxPoint x="315.9367988032909" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VfrugM3ZyuJpn2XnHJHr-10" edge="1" parent="1" source="VfrugM3ZyuJpn2XnHJHr-14" style="dashed=1;endArrow=block;html=1;" target="VfrugM3ZyuJpn2XnHJHr-15" value="">
+          <mxGeometry relative="1" x="-0.0837" y="13" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="359.23076923076906" y="270" as="sourcePoint" />
+            <mxPoint x="567.9999999999998" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VfrugM3ZyuJpn2XnHJHr-11" edge="1" parent="1" source="VfrugM3ZyuJpn2XnHJHr-14" style="dashed=1;endArrow=block;html=1;entryX=0.467;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="VfrugM3ZyuJpn2XnHJHr-16" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="308.6046511627908" y="270" as="sourcePoint" />
+            <mxPoint x="298.37837837837856" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VfrugM3ZyuJpn2XnHJHr-12" edge="1" parent="1" source="VfrugM3ZyuJpn2XnHJHr-15" style="dashed=1;endArrow=block;html=1;entryX=0.994;entryY=0.616;entryDx=0;entryDy=0;entryPerimeter=0;" target="VfrugM3ZyuJpn2XnHJHr-16" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="551.1764705882351" y="400" as="sourcePoint" />
+            <mxPoint x="385" y="450.8571428571428" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VfrugM3ZyuJpn2XnHJHr-13" parent="1" style="shape=folder;fontStyle=1;tabWidth=80;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;whiteSpace=wrap;" value="frontend" vertex="1">
+          <mxGeometry height="80" width="150" x="285" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="VfrugM3ZyuJpn2XnHJHr-14" parent="1" style="shape=folder;fontStyle=1;tabWidth=80;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;whiteSpace=wrap;" value="backend" vertex="1">
+          <mxGeometry height="80" width="150" x="285" y="165" as="geometry" />
+        </mxCell>
+        <mxCell id="VfrugM3ZyuJpn2XnHJHr-16" parent="1" style="shape=folder;fontStyle=1;tabWidth=80;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;whiteSpace=wrap;" value="database" vertex="1">
+          <mxGeometry height="80" width="150" x="287" y="289" as="geometry" />
+        </mxCell>
+        <mxCell id="VfrugM3ZyuJpn2XnHJHr-15" parent="1" style="shape=folder;fontStyle=1;tabWidth=80;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;whiteSpace=wrap;" value="python_pipeline" vertex="1">
+          <mxGeometry height="80" width="150" x="550" y="225" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

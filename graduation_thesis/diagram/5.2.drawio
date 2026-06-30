@@ -1,0 +1,37 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="cDEHO7RqOrfmHhA89EM2">
+    <mxGraphModel dx="1340" dy="796" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="UUmG1wC7JKqFo-rFwt2E-1" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;Lexeme&lt;/b&gt;" vertex="1">
+          <mxGeometry height="90" width="90" x="60" y="145" as="geometry" />
+        </mxCell>
+        <mxCell id="UUmG1wC7JKqFo-rFwt2E-2" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;Sense&lt;/b&gt;" vertex="1">
+          <mxGeometry height="90" width="90" x="270" y="145" as="geometry" />
+        </mxCell>
+        <mxCell id="UUmG1wC7JKqFo-rFwt2E-3" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;Domain&lt;/b&gt;" vertex="1">
+          <mxGeometry height="90" width="90" x="270" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="UUmG1wC7JKqFo-rFwt2E-4" parent="1" style="shape=ellipse;whiteSpace=wrap;html=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;Lexeme&lt;/b&gt;" vertex="1">
+          <mxGeometry height="90" width="90" x="490" y="145" as="geometry" />
+        </mxCell>
+        <mxCell id="UUmG1wC7JKqFo-rFwt2E-5" edge="1" parent="1" source="UUmG1wC7JKqFo-rFwt2E-1" style="endArrow=classic;html=1;rounded=0;strokeWidth=1.5;strokeColor=#000000;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=11;" target="UUmG1wC7JKqFo-rFwt2E-2" value="HAS_SENSE">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="UUmG1wC7JKqFo-rFwt2E-6" edge="1" parent="1" source="UUmG1wC7JKqFo-rFwt2E-2" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;strokeColor=#000000;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=11;" target="UUmG1wC7JKqFo-rFwt2E-3" value="BELONGS_TO">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="UUmG1wC7JKqFo-rFwt2E-7" edge="1" parent="1" source="UUmG1wC7JKqFo-rFwt2E-2" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;strokeColor=#000000;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=11;" target="UUmG1wC7JKqFo-rFwt2E-4" value="SUPPORTED_BY">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

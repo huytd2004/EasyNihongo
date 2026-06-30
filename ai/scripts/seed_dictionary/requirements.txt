@@ -1,0 +1,7 @@
+lxml
+pandas
+psycopg2-binary
+tqdm
+deep-translator
+python-dotenv
+requests

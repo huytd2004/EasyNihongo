@@ -1,0 +1,64 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+Chương này trình bày bối cảnh hình thành đề tài, các vấn đề gặp phải trong quá trình tự học tiếng Nhật, mục tiêu và phạm vi của hệ thống cần xây dựng, định hướng giải pháp được lựa chọn, cũng như bố cục tổng thể của đồ án. Nội dung chương là cơ sở để các chương tiếp theo phân tích yêu cầu, lựa chọn công nghệ, thiết kế kiến trúc, triển khai hệ thống và đánh giá kết quả đạt được.
+
+\section{Đặt vấn đề}
+\label{section:1.1}
+
+Trong những năm gần đây, nhu cầu học tiếng Nhật tại Việt Nam tăng lên rõ rệt do sự phát triển của hợp tác giáo dục, lao động, công nghệ và giao lưu văn hóa giữa Việt Nam và Nhật Bản. Tiếng Nhật được sử dụng trong nhiều môi trường như học thuật, doanh nghiệp, biên dịch tài liệu, giao tiếp công việc và đời sống hằng ngày. Đối với người học, việc đạt được năng lực sử dụng tiếng Nhật không chỉ đòi hỏi ghi nhớ từ vựng và ngữ pháp, mà còn cần khả năng hiểu nghĩa theo ngữ cảnh, vận dụng mẫu câu trong giao tiếp và duy trì thói quen ôn tập trong thời gian dài.
+
+Trong thực tế, quá trình tự học tiếng Nhật thường bị phân tán giữa nhiều công cụ khác nhau. Người học có thể dùng một ứng dụng để tra từ điển, một ứng dụng khác để lưu flashcard, một tài liệu riêng để học ngữ pháp, một công cụ dịch để hiểu văn bản và một nền tảng khác để luyện giao tiếp. Cách học này có thể đáp ứng từng nhu cầu riêng lẻ, nhưng dữ liệu học tập không được kết nối với nhau. Một từ vừa tra cứu không tự động trở thành nội dung ôn tập; lỗi sai trong luyện tập không được dùng để tạo bài học tiếp theo; cấp độ JLPT và lịch sử học của người dùng chưa được khai thác đầy đủ khi gợi ý nội dung.
+
+Một vấn đề quan trọng khác là việc ghi nhớ từ vựng cần có cơ chế ôn tập hợp lý. Nếu ôn tập quá sớm, người học tốn thời gian cho những nội dung đã nhớ; nếu ôn tập quá muộn, kiến thức dễ bị quên. Các thuật toán lặp lại ngắt quãng như SM-2 có thể hỗ trợ lên lịch ôn tập dựa trên mức độ ghi nhớ, nhưng thuật toán chỉ phát huy hiệu quả khi được tích hợp vào một hệ thống có khả năng lưu trạng thái học của từng thẻ, theo dõi tiến độ và cập nhật lịch ôn theo phản hồi thực tế của người học.
+
+Bên cạnh việc ghi nhớ, người học cũng cần luyện khả năng sử dụng tiếng Nhật trong ngữ cảnh. Các công cụ hội thoại và dịch tự động hiện nay đã hỗ trợ người học tiếp cận nội dung nhanh hơn, nhưng dữ liệu từ các phiên luyện tập thường không được liên kết với tiến độ học, bộ thẻ hoặc lỗi sai cá nhân. Đối với các văn bản chuyên ngành, bản dịch hoặc phần giải thích nghĩa cũng có thể thiếu căn cứ rõ ràng từ kho tri thức mà hệ thống quản lý. Điều này làm giảm khả năng kiểm soát, theo dõi và cá nhân hóa quá trình học.
+
+Ngoài ra, kỹ năng giao tiếp là một phần quan trọng trong học ngoại ngữ nhưng thường khó tự luyện một cách hiệu quả. Người học cần một môi trường luyện tập có phản hồi tức thời, có thể gợi ý sửa lỗi và tạo điều kiện sử dụng từ vựng mục tiêu trong ngữ cảnh tự nhiên. Nếu hoạt động hội thoại không gắn với dữ liệu học tập, người học khó biết mình tiến bộ ở đâu, thường mắc lỗi gì và cần ôn lại nội dung nào.
+
+Từ các phân tích trên, đề tài ``Hệ thống thông minh hỗ trợ học tiếng Nhật'' được lựa chọn nhằm xây dựng một nền tảng học tập tích hợp. Hệ thống hướng tới việc kết nối các hoạt động tra cứu, ghi nhớ, ôn tập, luyện giao tiếp và dịch thuật chuyên ngành trong cùng một sản phẩm, qua đó tận dụng dữ liệu học tập cá nhân và tri thức ngôn ngữ để hỗ trợ người học hiệu quả hơn.
+
+\section{Mục tiêu và phạm vi đề tài}
+\label{section:1.2}
+
+Các sản phẩm hỗ trợ học tiếng Nhật hiện nay có thể chia thành một số nhóm chính như từ điển trực tuyến, ứng dụng flashcard, nền tảng luyện thi, công cụ dịch tự động và ứng dụng hội thoại với AI. Nhóm từ điển giúp người học tra cứu nhanh từ vựng, kanji và ngữ pháp, nhưng thường chưa kết nối trực tiếp với lịch ôn tập. Nhóm flashcard hỗ trợ ghi nhớ từ vựng, nhưng dữ liệu học thường tách biệt với hoạt động tra cứu và luyện sử dụng. Nhóm công cụ dịch và hội thoại giúp người học tiếp cận văn bản hoặc luyện giao tiếp nhanh hơn, nhưng kết quả học tập và lỗi sai chưa được khai thác đầy đủ để cá nhân hóa nội dung ôn tập.
+
+Từ đánh giá trên, có thể thấy hạn chế chính của các công cụ hiện có không nằm ở việc thiếu từng chức năng riêng lẻ, mà ở việc thiếu sự liên kết giữa các hoạt động học. Người học cần một hệ thống có thể kết nối dữ liệu tra cứu, flashcard, ôn tập, luyện giao tiếp, lỗi sai và dịch thuật trong cùng một quy trình. Trên cơ sở đó, mục tiêu tổng quát của đồ án là xây dựng một hệ thống web hỗ trợ học tiếng Nhật, tích hợp các chức năng học tập cốt lõi và một số thành phần AI trong một kiến trúc thống nhất.
+
+Hệ thống hướng tới việc cho phép người dùng tra cứu từ vựng, kanji và ngữ pháp; quản lý bộ thẻ flashcard; ôn tập theo thuật toán lặp lại ngắt quãng; sinh bài ôn tập cá nhân hóa; luyện hội thoại với AI Tutor; và hỗ trợ dịch thuật chuyên ngành dựa trên ngữ cảnh. Về phía người học, hệ thống tạo một quy trình liên tục từ tra cứu, lưu thẻ, ôn tập, luyện sử dụng đến xem lại phản hồi. Về phía kỹ thuật, hệ thống được triển khai theo kiến trúc nhiều tầng gồm giao diện web, backend quản lý nghiệp vụ, cơ sở dữ liệu và tầng AI.
+
+Phạm vi chức năng của đồ án tập trung vào năm nhóm chính. Nhóm thứ nhất là tra cứu và quản lý tri thức học tập, bao gồm tìm kiếm từ vựng, kanji, ngữ pháp, xem ví dụ và bình luận tại từng mục từ điển. Nhóm thứ hai là flashcard và ôn tập, bao gồm tạo bộ thẻ, thêm thẻ từ dữ liệu tra cứu, theo dõi trạng thái học và tính toán lịch ôn tập bằng thuật toán SM-2. Nhóm thứ ba là ôn tập thông minh, bao gồm sinh trắc nghiệm và câu chuyện tương tác dựa trên bộ thẻ, cấp độ JLPT và lỗi sai gần đây. Nhóm thứ tư là AI Tutor, cho phép người học luyện hội thoại bằng văn bản và hỗ trợ tương tác giọng nói thông qua khả năng ghi âm/phát âm trên trình duyệt. Nhóm thứ năm là dịch thuật chuyên ngành, sử dụng pipeline xử lý tiếng Nhật, đồ thị tri thức Neo4j và mô hình ngôn ngữ lớn để tăng khả năng kiểm soát ngữ cảnh khi chọn nghĩa.
+
+Trong khuôn khổ đồ án tốt nghiệp, hệ thống được triển khai ở mức nguyên mẫu phục vụ thử nghiệm chức năng và đánh giá kiến trúc. Đồ án chưa đặt mục tiêu xây dựng một sản phẩm thương mại quy mô lớn, chưa tối ưu toàn diện cho tải người dùng cao, chưa bao phủ đầy đủ toàn bộ tri thức tiếng Nhật ở mọi trình độ và chưa thay thế vai trò của giáo viên trong các tình huống giảng dạy chuyên sâu. Thay vào đó, đồ án tập trung chứng minh tính khả thi của một hệ thống học tiếng Nhật tích hợp dữ liệu học tập, thuật toán ôn tập và các thành phần AI trong một nền tảng thống nhất.
+
+\section{Định hướng giải pháp}
+\label{section:1.3}
+
+Từ các vấn đề và mục tiêu đã nêu, đồ án lựa chọn định hướng xây dựng hệ thống theo kiến trúc phân tầng kết hợp với các pipeline AI riêng. Kiến trúc này giúp tách biệt giao diện người dùng, nghiệp vụ backend, lưu trữ dữ liệu và xử lý AI. Frontend giao tiếp với backend thông qua REST API; backend quản lý nghiệp vụ cốt lõi và điều phối các yêu cầu đến AI layer; AI layer xử lý các tác vụ cần sinh nội dung hoặc phân tích ngôn ngữ.
+
+Đối với bài toán dữ liệu học tập bị phân tán, đồ án định hướng xây dựng một nền tảng tích hợp, trong đó các chức năng tra cứu, flashcard, ôn tập, hội thoại và dịch thuật cùng sử dụng dữ liệu người học. Cách tiếp cận này giúp kết quả của hoạt động này có thể trở thành đầu vào cho hoạt động khác, ví dụ từ vựng tra cứu có thể được thêm vào flashcard, còn lỗi sai trong hội thoại có thể được dùng cho bài ôn tập sau.
+
+Đối với bài toán ghi nhớ từ vựng, đồ án tích hợp thuật toán SM-2 vào chức năng flashcard. Thuật toán này được lựa chọn vì đơn giản, phù hợp với bài toán lặp lại ngắt quãng và có thể cập nhật lịch ôn dựa trên phản hồi của người học. Nhờ đó, hệ thống có thể ưu tiên những nội dung cần ôn thay vì yêu cầu người học tự quản lý toàn bộ lịch học.
+
+Đối với bài toán ôn tập và luyện sử dụng, đồ án xây dựng AI Review Pipeline và AI Tutor. AI Review Pipeline sử dụng bộ thẻ, cấp độ JLPT và lỗi sai gần đây để sinh trắc nghiệm hoặc câu chuyện tương tác. AI Tutor hỗ trợ người học luyện hội thoại, nhận phản hồi và lưu lại kết quả phiên học. Hai thành phần này được lựa chọn nhằm đưa từ vựng ra khỏi ngữ cảnh thẻ đơn lẻ và đặt vào tình huống sử dụng cụ thể hơn.
+
+Đối với bài toán dịch thuật chuyên ngành và giải thích nghĩa theo ngữ cảnh, đồ án sử dụng hướng tiếp cận GraphRAG với Neo4j. Mô hình ngôn ngữ lớn có thể dịch và giải thích nghĩa trực tiếp nếu được prompt phù hợp, nhưng pipeline GraphRAG giúp hệ thống bổ sung bằng chứng ngữ cảnh từ kho dữ liệu riêng trước khi sinh kết quả. Định hướng này giúp tăng khả năng kiểm soát nguồn tri thức và tạo cơ sở giải thích rõ ràng hơn cho các thuật ngữ đa nghĩa.
+
+Đóng góp chính của đồ án là thiết kế và triển khai một nguyên mẫu hệ thống học tiếng Nhật có khả năng kết nối dữ liệu học tập, thuật toán ôn tập và các chức năng AI trong cùng một sản phẩm. Kết quả đạt được là một hệ thống có thể hỗ trợ người học tra cứu, ghi nhớ, ôn tập, luyện giao tiếp và dịch thuật chuyên ngành ở mức nguyên mẫu, tạo cơ sở để mở rộng thành trợ lý học ngoại ngữ cá nhân hóa trong tương lai.
+
+\section{Bố cục đồ án}
+\label{section:1.4}
+
+Phần còn lại của báo cáo đồ án tốt nghiệp được tổ chức như sau.
+
+Chương 2 trình bày quá trình khảo sát và phân tích yêu cầu đối với hệ thống học tiếng Nhật thông minh. Chương này làm rõ các nhóm người dùng, nhu cầu sử dụng, các chức năng chính của hệ thống, đặc tả một số ca sử dụng tiêu biểu và các yêu cầu phi chức năng liên quan đến bảo mật, khả dụng, hiệu năng, khả năng mở rộng và tính dễ sử dụng.
+
+Chương 3 giới thiệu các công nghệ được sử dụng trong quá trình xây dựng hệ thống. Nội dung chương tập trung vào vai trò của Vue 3, Vite, Tailwind CSS và Pinia ở tầng frontend; Java, Spring Boot, Spring Security, JPA và JWT ở tầng backend; PostgreSQL và Neo4j ở tầng dữ liệu; cùng Python, FastAPI, SudachiPy, API trình duyệt cho tương tác giọng nói và mô hình ngôn ngữ lớn ở tầng AI.
+
+Chương 4 trình bày quá trình thiết kế, phát triển và triển khai ứng dụng. Chương này mô tả kiến trúc tổng thể, thiết kế các thành phần backend, frontend, cơ sở dữ liệu và AI layer, cách các thành phần giao tiếp với nhau, các chức năng đã xây dựng, quá trình kiểm thử và mô hình triển khai thử nghiệm của hệ thống.
+
+Chương 5 trình bày các giải pháp và đóng góp nổi bật của đồ án. Nội dung chương tập trung phân tích sâu các điểm chính như tích hợp thuật toán SM-2 cho ôn tập flashcard, sinh bài ôn tập thông minh bằng AI Review Pipeline, xây dựng AI Tutor gắn với dữ liệu học tập, cũng như ứng dụng Neo4j GraphRAG để cung cấp bằng chứng ngữ cảnh cho dịch thuật chuyên ngành tiếng Nhật.
+
+Chương 6 đưa ra kết luận và định hướng phát triển. Chương này tổng kết các kết quả đã đạt được, tự đánh giá mức độ hoàn thành mục tiêu đề tài, chỉ ra những hạn chế còn tồn tại và đề xuất các hướng mở rộng như cải thiện chất lượng dữ liệu, nâng cao khả năng cá nhân hóa, tối ưu hiệu năng, triển khai trên môi trường thực tế và phát triển thêm các chức năng hỗ trợ học ngoại ngữ.
+
+\end{document}

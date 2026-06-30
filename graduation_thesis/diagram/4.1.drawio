@@ -1,0 +1,25 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="kroEjEfDJ59huKqilJv2">
+    <mxGraphModel dx="1340" dy="796" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="NqXUDIxlgrZVzrUGQToK-1" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;Presentation Layer&lt;/b&gt;&lt;br&gt;(Lớp trình diễn)" vertex="1">
+          <mxGeometry height="70" width="240" x="293" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="NqXUDIxlgrZVzrUGQToK-2" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;Business Logic Layer&lt;/b&gt;&lt;br&gt;(Lớp nghiệp vụ)" vertex="1">
+          <mxGeometry height="70" width="240" x="293" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="NqXUDIxlgrZVzrUGQToK-3" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;Data Access Layer&lt;/b&gt;&lt;br&gt;(Lớp truy cập dữ liệu)" vertex="1">
+          <mxGeometry height="70" width="240" x="293" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="NqXUDIxlgrZVzrUGQToK-5" edge="1" parent="1" source="NqXUDIxlgrZVzrUGQToK-1" style="endArrow=classic;startArrow=classic;html=1;rounded=0;strokeWidth=1.5;strokeColor=#000000;" target="NqXUDIxlgrZVzrUGQToK-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="NqXUDIxlgrZVzrUGQToK-6" edge="1" parent="1" source="NqXUDIxlgrZVzrUGQToK-2" style="endArrow=classic;startArrow=classic;html=1;rounded=0;strokeWidth=1.5;strokeColor=#000000;" target="NqXUDIxlgrZVzrUGQToK-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,64 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="Y4ncLSW47cQ5KWAaFyUC">
+    <mxGraphModel dx="1340" dy="796" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="3HZSQDWdfFFmerI6ULjn-1" parent="1" style="whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;ReviewService&lt;/b&gt;&lt;/center&gt;&lt;hr&gt;+ generateQuiz(request: ReviewQuizRequest, userEmail: String): ReviewQuizResponse&lt;br&gt;+ generateStory(request: ReviewQuizRequest, userEmail: String): ReviewStoryResponse&lt;br&gt;+ saveQuizResult(request: QuizResultSaveRequest, userEmail: String): void&lt;br&gt;+ saveStoryResult(request: StoryResultSaveRequest, userEmail: String): void&lt;br&gt;+ getHistory(userEmail: String, size: int): List" vertex="1">
+          <mxGeometry height="140" width="500" x="495" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="3HZSQDWdfFFmerI6ULjn-2" parent="1" style="whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;ReviewServiceImpl&lt;/b&gt;&lt;/center&gt;&lt;hr&gt;- userRepository: UserRepository&lt;br&gt;- flashcardRepository: FlashcardRepository&lt;br&gt;- resultRepository: TutorSessionResultRepository&lt;br&gt;- flashcardDeckRepository: FlashcardDeckRepository&lt;br&gt;- quizReviewRepository: QuizReviewRepository&lt;br&gt;- storyReviewRepository: StoryReviewRepository&lt;br&gt;- objectMapper: ObjectMapper&lt;br&gt;- aiBaseUrl: String&lt;br&gt;- httpClient: HttpClient&lt;hr&gt;+ generateQuiz(request: ReviewQuizRequest, userEmail: String): ReviewQuizResponse&lt;br&gt;+ generateStory(request: ReviewQuizRequest, userEmail: String): ReviewStoryResponse&lt;br&gt;+ saveQuizResult(request: QuizResultSaveRequest, userEmail: String): void&lt;br&gt;+ saveStoryResult(request: StoryResultSaveRequest, userEmail: String): void&lt;br&gt;+ getHistory(userEmail: String, size: int): List&lt;br&gt;- loadDeckWords(deckId: String, user: User): List&lt;br&gt;- loadRecentMistakes(user: User, frontendMistakes: List): List&lt;br&gt;- callPythonQuizGenerate(words: List, level: String, questionCount: int, mistakes: List): ReviewQuizResponse&lt;br&gt;- callPythonStoryGenerate(words: List, level: String, mistakes: List): ReviewStoryResponse" vertex="1">
+          <mxGeometry height="350" width="490" x="500" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="3HZSQDWdfFFmerI6ULjn-3" parent="1" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;UserRepository&lt;/b&gt;&lt;/center&gt;" vertex="1">
+          <mxGeometry height="50" width="140" x="60" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="3HZSQDWdfFFmerI6ULjn-4" parent="1" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;FlashcardRepository&lt;/b&gt;&lt;/center&gt;" vertex="1">
+          <mxGeometry height="50" width="160" x="220" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="3HZSQDWdfFFmerI6ULjn-5" parent="1" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;TutorSessionResultRepository&lt;/b&gt;&lt;/center&gt;" vertex="1">
+          <mxGeometry height="50" width="210" x="400" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="3HZSQDWdfFFmerI6ULjn-6" parent="1" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;FlashcardDeckRepository&lt;/b&gt;&lt;/center&gt;" vertex="1">
+          <mxGeometry height="50" width="180" x="630" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="3HZSQDWdfFFmerI6ULjn-7" parent="1" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;QuizReviewRepository&lt;/b&gt;&lt;/center&gt;" vertex="1">
+          <mxGeometry height="50" width="160" x="830" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="3HZSQDWdfFFmerI6ULjn-8" parent="1" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;StoryReviewRepository&lt;/b&gt;&lt;/center&gt;" vertex="1">
+          <mxGeometry height="50" width="170" x="1010" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="3HZSQDWdfFFmerI6ULjn-9" parent="1" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;HttpClient&lt;/b&gt;&lt;/center&gt;" vertex="1">
+          <mxGeometry height="50" width="130" x="1200" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="3HZSQDWdfFFmerI6ULjn-10" edge="1" parent="1" source="3HZSQDWdfFFmerI6ULjn-2" style="endArrow=block;endFill=0;endSize=12;dashed=1;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" target="3HZSQDWdfFFmerI6ULjn-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3HZSQDWdfFFmerI6ULjn-11" edge="1" parent="1" source="3HZSQDWdfFFmerI6ULjn-2" style="endArrow=open;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.05;exitY=1;entryX=0.5;entryY=0;" target="3HZSQDWdfFFmerI6ULjn-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3HZSQDWdfFFmerI6ULjn-12" edge="1" parent="1" source="3HZSQDWdfFFmerI6ULjn-2" style="endArrow=open;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.2;exitY=1;entryX=0.5;entryY=0;" target="3HZSQDWdfFFmerI6ULjn-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3HZSQDWdfFFmerI6ULjn-13" edge="1" parent="1" source="3HZSQDWdfFFmerI6ULjn-2" style="endArrow=open;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.35;exitY=1;entryX=0.5;entryY=0;" target="3HZSQDWdfFFmerI6ULjn-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3HZSQDWdfFFmerI6ULjn-14" edge="1" parent="1" source="3HZSQDWdfFFmerI6ULjn-2" style="endArrow=open;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="3HZSQDWdfFFmerI6ULjn-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3HZSQDWdfFFmerI6ULjn-15" edge="1" parent="1" source="3HZSQDWdfFFmerI6ULjn-2" style="endArrow=open;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.65;exitY=1;entryX=0.5;entryY=0;" target="3HZSQDWdfFFmerI6ULjn-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3HZSQDWdfFFmerI6ULjn-16" edge="1" parent="1" source="3HZSQDWdfFFmerI6ULjn-2" style="endArrow=open;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.8;exitY=1;entryX=0.5;entryY=0;" target="3HZSQDWdfFFmerI6ULjn-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3HZSQDWdfFFmerI6ULjn-17" edge="1" parent="1" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.95;exitY=1;entryX=0.592;entryY=0.08;entryDx=0;entryDy=0;entryPerimeter=0;" target="3HZSQDWdfFFmerI6ULjn-9">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="990" y="570" as="sourcePoint" />
+            <mxPoint x="1289.5" y="630" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

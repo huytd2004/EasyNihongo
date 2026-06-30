@@ -1,0 +1,67 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="4AkyT4LZrG-l3tRDwamB">
+    <mxGraphModel dx="1340" dy="796" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="iGZDr6ZzDnPBnamqrHU5-1" parent="1" style="whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;TutorService&lt;/b&gt;&lt;/center&gt;&lt;hr&gt;+ createSession(request: TutorSessionRequest, userEmail: String): TutorSessionResponse&lt;br&gt;+ getSession(sessionId: UUID, userEmail: String): TutorSessionResponse&lt;br&gt;+ sendMessage(sessionId: UUID, request: MessageRequest, audio: MultipartFile, userEmail: String): MessageResponse&lt;br&gt;+ getResult(sessionId: UUID, userEmail: String): TutorResultResponse&lt;br&gt;+ finishSession(sessionId: UUID, userEmail: String): void&lt;br&gt;+ getRecentMistakes(userEmail: String, limit: int): RecentMistakesResponse" vertex="1">
+          <mxGeometry height="160" width="500" x="500" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="iGZDr6ZzDnPBnamqrHU5-2" parent="1" style="whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingRight=6;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;TutorServiceImpl&lt;/b&gt;&lt;/center&gt;&lt;hr&gt;- sessionRepository: ConversationSessionRepository&lt;br&gt;- logRepository: LearningLogRepository&lt;br&gt;- resultRepository: TutorSessionResultRepository&lt;br&gt;- userRepository: UserRepository&lt;br&gt;- aiAdapter: AiAdapter&lt;br&gt;- audioStorageService: AudioStorageService&lt;br&gt;- sttAdapter: STTAdapter&lt;br&gt;- ttsAdapter: TTSAdapter&lt;br&gt;- objectMapper: ObjectMapper&lt;br&gt;- browserTts: boolean&lt;hr&gt;+ createSession(request: TutorSessionRequest, userEmail: String): TutorSessionResponse&lt;br&gt;+ getSession(sessionId: UUID, userEmail: String): TutorSessionResponse&lt;br&gt;+ sendMessage(sessionId: UUID, request: MessageRequest, audio: MultipartFile, userEmail: String): MessageResponse&lt;br&gt;+ getResult(sessionId: UUID, userEmail: String): TutorResultResponse&lt;br&gt;+ finishSession(sessionId: UUID, userEmail: String): void&lt;br&gt;+ getRecentMistakes(userEmail: String, limit: int): RecentMistakesResponse&lt;br&gt;- buildTutorResultResponse(session: ConversationSession, logs: List): TutorResultResponse&lt;br&gt;- toJson(object: Object): String&lt;br&gt;- tryExtractJson(text: String): JsonNode" vertex="1">
+          <mxGeometry height="360" width="500" x="500" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="iGZDr6ZzDnPBnamqrHU5-3" parent="1" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;ConversationSessionRepository&lt;/b&gt;&lt;/center&gt;" vertex="1">
+          <mxGeometry height="50" width="210" x="30" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="iGZDr6ZzDnPBnamqrHU5-4" parent="1" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;LearningLogRepository&lt;/b&gt;&lt;/center&gt;" vertex="1">
+          <mxGeometry height="50" width="180" x="260" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="iGZDr6ZzDnPBnamqrHU5-5" parent="1" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;TutorSessionResultRepository&lt;/b&gt;&lt;/center&gt;" vertex="1">
+          <mxGeometry height="50" width="210" x="460" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="iGZDr6ZzDnPBnamqrHU5-6" parent="1" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;UserRepository&lt;/b&gt;&lt;/center&gt;" vertex="1">
+          <mxGeometry height="50" width="140" x="690" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="iGZDr6ZzDnPBnamqrHU5-7" parent="1" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;AiAdapter&lt;/b&gt;&lt;/center&gt;" vertex="1">
+          <mxGeometry height="50" width="130" x="850" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="iGZDr6ZzDnPBnamqrHU5-8" parent="1" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;AudioStorageService&lt;/b&gt;&lt;/center&gt;" vertex="1">
+          <mxGeometry height="50" width="160" x="1000" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="iGZDr6ZzDnPBnamqrHU5-9" parent="1" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;STTAdapter&lt;/b&gt;&lt;/center&gt;" vertex="1">
+          <mxGeometry height="50" width="130" x="1180" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="iGZDr6ZzDnPBnamqrHU5-10" parent="1" style="whiteSpace=wrap;html=1;align=center;verticalAlign=middle;rounded=0;strokeColor=#434944;fillColor=#ffffff;" value="&lt;center&gt;&lt;b&gt;TTSAdapter&lt;/b&gt;&lt;/center&gt;" vertex="1">
+          <mxGeometry height="50" width="130" x="1330" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="iGZDr6ZzDnPBnamqrHU5-11" edge="1" parent="1" source="iGZDr6ZzDnPBnamqrHU5-2" style="endArrow=block;endFill=0;endSize=12;dashed=1;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" target="iGZDr6ZzDnPBnamqrHU5-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iGZDr6ZzDnPBnamqrHU5-12" edge="1" parent="1" source="iGZDr6ZzDnPBnamqrHU5-2" style="endArrow=open;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.05;exitY=1;entryX=0.5;entryY=0;" target="iGZDr6ZzDnPBnamqrHU5-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iGZDr6ZzDnPBnamqrHU5-13" edge="1" parent="1" source="iGZDr6ZzDnPBnamqrHU5-2" style="endArrow=open;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.18;exitY=1;entryX=0.5;entryY=0;" target="iGZDr6ZzDnPBnamqrHU5-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iGZDr6ZzDnPBnamqrHU5-14" edge="1" parent="1" source="iGZDr6ZzDnPBnamqrHU5-2" style="endArrow=open;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.32;exitY=1;entryX=0.5;entryY=0;" target="iGZDr6ZzDnPBnamqrHU5-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iGZDr6ZzDnPBnamqrHU5-15" edge="1" parent="1" source="iGZDr6ZzDnPBnamqrHU5-2" style="endArrow=open;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.45;exitY=1;entryX=0.5;entryY=0;" target="iGZDr6ZzDnPBnamqrHU5-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iGZDr6ZzDnPBnamqrHU5-16" edge="1" parent="1" source="iGZDr6ZzDnPBnamqrHU5-2" style="endArrow=open;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.58;exitY=1;entryX=0.5;entryY=0;" target="iGZDr6ZzDnPBnamqrHU5-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iGZDr6ZzDnPBnamqrHU5-17" edge="1" parent="1" source="iGZDr6ZzDnPBnamqrHU5-2" style="endArrow=open;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.72;exitY=1;entryX=0.5;entryY=0;" target="iGZDr6ZzDnPBnamqrHU5-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iGZDr6ZzDnPBnamqrHU5-18" edge="1" parent="1" source="iGZDr6ZzDnPBnamqrHU5-2" style="endArrow=open;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.85;exitY=1;entryX=0.5;entryY=0;" target="iGZDr6ZzDnPBnamqrHU5-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iGZDr6ZzDnPBnamqrHU5-19" edge="1" parent="1" source="iGZDr6ZzDnPBnamqrHU5-2" style="endArrow=open;endSize=12;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1;exitX=0.95;exitY=1;entryX=0.5;entryY=0;" target="iGZDr6ZzDnPBnamqrHU5-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

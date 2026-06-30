@@ -1,0 +1,37 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="Gp89ZEtx4Hor5id5BAeP">
+    <mxGraphModel dx="1340" dy="796" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Ki_sbKHRZu2K4KnfDCbc-1" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;Lexeme&lt;/b&gt;&lt;br&gt;lexemeId, surface,&lt;br&gt;reading, pos" vertex="1">
+          <mxGeometry height="80" width="160" x="10" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="Ki_sbKHRZu2K4KnfDCbc-2" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;Sense&lt;/b&gt;&lt;br&gt;senseId, glossVi,&lt;br&gt;domain" vertex="1">
+          <mxGeometry height="80" width="160" x="280" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="Ki_sbKHRZu2K4KnfDCbc-3" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;Domain&lt;/b&gt;&lt;br&gt;domainId, name" vertex="1">
+          <mxGeometry height="60" width="160" x="540" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="Ki_sbKHRZu2K4KnfDCbc-4" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="&lt;b&gt;Lexeme đóng vai trò cue&lt;/b&gt;&lt;br&gt;lexemeId, surface" vertex="1">
+          <mxGeometry height="60" width="180" x="540" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="Ki_sbKHRZu2K4KnfDCbc-5" edge="1" parent="1" source="Ki_sbKHRZu2K4KnfDCbc-1" style="endArrow=classic;html=1;rounded=0;strokeWidth=1.5;strokeColor=#000000;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=11;" target="Ki_sbKHRZu2K4KnfDCbc-2" value="HAS_SENSE&lt;br&gt;1:N">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ki_sbKHRZu2K4KnfDCbc-6" edge="1" parent="1" source="Ki_sbKHRZu2K4KnfDCbc-2" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;strokeColor=#000000;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=11;" target="Ki_sbKHRZu2K4KnfDCbc-3" value="BELONGS_TO&lt;br&gt;N:1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ki_sbKHRZu2K4KnfDCbc-7" edge="1" parent="1" source="Ki_sbKHRZu2K4KnfDCbc-2" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;strokeColor=#000000;labelBackgroundColor=#ffffff;fontColor=#000000;fontSize=11;" target="Ki_sbKHRZu2K4KnfDCbc-4" value="SUPPORTED_BY&lt;br&gt;N:N">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
