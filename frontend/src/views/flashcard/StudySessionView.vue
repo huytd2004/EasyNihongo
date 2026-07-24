@@ -23,7 +23,7 @@
 
       <div class="flex items-center gap-3">
         <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
-        <span class="font-headline font-extrabold text-on-surface">{{ fixedStreakDays }}</span>
+        <span class="font-headline font-extrabold text-on-surface">{{ streakDays }}</span>
       </div>
     </header>
 
@@ -141,7 +141,18 @@ const deck = ref(null)
 const sessionQueue = ref([])
 const currentIndex = ref(0)
 const completedCards = ref(0)
-const fixedStreakDays = 14
+const streakDays = ref(0)
+
+async function fetchStreak() {
+  try {
+    const res = await api.get('/api/v1/users/me/profile')
+    if (res.status === 'success') {
+      streakDays.value = res.data.streakCount ?? 0
+    }
+  } catch (e) {
+    console.warn('Error fetching user profile for streak:', e)
+  }
+}
 
 const backLink = computed(() => `/flashcards/${deckId.value}`)
 
@@ -211,6 +222,9 @@ async function reviewCard(rating) {
   try {
     await api.patch(`/api/v1/flashcards/${currentCard.value.id}/review`, { rating })
 
+    // Fetch the updated streak count in case this review completes/increments it
+    fetchStreak()
+
     if (rating === 'again') {
       // Chuyển thẻ xuống cuối queue để ôn lại
       // splice ra khỏi vị trí hiện tại, push xuống cuối
@@ -234,6 +248,9 @@ async function reviewCard(rating) {
 onMounted(async () => {
   try {
     loading.value = true
+
+    // Load initial streak data
+    fetchStreak()
 
     const deckResponse = await api.get(`/api/v1/decks/${deckId.value}`)
     deck.value = deckResponse.data

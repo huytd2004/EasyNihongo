@@ -102,16 +102,17 @@ Người dùng có thể tạo các bộ thẻ (Decks) và tự biên soạn n�
 
 ### Table: `flashcards`
 
-| Column            | Type             | Constraints             | Note                             |
-| :---------------- | :--------------- | :---------------------- | :------------------------------- |
-| **id**            | uuid             | PK                      |                                  |
-| **deck_id**       | uuid             | FK (flashcard_decks.id) | Thuộc bộ thẻ nào                 |
-| **front_text**    | text             | Not Null                | Câu hỏi / Từ vựng                |
-| **front_reading** | text             |                         | Cách đọc (Furigana)              |
-| **back_text**     | text             | Not Null                | Nghĩa / Câu trả lời              |
-| **back_notes**    | text             |                         | Ghi chú thêm                     |
-| **status**        | flashcard_status |                         | `new` — mới tạo, chưa ôn lần nào |
-| **created_at**    | timestamptz      |                         | `now()`                          |
+| Column                  | Type             | Constraints                 | Note                                                             |
+| :---------------------- | :--------------- | :-------------------------- | :--------------------------------------------------------------- |
+| **id**                  | uuid             | PK                          |                                                                  |
+| **deck_id**             | uuid             | FK (flashcard_decks.id)     | Thuộc bộ thẻ nào                                                 |
+| **dictionary_entry_id** | uuid             | FK (dictionary_entries.id)  | (Nullable) Liên kết tới mục từ điển gốc nếu được thêm từ từ điển |
+| **front_text**          | text             | Not Null                    | Câu hỏi / Từ vựng                                                |
+| **front_reading**       | text             |                             | Cách đọc (Furigana)                                              |
+| **back_text**           | text             | Not Null                    | Nghĩa / Câu trả lời                                              |
+| **back_notes**          | text             |                             | Ghi chú thêm                                                     |
+| **status**              | flashcard_status |                             | `new` — mới tạo, chưa ôn lần nào                                 |
+| **created_at**          | timestamptz      |                             | `now()`                                                          |
 
 > Chủ sở hữu của flashcard được suy ra qua `flashcard_decks.user_id`.
 

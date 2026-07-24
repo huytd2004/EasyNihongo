@@ -401,14 +401,38 @@ function stopSessionTimer() {
 
 // ── TTS (speechSynthesis) ──────────────────────────────────────────────
 
-function speakText(text) {
+function speakText(text, messageId = null) {
   if (!text || !window.speechSynthesis) return
-  window.speechSynthesis.cancel()
+  
+  if (messageId) {
+    store.startActiveAudio(messageId)
+  } else {
+    store.stopActiveAudio()
+  }
+
   const utterance = new SpeechSynthesisUtterance(text)
   utterance.lang = 'ja-JP'
   utterance.rate = 0.9
   utterance.pitch = 1.0
-  window.speechSynthesis.speak(utterance)
+
+  if (messageId) {
+    utterance.onend = () => {
+      if (store.activeAudioMessageId === messageId) {
+        store.stopActiveAudio()
+      }
+    }
+    utterance.onerror = () => {
+      if (store.activeAudioMessageId === messageId) {
+        store.stopActiveAudio()
+      }
+    }
+  }
+
+  setTimeout(() => {
+    if (!messageId || store.activeAudioMessageId === messageId) {
+      window.speechSynthesis.speak(utterance)
+    }
+  }, 100)
 }
 
 function cleanupRecordingStream() {
@@ -571,7 +595,7 @@ watch(() => store.messages.length, async (newLen, oldLen) => {
     const lastMsg = store.messages[newLen - 1]
     if (lastMsg?.role === 'assistant') {
       const jaText = lastMsg.contentJa || lastMsg.content || ''
-      if (jaText) speakText(jaText)
+      if (jaText) speakText(jaText, lastMsg.id)
     }
   }
   await nextTick()
@@ -594,7 +618,7 @@ onBeforeUnmount(() => {
   cleanupRecordingStream()
   stopTimer()
   stopSessionTimer()
-  if (window.speechSynthesis) window.speechSynthesis.cancel()
+  store.stopActiveAudio()
 })
 
 onMounted(async () => {
@@ -607,7 +631,7 @@ onMounted(async () => {
   const initMsg = store.messages.find(m => m.role === 'assistant')
   if (initMsg) {
     const jaText = initMsg.contentJa || initMsg.content || ''
-    if (jaText) speakText(jaText)
+    if (jaText) speakText(jaText, initMsg.id)
   }
   await nextTick()
   if (chatScroll.value) chatScroll.value.scrollTop = chatScroll.value.scrollHeight

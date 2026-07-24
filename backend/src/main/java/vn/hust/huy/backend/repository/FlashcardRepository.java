@@ -128,4 +128,23 @@ import java.util.UUID;
                                          @Param("user") User user,
                                          @Param("newStatus") vn.hust.huy.backend.model.enums.FlashcardStatus newStatus,
                                          Pageable pageable);
+
+    /**
+     * Returns related flashcards in the same deck along with the relation type.
+     */
+    @Query("""
+            SELECT f, r.relationType
+            FROM Flashcard f
+            JOIN FETCH f.srsDetail s
+            JOIN EntryRelation r ON (
+                (f.dictionaryEntry.id = r.target.id AND r.source.id = :entryId)
+                OR
+                (f.dictionaryEntry.id = r.source.id AND r.target.id = :entryId)
+            )
+            WHERE f.deck.id = :deckId
+              AND f.id <> :currentCardId
+            """)
+    List<Object[]> findRelatedCardsWithRelationTypeInDeck(@Param("deckId") UUID deckId,
+                                                           @Param("currentCardId") UUID currentCardId,
+                                                           @Param("entryId") UUID entryId);
 }

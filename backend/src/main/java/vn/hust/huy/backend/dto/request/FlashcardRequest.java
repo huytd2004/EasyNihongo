@@ -15,6 +15,8 @@ public class FlashcardRequest {
     @NotNull(message = "Deck ID không được để trống")
     private UUID deckId;
 
+    private UUID dictionaryEntryId;
+
     @NotBlank(message = "Mặt trước không được để trống")
     private String frontText;
 

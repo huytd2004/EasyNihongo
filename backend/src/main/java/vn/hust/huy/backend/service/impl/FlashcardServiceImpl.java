@@ -16,6 +16,8 @@ import vn.hust.huy.backend.model.entity.FlashcardDeck;
 import vn.hust.huy.backend.model.entity.SrsDetail;
 import vn.hust.huy.backend.model.entity.User;
 import vn.hust.huy.backend.model.enums.FlashcardStatus;
+import vn.hust.huy.backend.model.entity.DictionaryEntry;
+import vn.hust.huy.backend.repository.DictionaryEntryRepository;
 import vn.hust.huy.backend.repository.FlashcardDeckRepository;
 import vn.hust.huy.backend.repository.FlashcardRepository;
 import vn.hust.huy.backend.repository.SrsDetailRepository;
@@ -37,6 +39,7 @@ public class FlashcardServiceImpl implements FlashcardService {
     private final SrsDetailRepository    srsDetailRepository;
     private final UserRepository         userRepository;
     private final StreakService           streakService;
+    private final DictionaryEntryRepository dictionaryEntryRepository;
 
     // ── Get my flashcards ──────────────────────────────────────────────────────
 
@@ -104,8 +107,15 @@ public class FlashcardServiceImpl implements FlashcardService {
                 .findByIdAndUser(request.getDeckId(), currentUser)
                 .orElseThrow(() -> new AppException(ErrorCode.FLASHCARD_NOT_FOUND));
 
+        DictionaryEntry entry = null;
+        if (request.getDictionaryEntryId() != null) {
+            entry = dictionaryEntryRepository.findById(request.getDictionaryEntryId())
+                    .orElseThrow(() -> new AppException(ErrorCode.DICTIONARY_NOT_FOUND));
+        }
+
         Flashcard card = Flashcard.builder()
                 .deck(deck)
+                .dictionaryEntry(entry)
                 .frontText(request.getFrontText())
                 .frontReading(request.getFrontReading())
                 .backText(request.getBackText())
@@ -202,6 +212,40 @@ public class FlashcardServiceImpl implements FlashcardService {
         log.info("User '{}' reviewed flashcard id={} → rating={} (q={}), newReps={}, newInterval={}d, status={}, nextReview={}",
                 currentUser.getEmail(), id, request.getRating(), quality,
                 result.repetitions(), result.intervalDays(), newStatus, result.nextReview());
+
+        // Punish related cards if the current card is reviewed poorly (quality < 4: Again or Hard)
+        if (quality < 4 && card.getDictionaryEntry() != null) {
+            List<Object[]> relatedData = flashcardRepository.findRelatedCardsWithRelationTypeInDeck(
+                    card.getDeck().getId(),
+                    card.getId(),
+                    card.getDictionaryEntry().getId()
+            );
+            for (Object[] row : relatedData) {
+                Flashcard relCard = (Flashcard) row[0];
+                String relType = (String) row[1];
+                SrsDetail relSrs = relCard.getSrsDetail();
+                if (relSrs != null) {
+                    double oldEf = relSrs.getEaseFactor();
+                    double basePenalty = (quality == 1) ? 0.15 : 0.05;
+                    
+                    // Determine multiplier based on relationType (kanji/radical: 1.5, compound: 1.0, synonym: 0.5)
+                    double multiplier = 1.0;
+                    if ("kanji".equalsIgnoreCase(relType) || "radical".equalsIgnoreCase(relType)) {
+                        multiplier = 1.5;
+                    } else if ("synonym".equalsIgnoreCase(relType)) {
+                        multiplier = 0.5;
+                    }
+                    
+                    double penalty = basePenalty * multiplier;
+                    double newEf = Math.max(1.3, oldEf - penalty);
+                    relSrs.setEaseFactor(newEf);
+                    srsDetailRepository.save(relSrs);
+                    
+                    log.info("Penalized related flashcard id={} ('{}') via relation '{}': EF {} -> {} (penalty={})", 
+                            relCard.getId(), relCard.getFrontText(), relType, oldEf, newEf, penalty);
+                }
+            }
+        }
 
         // Tính streak: flashcard review tính là hoạt động học trong ngày
         streakService.updateStreak(currentUser);

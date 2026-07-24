@@ -1,0 +1,133 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="LLM-Parser-Flow" name="LLM Parser">
+    <mxGraphModel dx="1465" dy="925" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Start" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;strokeWidth=2;" value="Nhận đầu ra LLM" vertex="1">
+          <mxGeometry height="50" width="140" x="330" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="Success" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;strokeWidth=2;" value="Thành công" vertex="1">
+          <mxGeometry height="50" width="140" x="610" y="365" as="geometry" />
+        </mxCell>
+        <mxCell id="End" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;strokeWidth=2;" value="Kết thúc" vertex="1">
+          <mxGeometry height="50" width="140" x="330" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="Clean" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontStyle=1;" value="1. Làm sạch Code Fences" vertex="1">
+          <mxGeometry height="60" width="200" x="300" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="RetryPrompt" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;" value="6. Thêm chỉ dẫn cảnh báo&lt;br&gt;vào Prompt" vertex="1">
+          <mxGeometry height="60" width="200" x="30" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="LLMCall" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;" value="Gọi lại LLM" vertex="1">
+          <mxGeometry height="60" width="140" x="60" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="Fallback" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;" value="7. Trả về kết quả tối đa cứu vãn được&lt;br&gt;+ Kèm theo cảnh báo Warning" vertex="1">
+          <mxGeometry height="80" width="240" x="280" y="770" as="geometry" />
+        </mxCell>
+        <mxCell id="Try1" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontStyle=1;" value="2. Parse JSON trực tiếp?" vertex="1">
+          <mxGeometry height="80" width="200" x="300" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="Try2" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontStyle=1;" value="3. Khớp khối { ... } ngoại cùng?" vertex="1">
+          <mxGeometry height="80" width="200" x="300" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="Try3" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontStyle=1;" value="4. Trích xuất mảng con &amp;amp;&lt;br&gt;Tự động đóng ngoặc?" vertex="1">
+          <mxGeometry height="100" width="240" x="280" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="CheckRetry" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontStyle=1;" value="5. Lượt thử &amp;lt; 3?" vertex="1">
+          <mxGeometry height="80" width="200" x="300" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_start_clean" edge="1" parent="1" source="Start" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="Clean">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_clean_try1" edge="1" parent="1" source="Clean" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="Try1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_try1_success" edge="1" parent="1" source="Try1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="Success">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="label_try1_success" connectable="0" parent="edge_try1_success" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];backgroundColor=#ffffff;fontStyle=1;fontColor=#2D7600;" value="OK &amp;amp; Đủ số lượng" vertex="1">
+          <mxGeometry relative="1" x="-0.3" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_try1_try2" edge="1" parent="1" source="Try1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="Try2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="label_try1_try2" connectable="0" parent="edge_try1_try2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];backgroundColor=#ffffff;" value="Thất bại" vertex="1">
+          <mxGeometry relative="1" x="-0.2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_try2_success" edge="1" parent="1" source="Try2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="Success">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="label_try2_success" connectable="0" parent="edge_try2_success" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];backgroundColor=#ffffff;fontStyle=1;fontColor=#2D7600;" value="OK &amp;amp; Đủ" vertex="1">
+          <mxGeometry relative="1" x="-0.2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_try2_try3" edge="1" parent="1" source="Try2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="Try3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="label_try2_try3" connectable="0" parent="edge_try2_try3" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];backgroundColor=#ffffff;" value="Thất bại" vertex="1">
+          <mxGeometry relative="1" x="-0.2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_try3_success" edge="1" parent="1" source="Try3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="Success">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="700" y="530" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_try3_success" connectable="0" parent="edge_try3_success" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];backgroundColor=#ffffff;fontStyle=1;fontColor=#2D7600;" value="OK &amp;amp; Đủ" vertex="1">
+          <mxGeometry relative="1" x="-0.6" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_try3_checkretry" edge="1" parent="1" source="Try3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="CheckRetry">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="label_try3_checkretry" connectable="0" parent="edge_try3_checkretry" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];backgroundColor=#ffffff;" value="Vẫn thiếu/Lỗi" vertex="1">
+          <mxGeometry relative="1" x="-0.2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_checkretry_retryprompt" edge="1" parent="1" source="CheckRetry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="RetryPrompt">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="label_checkretry_retryprompt" connectable="0" parent="edge_checkretry_retryprompt" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];backgroundColor=#ffffff;fontStyle=1;fontColor=#0050B3;" value="Còn lượt" vertex="1">
+          <mxGeometry relative="1" x="-0.2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_retryprompt_llmcall" edge="1" parent="1" source="RetryPrompt" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="LLMCall">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_llmcall_clean" edge="1" parent="1" source="LLMCall" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="Clean">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_checkretry_fallback" edge="1" parent="1" source="CheckRetry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="Fallback">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="label_checkretry_fallback" connectable="0" parent="edge_checkretry_fallback" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];backgroundColor=#ffffff;fontStyle=1;fontColor=#B30000;" value="Hết lượt" vertex="1">
+          <mxGeometry relative="1" x="-0.2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_fallback_end" edge="1" parent="1" source="Fallback" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="End">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_success_end" edge="1" parent="1" source="Success" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" target="End">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="710" y="920" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

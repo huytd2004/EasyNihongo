@@ -31,6 +31,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -47,11 +48,8 @@ public class TranslateServiceImpl implements TranslateService {
     @Value("${app.translate.quick-url:https://translate.googleapis.com/translate_a/single}")
     private String quickTranslateUrl;
 
-    @Value("${app.translate.python-command:python3}")
-    private String pythonCommand;
-
-    @Value("${app.translate.ai-root:../ai}")
-    private String aiRoot;
+    @Value("${app.tutor.ai-base-url:http://localhost:8001}")
+    private String aiBaseUrl;
 
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
@@ -90,79 +88,35 @@ public class TranslateServiceImpl implements TranslateService {
 
     private JsonNode runPythonPipeline(String sourceText) {
         try {
-            String pythonExecutable = resolvePythonExecutable();
-            List<String> command = new ArrayList<>();
-            command.add(pythonExecutable);
-            command.add("-m");
-            command.add("python_pipeline.runner");
-            command.add("--text");
-            command.add(sourceText);
-            command.add("--json");
+            String requestBody = objectMapper.writeValueAsString(Map.of("text", sourceText));
 
-            ProcessBuilder processBuilder = new ProcessBuilder(command);
-            processBuilder.directory(resolveAiRoot().toFile());
-            processBuilder.redirectErrorStream(true);
+            URI uri = URI.create(aiBaseUrl + "/v1/translate/deep");
+            HttpRequest request = HttpRequest.newBuilder(uri)
+                    .timeout(Duration.ofSeconds(60))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody, StandardCharsets.UTF_8))
+                    .build();
 
-            Process process = processBuilder.start();
-            String output;
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
-                output = reader.lines().collect(Collectors.joining("\n"));
-            }
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-            int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                log.warn("Python pipeline failed with exit code {} and output: {}", exitCode, output);
+            int status = response.statusCode();
+            String respBody = response.body();
+            if (status != 200) {
+                log.warn("Deep translate REST call returned non-200 ({}): {}", status, respBody);
                 throw new AppException(ErrorCode.DEEP_TRANSLATION_FAILED);
             }
 
-            if (output == null || output.isBlank()) {
+            if (respBody == null || respBody.isBlank()) {
                 throw new AppException(ErrorCode.DEEP_TRANSLATION_FAILED);
             }
 
-            return parsePipelineJson(output);
+            return objectMapper.readTree(respBody);
         } catch (AppException ex) {
             throw ex;
         } catch (Exception ex) {
-            log.error("Deep translate pipeline error: {}", ex.getMessage(), ex);
+            log.error("Deep translate REST API error: {}", ex.getMessage(), ex);
             throw new AppException(ErrorCode.DEEP_TRANSLATION_FAILED);
         }
-    }
-
-    private JsonNode parsePipelineJson(String output) {
-        try {
-            return objectMapper.readTree(output);
-        } catch (Exception ex) {
-            String jsonCandidate = extractJsonObject(output);
-            if (jsonCandidate == null) {
-                log.warn("Pipeline output is not JSON. First 200 chars: {}", output.substring(0, Math.min(200, output.length())));
-                throw new AppException(ErrorCode.DEEP_TRANSLATION_FAILED);
-            }
-            try {
-                return objectMapper.readTree(jsonCandidate);
-            } catch (Exception nestedEx) {
-                log.warn("Failed to parse extracted JSON. First 200 chars: {}", jsonCandidate.substring(0, Math.min(200, jsonCandidate.length())));
-                throw new AppException(ErrorCode.DEEP_TRANSLATION_FAILED);
-            }
-        }
-    }
-
-    private String extractJsonObject(String output) {
-        int marker = output.indexOf("\"translation\"");
-        if (marker >= 0) {
-            int start = output.lastIndexOf('{', marker);
-            int end = output.lastIndexOf('}');
-            if (start >= 0 && end > start) {
-                return output.substring(start, end + 1);
-            }
-        }
-
-        int start = output.lastIndexOf('{');
-        int end = output.lastIndexOf('}');
-        if (start >= 0 && end > start) {
-            return output.substring(start, end + 1);
-        }
-        return null;
     }
 
     private DeepTranslateResponse mapDeepTranslateResponse(
@@ -241,39 +195,7 @@ public class TranslateServiceImpl implements TranslateService {
         return values;
     }
 
-    private Path resolveAiRoot() {
-        return Paths.get(aiRoot).toAbsolutePath().normalize();
-    }
-
-    private String resolvePythonExecutable() {
-        List<Path> candidates = new ArrayList<>();
-
-        if (pythonCommand != null && !pythonCommand.isBlank()) {
-            Path configured = Paths.get(pythonCommand);
-            if (configured.isAbsolute()) {
-                candidates.add(configured);
-            } else if (configured.getNameCount() > 1) {
-                candidates.add(resolveAiRoot().resolve(configured).normalize());
-            } else {
-                candidates.add(configured);
-            }
-        }
-
-        Path aiRootPath = resolveAiRoot();
-        candidates.addAll(Arrays.asList(
-                aiRootPath.resolve(".venv/bin/python"),
-                aiRootPath.resolve("venv/bin/python"),
-                aiRootPath.resolve("env/bin/python")
-        ));
-
-        for (Path candidate : candidates) {
-            if (Files.isRegularFile(candidate) && Files.isExecutable(candidate)) {
-                return candidate.toString();
-            }
-        }
-
-        return (pythonCommand == null || pythonCommand.isBlank()) ? "python3" : pythonCommand;
-    }
+    // Decoupled: CLI helper methods resolveAiRoot and resolvePythonExecutable removed as we now use REST API.
 
 
     private String translateWithGoogleEndpoint(String text, String sourceLang, String targetLang) {

@@ -159,6 +159,30 @@ export const useTutorStore = defineStore('tutor', () => {
     return result.value
   }
 
+  const activeAudioMessageId = ref(null)
+  let activeAudio = null
+
+  function stopActiveAudio() {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel()
+    }
+    if (activeAudio) {
+      try {
+        activeAudio.pause()
+      } catch (e) {}
+      activeAudio = null
+    }
+    activeAudioMessageId.value = null
+  }
+
+  function startActiveAudio(messageId, audioObj = null) {
+    stopActiveAudio()
+    activeAudioMessageId.value = messageId
+    if (audioObj) {
+      activeAudio = audioObj
+    }
+  }
+
   function resetSession() {
     sessionId.value = null
     selectedDeck.value = null
@@ -171,6 +195,7 @@ export const useTutorStore = defineStore('tutor', () => {
     result.value = null
     recordingState.value = 'idle'
     lastError.value = null
+    stopActiveAudio()
     try {
       sessionStorage.removeItem('aiTutorSession')
     } catch (e) {}
@@ -189,6 +214,9 @@ export const useTutorStore = defineStore('tutor', () => {
     recordingState,
     isLoading,
     lastError,
+    activeAudioMessageId,
+    stopActiveAudio,
+    startActiveAudio,
     persist,
     hydrate,
     startSession,

@@ -1,0 +1,51 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0">
+  <diagram id="diagram_mermaid_flow" name="Page-1">
+    <mxGraphModel dx="971" dy="635" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="node_A" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ff99ff;strokeColor=#333333;strokeWidth=2;arcSize=50;fontStyle=1;fontSize=13;" value="Bắt đầu: Văn bản tiếng Nhật thô" vertex="1">
+          <mxGeometry height="50" width="280" x="220" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="u6nvt109TWWJz5Pg1coZ-3" edge="1" parent="1" source="node_B" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="u6nvt109TWWJz5Pg1coZ-2" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="node_B" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d9edf7;strokeColor=#31708f;strokeWidth=1;fontSize=13;" value="Bước 1: Phân tách từ vựng &lt;br/&gt; Tokenization - SudachiPy B" vertex="1">
+          <mxGeometry height="60" width="320" x="200" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="node_D" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d9edf7;strokeColor=#31708f;strokeWidth=1;fontSize=13;" value="Bước 3: Xây dựng Prompt chỉ dẫn &lt;br/&gt; Prompt Building kèm Graph Evidence" vertex="1">
+          <mxGeometry height="60" width="320" x="200" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="node_E" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d9edf7;strokeColor=#31708f;strokeWidth=1;fontSize=13;" value="Bước 4: Dịch chuyên sâu qua mô hình Llama-8b" vertex="1">
+          <mxGeometry height="60" width="320" x="200" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="node_F" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d9edf7;strokeColor=#31708f;strokeWidth=1;fontSize=13;" value="Bước 5: Phân tích JSON kết quả &lt;br/&gt; JSON Parsing" vertex="1">
+          <mxGeometry height="60" width="320" x="200" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="node_G" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ff99ff;strokeColor=#333333;strokeWidth=2;arcSize=50;fontStyle=1;fontSize=13;" value="Kết thúc: Bản dịch + Từ vựng + Ghi chú" vertex="1">
+          <mxGeometry height="50" width="280" x="220" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_A_B" edge="1" parent="1" source="node_A" style="edgeStyle=straightEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="node_B" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_C_D" edge="1" parent="1" style="edgeStyle=straightEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="node_D" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="360" y="300" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_D_E" edge="1" parent="1" source="node_D" style="edgeStyle=straightEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="node_E" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_E_F" edge="1" parent="1" source="node_E" style="edgeStyle=straightEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="node_F" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_F_G" edge="1" parent="1" source="node_F" style="edgeStyle=straightEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="node_G" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="u6nvt109TWWJz5Pg1coZ-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d9edf7;strokeColor=#31708f;strokeWidth=1;fontSize=13;" value="&lt;div&gt;Bước 2: Tra cứu &amp;amp; Xếp hạng nghĩa&lt;/div&gt;&lt;div&gt;Neo4j Query &amp;amp; Sense Ranking&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="320" x="200" y="240" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

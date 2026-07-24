@@ -23,6 +23,7 @@ public class FlashcardResponse {
     private UUID id;
     private UUID deckId;
     private String deckName;
+    private UUID dictionaryEntryId;
     private String frontText;
     private String frontReading;
     private String backText;
@@ -41,6 +42,7 @@ public class FlashcardResponse {
                 .id(card.getId())
                 .deckId(card.getDeck().getId())
                 .deckName(card.getDeck().getName())
+                .dictionaryEntryId(card.getDictionaryEntry() != null ? card.getDictionaryEntry().getId() : null)
                 .frontText(card.getFrontText())
                 .frontReading(card.getFrontReading())
                 .backText(card.getBackText())
@@ -56,6 +58,7 @@ public class FlashcardResponse {
                 .id(card.getId())
                 .deckId(card.getDeck().getId())
                 .deckName(card.getDeck().getName())
+                .dictionaryEntryId(card.getDictionaryEntry() != null ? card.getDictionaryEntry().getId() : null)
                 .frontText(card.getFrontText())
                 .frontReading(card.getFrontReading())
                 .backText(card.getBackText())

@@ -8,9 +8,11 @@ import json
 try:
     from .tutor_pipeline import TutorPipeline
     from .review_pipeline import ReviewPipeline
+    from .runner import Pipeline as TranslatePipeline
 except ImportError:
     from tutor_pipeline import TutorPipeline
     from review_pipeline import ReviewPipeline
+    from runner import Pipeline as TranslatePipeline
 
 app = FastAPI(title="Tutor Pipeline API")
 
@@ -45,6 +47,11 @@ class ReplyRequest(BaseModel):
 # instantiate pipelines
 pipeline = TutorPipeline()
 review_pipeline = ReviewPipeline()
+translate_pipeline = TranslatePipeline()
+
+
+class TranslateRequest(BaseModel):
+    text: str
 
 
 class QuizGenerateRequest(BaseModel):
@@ -217,6 +224,15 @@ async def reply(session_id: str, request: Request):
         'transcript': user_utterance,
         'pronunciation': out.get('pronunciation'),
     }
+
+
+@app.post('/v1/translate/deep')
+def deep_translate(request: TranslateRequest):
+    try:
+        result = translate_pipeline.translate(request.text)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == '__main__':

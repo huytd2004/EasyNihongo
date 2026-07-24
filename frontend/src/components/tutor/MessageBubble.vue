@@ -32,10 +32,13 @@
             <button
               v-if="message.audioUrl || message.ttsText || message.contentJa || message.content"
               class="bubble-action-button"
+              :class="{ 'play-active': isPlaying }"
               @click="playAudio"
             >
-              <span class="material-symbols-outlined text-sm">volume_up</span>
-              <span>Play</span>
+              <span class="material-symbols-outlined text-sm">
+                {{ isPlaying ? 'volume_off' : 'volume_up' }}
+              </span>
+              <span>{{ isPlaying ? 'Stop' : 'Play' }}</span>
             </button>
             <!-- Toggle Vietnamese translation -->
             <button
@@ -58,10 +61,14 @@
 
 <script setup>
 import { computed, ref } from 'vue'
+import { useTutorStore } from '@/stores/tutor'
 
 const props = defineProps({ message: { type: Object, required: true } })
+const store = useTutorStore()
 const audio = ref(null)
 const showVn = ref(false)
+
+const isPlaying = computed(() => store.activeAudioMessageId === props.message.id)
 
 const roleLabel = computed(() => props.message.role === 'assistant' ? 'AI Tutor' : 'Bạn')
 const roleSubLabel = computed(() => props.message.role === 'assistant' ? 'Zen Tutor' : 'Learner')
@@ -140,6 +147,11 @@ const displayLines = computed(() => {
 })
 
 function playAudio() {
+  if (isPlaying.value) {
+    store.stopActiveAudio()
+    return
+  }
+
   // TTS uses only the Japanese content, stripped of markdown
   const jaText = props.message.contentJa || props.message.content || props.message.ttsText || ''
   const text = stripMarkdown(extractDisplayText(jaText))
@@ -147,7 +159,7 @@ function playAudio() {
 
   if ('speechSynthesis' in window) {
     try {
-      window.speechSynthesis.cancel()
+      store.startActiveAudio(props.message.id)
       const utterance = new SpeechSynthesisUtterance(text)
       utterance.lang = 'ja-JP'
       utterance.rate = 0.95
@@ -159,8 +171,23 @@ function playAudio() {
         utterance.voice = japaneseVoice
       }
 
+      utterance.onend = () => {
+        if (store.activeAudioMessageId === props.message.id) {
+          store.stopActiveAudio()
+        }
+      }
+      utterance.onerror = () => {
+        if (store.activeAudioMessageId === props.message.id) {
+          store.stopActiveAudio()
+        }
+      }
+
       speakingUtterance = utterance
-      window.speechSynthesis.speak(utterance)
+      setTimeout(() => {
+        if (store.activeAudioMessageId === props.message.id) {
+          window.speechSynthesis.speak(utterance)
+        }
+      }, 100)
       return
     } catch (e) {
       console.warn('browser TTS failed, falling back to audio url', e)
@@ -169,9 +196,26 @@ function playAudio() {
 
   const src = props.message.audioUrl || null
   if (!src) return
-  if (audio.value) { audio.value.pause(); audio.value = null }
-  audio.value = new Audio(src)
-  audio.value.play()
+  const audioObj = new Audio(src)
+  store.startActiveAudio(props.message.id, audioObj)
+
+  audioObj.onended = () => {
+    if (store.activeAudioMessageId === props.message.id) {
+      store.stopActiveAudio()
+    }
+  }
+  audioObj.onpause = () => {
+    if (store.activeAudioMessageId === props.message.id) {
+      store.stopActiveAudio()
+    }
+  }
+  audioObj.onerror = () => {
+    if (store.activeAudioMessageId === props.message.id) {
+      store.stopActiveAudio()
+    }
+  }
+
+  audioObj.play()
 }
 </script>
 
@@ -348,6 +392,11 @@ function playAudio() {
 }
 
 .vn-active {
+  background: rgba(69, 97, 125, 0.12);
+  border-color: rgba(69, 97, 125, 0.4);
+}
+
+.play-active {
   background: rgba(69, 97, 125, 0.12);
   border-color: rgba(69, 97, 125, 0.4);
 }

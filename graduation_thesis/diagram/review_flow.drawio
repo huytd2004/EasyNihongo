@@ -1,0 +1,96 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="mermaid-to-drawio" name="Quiz Flow">
+    <mxGraphModel dx="1031" dy="637" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="mlxHBaU84bkjmOi0o9sJ-1" edge="1" parent="1" source="A" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="B" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="A" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ff99ff;strokeColor=#333333;strokeWidth=2;" value="1. Người dùng yêu cầu ôn tập &lt;br&gt; Quiz/Story từ Frontend" vertex="1">
+          <mxGeometry height="70" width="170" x="30" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="mlxHBaU84bkjmOi0o9sJ-3" edge="1" parent="1" source="B" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="C2" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="mlxHBaU84bkjmOi0o9sJ-6" edge="1" parent="1" source="B" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.023;entryY=0.427;entryDx=0;entryDy=0;entryPerimeter=0;" target="C3">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="320" y="50" />
+            </Array>
+            <mxPoint x="320" y="50" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="mlxHBaU84bkjmOi0o9sJ-8" edge="1" parent="1" source="B" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="C1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="320" y="235" />
+            </Array>
+            <mxPoint x="320" y="240.0000000000001" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="B" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;" value="2. Java Backend nhận request &lt;br&gt; deckId, level, recentMistakes" vertex="1">
+          <mxGeometry height="70" width="180" x="230" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="mlxHBaU84bkjmOi0o9sJ-11" edge="1" parent="1" source="C1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="E">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="620" y="235" />
+              <mxPoint x="620" y="145" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="C1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;" value="Tải thẻ đến hạn học &lt;br&gt; s.nextReview &amp;lt;= now" vertex="1">
+          <mxGeometry height="70" width="160" x="440" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="mlxHBaU84bkjmOi0o9sJ-10" edge="1" parent="1" source="C2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="E">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="C2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;" value="Tải thẻ mới &lt;br&gt; status = &#39;new&#39;" vertex="1">
+          <mxGeometry height="70" width="160" x="440" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="mlxHBaU84bkjmOi0o9sJ-9" edge="1" parent="1" source="C3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="E">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="620" y="55" />
+              <mxPoint x="620" y="145" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="C3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;" value="Tải 10 lỗi sai gần đây &lt;br&gt; từ 5 phiên học trước" vertex="1">
+          <mxGeometry height="70" width="160" x="440" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="mlxHBaU84bkjmOi0o9sJ-12" edge="1" parent="1" source="E" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="F" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="E" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;" value="3. Đóng gói Payload JSON &lt;br&gt; Gửi HTTP POST sang Python AI Service" vertex="1">
+          <mxGeometry height="70" width="230" x="640" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="mlxHBaU84bkjmOi0o9sJ-13" edge="1" parent="1" source="F" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="G" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="F" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;" value="4. Python AI Service nhận Payload &lt;br&gt; &amp;amp; Sinh Prompt" vertex="1">
+          <mxGeometry height="70" width="205" x="652.5" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="mlxHBaU84bkjmOi0o9sJ-14" edge="1" parent="1" source="G" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="H" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="G" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbbbff;strokeColor=#333333;strokeWidth=2;" value="5. LLM xử lý sinh nội dung" vertex="1">
+          <mxGeometry height="70" width="180" x="665" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="mlxHBaU84bkjmOi0o9sJ-15" edge="1" parent="1" source="H" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="I" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="H" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;" value="6. Phân tích kết quả JSON &lt;br&gt; Trả về Java Backend" vertex="1">
+          <mxGeometry height="70" width="190" x="420" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="I" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;" value="7. Java Backend chuyển đổi DTO &lt;br&gt; Trả về Frontend" vertex="1">
+          <mxGeometry height="70" width="190" x="190" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="J" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbffbb;strokeColor=#333333;strokeWidth=2;" value="8. Người dùng làm bài ôn tập &lt;br&gt; &amp;amp; Lưu lịch sử ôn tập" vertex="1">
+          <mxGeometry height="70" width="240" x="300" y="1030" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

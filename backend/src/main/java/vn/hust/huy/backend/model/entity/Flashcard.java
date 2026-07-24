@@ -36,6 +36,10 @@ public class Flashcard {
     @OneToOne(mappedBy = "flashcard", fetch = FetchType.LAZY)
     private SrsDetail srsDetail;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dictionary_entry_id")
+    private DictionaryEntry dictionaryEntry;
+
     // ── Card content ───────────────────────────────────────────────────────────
 
     @Column(name = "front_text", nullable = false, columnDefinition = "TEXT")

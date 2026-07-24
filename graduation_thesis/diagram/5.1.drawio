@@ -1,26 +1,26 @@
 <mxfile host="app.diagrams.net">
   <diagram name="Page-1" id="fGUStjAWjuiU4CUlHCDC">
-    <mxGraphModel dx="1340" dy="796" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1517" dy="690" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="bURQnclsgXHwJVGw_S6S-1" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="Tra cứu từ vựng,&lt;br&gt;kanji, ngữ pháp" vertex="1">
-          <mxGeometry height="60" width="140" x="40" y="160" as="geometry" />
+          <mxGeometry height="60" width="140" x="-232" y="163" as="geometry" />
         </mxCell>
         <mxCell id="bURQnclsgXHwJVGw_S6S-2" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="Lưu vào bộ thẻ" vertex="1">
-          <mxGeometry height="60" width="120" x="220" y="160" as="geometry" />
+          <mxGeometry height="60" width="120" x="-52" y="163" as="geometry" />
         </mxCell>
         <mxCell id="bURQnclsgXHwJVGw_S6S-3" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="Ôn theo lịch SM-2" vertex="1">
-          <mxGeometry height="60" width="130" x="390" y="160" as="geometry" />
+          <mxGeometry height="60" width="130" x="118" y="163" as="geometry" />
         </mxCell>
         <mxCell id="bURQnclsgXHwJVGw_S6S-4" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="Quiz/Story theo&lt;br&gt;thẻ đến hạn và lỗi gần đây" vertex="1">
-          <mxGeometry height="60" width="160" x="550" y="160" as="geometry" />
+          <mxGeometry height="60" width="160" x="278" y="163" as="geometry" />
         </mxCell>
         <mxCell id="bURQnclsgXHwJVGw_S6S-5" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="AI Tutor luyện dùng&lt;br&gt;từ trong hội thoại" vertex="1">
-          <mxGeometry height="60" width="150" x="750" y="160" as="geometry" />
+          <mxGeometry height="60" width="150" x="478" y="163" as="geometry" />
         </mxCell>
         <mxCell id="bURQnclsgXHwJVGw_S6S-6" parent="1" style="whiteSpace=wrap;html=1;rounded=1;strokeColor=#000000;fillColor=#ffffff;fontColor=#000000;align=center;verticalAlign=middle;fontSize=12;" value="Lưu lỗi sửa và&lt;br&gt;từ vựng mới" vertex="1">
-          <mxGeometry height="60" width="130" x="940" y="160" as="geometry" />
+          <mxGeometry height="60" width="130" x="668" y="163" as="geometry" />
         </mxCell>
         <mxCell id="bURQnclsgXHwJVGw_S6S-7" edge="1" parent="1" source="bURQnclsgXHwJVGw_S6S-1" style="endArrow=classic;html=1;rounded=0;strokeWidth=1.5;strokeColor=#000000;" target="bURQnclsgXHwJVGw_S6S-2">
           <mxGeometry relative="1" as="geometry" />
@@ -40,16 +40,16 @@
         <mxCell id="bURQnclsgXHwJVGw_S6S-12" edge="1" parent="1" source="bURQnclsgXHwJVGw_S6S-6" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;strokeColor=#000000;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="bURQnclsgXHwJVGw_S6S-4">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1005" y="250" />
-              <mxPoint x="630" y="250" />
+              <mxPoint x="733" y="253" />
+              <mxPoint x="358" y="253" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="bURQnclsgXHwJVGw_S6S-13" edge="1" parent="1" source="bURQnclsgXHwJVGw_S6S-6" style="endArrow=classic;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;strokeWidth=1.5;strokeColor=#000000;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="bURQnclsgXHwJVGw_S6S-2">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1005" y="110" />
-              <mxPoint x="280" y="110" />
+              <mxPoint x="733" y="113" />
+              <mxPoint x="8" y="113" />
             </Array>
           </mxGeometry>
         </mxCell>
