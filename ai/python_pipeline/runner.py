@@ -11,10 +11,16 @@ Nguyên tắc (theo schema-neo4j.md):
 import json
 import re
 
-from .neo4j_client import Neo4jClient
-from .ranker import Ranker
-from .prompt_builder import build_prompt
-from .llm_client import LLMClient
+try:
+    from .neo4j_client import Neo4jClient
+    from .ranker import Ranker
+    from .prompt_builder import build_prompt
+    from .llm_client import LLMClient
+except ImportError:
+    from neo4j_client import Neo4jClient
+    from ranker import Ranker
+    from prompt_builder import build_prompt
+    from llm_client import LLMClient
 
 # ── Stopword POS tags (MeCab) ─────────────────────────────────────────────────
 STOP_POS = {'助詞', '助動詞', '記号', '補助記号', '空白'}

@@ -20,8 +20,9 @@ graph TD
 ```
 
 ### Cải tiến kiến trúc (Decoupling REST API):
-* **Trước đây:** Spring Boot khởi chạy trực tiếp tiến trình CLI Python (`python_pipeline.runner`) thông qua lớp `ProcessBuilder`. Việc này bắt buộc máy chủ chạy Java phải có sẵn môi trường Python và cài đặt đầy đủ thư viện NLP/ML cồng kềnh, khiến việc triển khai rất phức tạp.
-* **Hiện tại (Đã tối ưu hóa):** 
+
+- **Trước đây:** Spring Boot khởi chạy trực tiếp tiến trình CLI Python (`python_pipeline.runner`) thông qua lớp `ProcessBuilder`. Việc này bắt buộc máy chủ chạy Java phải có sẵn môi trường Python và cài đặt đầy đủ thư viện NLP/ML cồng kềnh, khiến việc triển khai rất phức tạp.
+- **Hiện tại (Đã tối ưu hóa):**
   1. Đã tích hợp tính năng dịch thuật chuyên sâu vào một endpoint REST API mới trên FastAPI Server: `POST /v1/translate/deep`.
   2. Spring Boot Backend giao tiếp với AI Pipeline qua HTTP REST (sử dụng `HttpClient`), loại bỏ hoàn toàn mã nguồn khởi chạy CLI cũ.
   3. **Lợi ích:** Tách biệt hoàn toàn phần Backend (chỉ cần cài Java 21, dung lượng container nhỏ gọn ~150MB) và AI Pipeline (chạy môi trường Python ~500MB). Hệ thống dễ dàng triển khai, mở rộng và bảo trì.
@@ -33,9 +34,11 @@ graph TD
 Đây là cách tiêu chuẩn, nhanh chóng và ít xảy ra lỗi do xung đột môi trường nhất.
 
 ### 2.1. Cấu trúc thư mục Docker cần chuẩn bị
+
 Bạn có thể tạo các file Dockerfile trong từng thư mục dự án tương ứng.
 
 #### A. Frontend Dockerfile (`frontend/Dockerfile`)
+
 Tận dụng Nginx để build và serve ứng dụng Vue:
 
 ```dockerfile
@@ -56,7 +59,8 @@ EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
-*Tạo thêm file cấu hình Nginx cho Frontend tại `frontend/nginx.conf`:*
+_Tạo thêm file cấu hình Nginx cho Frontend tại `frontend/nginx.conf`:_
+
 ```nginx
 server {
     listen 80;
@@ -104,6 +108,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
 
 #### C. AI Pipeline Dockerfile (`ai/python_pipeline/Dockerfile`)
+
 ```dockerfile
 FROM python:3.10-slim
 
@@ -126,10 +131,11 @@ CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8001"]
 ---
 
 ### 2.2. File cấu hình Docker Compose (`docker-compose.yml`)
+
 Tạo file `docker-compose.yml` ở thư mục gốc của toàn bộ dự án (`DATN/`):
 
 ```yaml
-version: '3.8'
+version: "3.8"
 
 services:
   # 1. Database PostgreSQL
@@ -221,6 +227,7 @@ volumes:
 ```
 
 ### 2.3. Các bước chạy hệ thống với Docker Compose:
+
 1. Sửa đổi các file cấu hình và thay thế các biến môi trường thực tế (API Keys, Mật khẩu).
 2. Chạy lệnh để build và khởi chạy tất cả các dịch vụ dưới dạng chạy ngầm (background):
    ```bash
@@ -239,6 +246,7 @@ volumes:
 Phương án này phù hợp khi bạn muốn quản lý trực tiếp các tiến trình (process) bằng Systemd trên hệ thống Linux.
 
 ### 3.1. Cài đặt các công cụ cần thiết trên VPS
+
 Cập nhật package list và cài đặt Java 21, Node.js 18, Python 3.10, PostgreSQL, Neo4j, và Nginx:
 
 ```bash
@@ -266,7 +274,8 @@ sudo systemctl enable nginx
 ```
 
 ### 3.2. Thiết lập cơ sở dữ liệu
-* **PostgreSQL:**
+
+- **PostgreSQL:**
   ```bash
   sudo -i -u postgres psql
   ```
@@ -277,7 +286,7 @@ sudo systemctl enable nginx
   GRANT ALL PRIVILEGES ON DATABASE datn TO datn_user;
   \q
   ```
-* **Neo4j:** Cài đặt Neo4j bằng cách làm theo hướng dẫn cài đặt APT chính thức của Neo4j. Sau đó khởi động dịch vụ:
+- **Neo4j:** Cài đặt Neo4j bằng cách làm theo hướng dẫn cài đặt APT chính thức của Neo4j. Sau đó khởi động dịch vụ:
   ```bash
   sudo systemctl start neo4j
   sudo systemctl enable neo4j
@@ -288,6 +297,7 @@ sudo systemctl enable nginx
 ### 3.3. Build & Cấu hình các dịch vụ chạy ngầm (Systemd Service)
 
 #### A. Triển khai AI Pipeline (Python FastAPI)
+
 1. Clone source code về thư mục `/var/www/datn-system`.
 2. Tạo môi trường ảo Python và cài đặt thư viện:
    ```bash
@@ -298,6 +308,7 @@ sudo systemctl enable nginx
    ```
 3. Tạo file cấu hình môi trường `.env` trong thư mục này với các thông số thực tế của bạn.
 4. Thiết lập Systemd service chạy FastAPI tại `/etc/systemd/system/datn-ai.service`:
+
    ```ini
    [Unit]
    Description=FastAPI AI Pipeline for DATN
@@ -312,6 +323,7 @@ sudo systemctl enable nginx
    [Install]
    WantedBy=multi-user.target
    ```
+
 5. Kích hoạt dịch vụ:
    ```bash
    sudo systemctl daemon-reload
@@ -320,6 +332,7 @@ sudo systemctl enable nginx
    ```
 
 #### B. Triển khai Spring Boot Backend
+
 1. Build dự án jar ở máy local hoặc trực tiếp trên VPS:
    ```bash
    cd /var/www/datn-system/backend
@@ -327,6 +340,7 @@ sudo systemctl enable nginx
    ```
 2. Tạo file cấu hình môi trường production bên cạnh file jar hoặc truyền trực tiếp qua Systemd service.
 3. Thiết lập Systemd service chạy Backend tại `/etc/systemd/system/datn-backend.service`:
+
    ```ini
    [Unit]
    Description=Spring Boot Backend for DATN
@@ -346,6 +360,7 @@ sudo systemctl enable nginx
    [Install]
    WantedBy=multi-user.target
    ```
+
 4. Kích hoạt dịch vụ:
    ```bash
    sudo systemctl daemon-reload
@@ -354,6 +369,7 @@ sudo systemctl enable nginx
    ```
 
 #### C. Triển khai Frontend (Nginx làm Web Server)
+
 1. Build Frontend trên máy cá nhân hoặc VPS:
    ```bash
    cd /var/www/datn-system/frontend
@@ -362,6 +378,7 @@ sudo systemctl enable nginx
    ```
    Kết quả sinh ra thư mục `/var/www/datn-system/frontend/dist`.
 2. Tạo cấu hình Nginx để host Frontend và làm Reverse Proxy cho Backend tại `/etc/nginx/sites-available/datn`:
+
    ```nginx
    server {
        listen 80;
@@ -392,6 +409,7 @@ sudo systemctl enable nginx
        }
    }
    ```
+
 3. Kích hoạt site mới và reload Nginx:
    ```bash
    sudo ln -s /etc/nginx/sites-available/datn /etc/nginx/sites-enabled/
@@ -405,6 +423,7 @@ sudo systemctl enable nginx
 ## 5. Hướng dẫn Seeding Dữ liệu trên Production
 
 Sau khi triển khai các cơ sở dữ liệu thành công trên VPS:
+
 1. Đảm bảo rằng cơ sở dữ liệu PostgreSQL đã được tự động tạo bảng (khi Spring Boot chạy lần đầu tiên với `ddl-auto: update`).
 2. Tiến hành seed dữ liệu vào Neo4j bằng cách chạy script import:
    ```bash
@@ -413,4 +432,4 @@ Sau khi triển khai các cơ sở dữ liệu thành công trên VPS:
    pip install -r requirements.txt
    python main.py --skip-translate
    ```
-   *(Script này sẽ import các từ chuyên ngành và các quan hệ ngôn ngữ từ file JSON thô vào đồ thị của Neo4j).*
+   _(Script này sẽ import các từ chuyên ngành và các quan hệ ngôn ngữ từ file JSON thô vào đồ thị của Neo4j)._

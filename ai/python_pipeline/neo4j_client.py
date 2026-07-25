@@ -1,5 +1,8 @@
 from neo4j import GraphDatabase
-from .config import NEO4J_URI, NEO4J_USER, NEO4J_PASS, NEO4J_DATABASE
+try:
+    from .config import NEO4J_URI, NEO4J_USER, NEO4J_PASS, NEO4J_DATABASE
+except ImportError:
+    from config import NEO4J_URI, NEO4J_USER, NEO4J_PASS, NEO4J_DATABASE
 
 
 class Neo4jClient:
