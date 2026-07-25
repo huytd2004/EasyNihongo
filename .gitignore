@@ -188,7 +188,11 @@ latex_thesis/**/*.fls
 *.sqlite
 *.sqlite3
 
-
+# Keep config files but ignore data json files
 *.csv
 *.tar.bz2
 *.json
+!**/package.json
+!**/package-lock.json
+!**/tsconfig.json
+!**/jsconfig.json
