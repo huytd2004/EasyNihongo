@@ -2,11 +2,10 @@ version: "3.8"
 
 # Cấu hình log rotation toàn cục để tránh tràn đĩa cứng
 x-logging: &default-logging
-  logging:
-    driver: "json-file"
-    options:
-      max-size: "10m"
-      max-file: "3"
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
 
 services:
   # 1. Database PostgreSQL
