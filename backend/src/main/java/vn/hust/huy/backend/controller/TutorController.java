@@ -19,6 +19,8 @@ import java.util.UUID;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import vn.hust.huy.backend.annotation.RateLimit;
+
 @RestController
 @RequestMapping("/api/v1/tutor/sessions")
 @RequiredArgsConstructor
@@ -28,6 +30,7 @@ public class TutorController {
     private final ObjectMapper objectMapper;
 
     @PostMapping
+    @RateLimit(limit = 5, duration = 600, key = "tutor_create_session")
     public ResponseEntity<ApiResponse<TutorSessionResponse>> createSession(
             @RequestBody TutorSessionRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -44,6 +47,7 @@ public class TutorController {
     }
 
     @PostMapping(value = "/{id}/messages", consumes = {"application/json", "multipart/form-data"})
+    @RateLimit(limit = 20, duration = 60, key = "tutor_send_message")
     public ResponseEntity<ApiResponse<MessageResponse>> sendMessage(
             @PathVariable UUID id,
             @RequestPart(required = false) String metadata,

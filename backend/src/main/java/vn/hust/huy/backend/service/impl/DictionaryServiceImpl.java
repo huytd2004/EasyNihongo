@@ -2,6 +2,8 @@ package vn.hust.huy.backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -72,6 +74,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     // ── Get by ID (enriched) ─────────────────────────────────────────────────
 
     @Override
+    @Cacheable(value = "dictionary", key = "#id")
     @Transactional(readOnly = true)
     public ApiResponse<DictionaryResponse> getById(UUID id) {
         DictionaryEntry entry = dictionaryEntryRepository.findById(id)
@@ -113,6 +116,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     // ── Update ────────────────────────────────────────────────────────────────
 
     @Override
+    @CacheEvict(value = "dictionary", key = "#id")
     @Transactional
     public ApiResponse<DictionaryResponse> update(UUID id, DictionaryRequest request) {
         DictionaryEntry entry = dictionaryEntryRepository.findById(id)

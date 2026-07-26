@@ -50,10 +50,21 @@ public class TutorServiceImpl implements TutorService {
     private final vn.hust.huy.backend.service.ai.STTAdapter sttAdapter;
     private final vn.hust.huy.backend.service.ai.TTSAdapter ttsAdapter;
     private final StreakService streakService;
+    private final org.springframework.data.redis.core.StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${app.tutor.browser-tts:true}")
     private boolean browserTts;
+
+    @lombok.Data
+    @lombok.Builder
+    @lombok.NoArgsConstructor
+    @lombok.AllArgsConstructor
+    public static class RedisLearningLog {
+        private String role;
+        private String content;
+        private java.time.Instant createdAt;
+    }
 
     @Override
     @Transactional
@@ -105,12 +116,11 @@ public class TutorServiceImpl implements TutorService {
                 ? request.getContent()
                 : "";
 
-        LearningLog userLog = LearningLog.builder()
-                .session(session)
+        RedisLearningLog userLog = RedisLearningLog.builder()
                 .role("user")
                 .content(userContent)
+                .createdAt(java.time.Instant.now())
                 .build();
-        logRepository.save(userLog);
 
         // If audio present, attempt STT and update log content
         if (audio != null) {
@@ -120,7 +130,6 @@ public class TutorServiceImpl implements TutorService {
                     request.setContent(transcript);
                     // Update stored log with transcribed text
                     userLog.setContent(transcript);
-                    logRepository.save(userLog);
                 }
             } catch (Exception e) {
                 log.warn("STT transcription failed for session {}: {}", session.getId(), e.toString());
@@ -130,18 +139,32 @@ public class TutorServiceImpl implements TutorService {
                 String saved = audioStorageService.saveAudio(session.getId().toString(), audio);
                 // Append audio file reference to log content
                 userLog.setContent(userLog.getContent() + "\n[audio]:" + saved);
-                logRepository.save(userLog);
             } catch (Exception e) {
                 log.warn("Saving audio failed for session {}: {}", session.getId(), e.toString());
             }
         }
+
+        // Save user log to Redis list
+        String sessionKey = "session:chat:" + session.getId();
+        redisTemplate.opsForList().rightPush(sessionKey, toJson(userLog));
+        redisTemplate.expire(sessionKey, Duration.ofHours(2));
 
         // Ensure request.content is never null when passed to AI
         if (request.getContent() == null || request.getContent().isBlank()) {
             request.setContent("");
         }
 
-        List<LearningLog> allLogs = logRepository.findBySession_IdOrderByCreatedAtAsc(session.getId());
+        // Fetch logs from Redis
+        List<String> rawLogs = redisTemplate.opsForList().range(sessionKey, 0, -1);
+        List<RedisLearningLog> allLogs = new ArrayList<>();
+        if (rawLogs != null) {
+            for (String raw : rawLogs) {
+                try {
+                    allLogs.add(objectMapper.readValue(raw, RedisLearningLog.class));
+                } catch (Exception ignored) {}
+            }
+        }
+
         int skip = Math.max(0, allLogs.size() - 5);
         List<String> recentLogs = allLogs.stream()
             .skip(skip)
@@ -182,15 +205,14 @@ public class TutorServiceImpl implements TutorService {
             }
         }
 
-        // Store assistant message as JSON in learning log so corrections and vocabulary can be retrieved in results
+        // Store assistant message as JSON in redis log so corrections and vocabulary can be retrieved in results
         String logContent = toJson(assistant);
-        LearningLog assistantLog = LearningLog.builder()
-                .session(session)
+        RedisLearningLog assistantLog = RedisLearningLog.builder()
                 .role("assistant")
                 .content(logContent)
+                .createdAt(java.time.Instant.now())
                 .build();
-        logRepository.save(assistantLog);
-
+        redisTemplate.opsForList().rightPush(sessionKey, toJson(assistantLog));
 
         return assistant;
     }
@@ -205,7 +227,19 @@ public class TutorServiceImpl implements TutorService {
 
         return resultRepository.findBySession_Id(session.getId())
                 .map(this::toTutorResultResponse)
-                .orElseGet(() -> buildTutorResultResponse(session, logRepository.findBySession_IdOrderByCreatedAtAsc(session.getId())));
+                .orElseGet(() -> {
+                    String sessionKey = "session:chat:" + session.getId();
+                    List<String> rawLogs = redisTemplate.opsForList().range(sessionKey, 0, -1);
+                    List<RedisLearningLog> allLogs = new ArrayList<>();
+                    if (rawLogs != null) {
+                        for (String raw : rawLogs) {
+                            try {
+                                allLogs.add(objectMapper.readValue(raw, RedisLearningLog.class));
+                            } catch (Exception ignored) {}
+                        }
+                    }
+                    return buildTutorResultResponse(session, allLogs);
+                });
     }
 
     @Override
@@ -220,7 +254,17 @@ public class TutorServiceImpl implements TutorService {
         session.setEndedAt(java.time.Instant.now());
         sessionRepository.save(session);
 
-        List<LearningLog> logs = logRepository.findBySession_IdOrderByCreatedAtAsc(session.getId());
+        String sessionKey = "session:chat:" + session.getId();
+        List<String> rawLogs = redisTemplate.opsForList().range(sessionKey, 0, -1);
+        List<RedisLearningLog> logs = new ArrayList<>();
+        if (rawLogs != null) {
+            for (String raw : rawLogs) {
+                try {
+                    logs.add(objectMapper.readValue(raw, RedisLearningLog.class));
+                } catch (Exception ignored) {}
+            }
+        }
+
         TutorResultResponse resultResponse = buildTutorResultResponse(session, logs);
         TutorSessionResult result = resultRepository.findBySession_Id(session.getId()).orElseGet(TutorSessionResult::new);
         result.setSession(session);
@@ -239,7 +283,9 @@ public class TutorServiceImpl implements TutorService {
         result.setSummary("Session completed");
         result.setFinishedAt(session.getEndedAt() == null ? java.time.Instant.now() : session.getEndedAt());
         resultRepository.save(result);
-        logRepository.deleteBySession_Id(session.getId());
+
+        // Delete from Redis
+        redisTemplate.delete(sessionKey);
 
         // Tính streak: kết thúc một phiên tutor tính là hoạt động học trong ngày
         streakService.updateStreak(user);
@@ -253,14 +299,14 @@ public class TutorServiceImpl implements TutorService {
         }
     }
 
-    private TutorResultResponse buildTutorResultResponse(ConversationSession session, List<LearningLog> logs) {
+    private TutorResultResponse buildTutorResultResponse(ConversationSession session, List<RedisLearningLog> logs) {
         long userCount = logs.stream().filter(l -> "user".equals(l.getRole())).count();
         long assistantCount = logs.stream().filter(l -> "assistant".equals(l.getRole())).count();
 
         List<Object> corrections = new ArrayList<>();
         List<Object> newVocabulary = new ArrayList<>();
 
-        for (LearningLog logItem : logs) {
+        for (RedisLearningLog logItem : logs) {
             if (!"assistant".equals(logItem.getRole()) || logItem.getContent() == null) {
                 continue;
             }

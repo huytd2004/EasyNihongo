@@ -79,9 +79,12 @@ services:
       - APP_JWT_SECRET=${APP_JWT_SECRET}
       - APP_JWT_ACCESS_TOKEN_EXPIRATION=${APP_JWT_ACCESS_TOKEN_EXPIRATION}
       - APP_JWT_REFRESH_TOKEN_EXPIRATION=${APP_JWT_REFRESH_TOKEN_EXPIRATION}
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
     depends_on:
       - postgres
       - ai-pipeline
+      - redis
     volumes:
       - shared_uploads:/app/uploads
     logging: *default-logging
@@ -97,7 +100,18 @@ services:
       - backend
     logging: *default-logging
 
-  # 6. Dozzle - Real-time Log Viewer (Dịch vụ giám sát Log cơ bản qua giao diện Web)
+  # 6. Redis Database
+  redis:
+    image: redis:7-alpine
+    container_name: datn-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    logging: *default-logging
+
+  # 7. Dozzle - Real-time Log Viewer (Dịch vụ giám sát Log cơ bản qua giao diện Web)
   dozzle:
     image: amir20/dozzle:latest
     container_name: datn-dozzle
@@ -110,7 +124,7 @@ services:
       - DOZZLE_LEVEL=info
     logging: *default-logging
 
-  # 7. Netdata - Real-time Performance Monitoring (Giám sát tài nguyên máy chủ & container qua Docker)
+  # 8. Netdata - Real-time Performance Monitoring (Giám sát tài nguyên máy chủ & container qua Docker)
   netdata:
     image: netdata/netdata:stable
     container_name: datn-netdata
@@ -144,3 +158,4 @@ volumes:
   netdataconfig:
   netdatalib:
   netdatacache:
+  redis_data:

@@ -13,6 +13,8 @@ import vn.hust.huy.backend.dto.response.DeepTranslateResponse;
 import vn.hust.huy.backend.dto.response.QuickTranslateResponse;
 import vn.hust.huy.backend.service.TranslateService;
 
+import vn.hust.huy.backend.annotation.RateLimit;
+
 @RestController
 @RequestMapping("/api/v1/translate")
 @RequiredArgsConstructor
@@ -27,6 +29,7 @@ public class TranslateController {
     }
 
     @PostMapping("/deep")
+    @RateLimit(limit = 5, duration = 60, key = "translate_deep")
     public ResponseEntity<ApiResponse<DeepTranslateResponse>> deepTranslate(
             @Valid @RequestBody QuickTranslateRequest request) {
         return ResponseEntity.ok(translateService.deepTranslate(request));
