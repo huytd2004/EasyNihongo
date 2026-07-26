@@ -57,8 +57,15 @@ services:
       - NEO4J_PASS=${NEO4J_PASSWORD}
       - NEO4J_DATABASE=${NEO4J_DATABASE}
       - STT_PROVIDER=${STT_PROVIDER}
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=${RABBITMQ_USER:-guest}
+      - RABBITMQ_PASS=${RABBITMQ_PASSWORD:-guest}
+      - REDIS_HOST=redis
     depends_on:
       - neo4j
+      - rabbitmq
+      - redis
     volumes:
       - shared_uploads:/app/uploads
     logging: *default-logging
@@ -81,10 +88,15 @@ services:
       - APP_JWT_REFRESH_TOKEN_EXPIRATION=${APP_JWT_REFRESH_TOKEN_EXPIRATION}
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER:-guest}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
     depends_on:
       - postgres
       - ai-pipeline
       - redis
+      - rabbitmq
     volumes:
       - shared_uploads:/app/uploads
     logging: *default-logging
@@ -109,6 +121,21 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    logging: *default-logging
+
+  # 6.5 RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: datn-rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-guest}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-guest}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     logging: *default-logging
 
   # 7. Dozzle - Real-time Log Viewer (Dịch vụ giám sát Log cơ bản qua giao diện Web)
@@ -159,3 +186,4 @@ volumes:
   netdatalib:
   netdatacache:
   redis_data:
+  rabbitmq_data:

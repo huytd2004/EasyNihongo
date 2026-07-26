@@ -409,42 +409,81 @@ async function startQuiz() {
       deckName: selectedDeck.value?.name || '',
       level: selectedLevel.value
     }
-
+    let taskId = null
     if (selectedMode.value === 'story') {
-      // ── Story mode ──────────────────────────────────────────
-      const response = await reviewService.generateStory({
+      // ── Story mode (Async) ──────────────────────────────────
+      const response = await reviewService.generateStoryAsync({
         deckId: selectedDeckId.value,
         level: selectedLevel.value,
         recentMistakes,
       })
-      // Unwrap ApiResponse envelope: { code, data: { segments, title, ... }, message }
       const envelope = response?.data ?? response
       const payload = envelope?.data ?? envelope
-      console.log('[ReviewSetupView] story payload:', JSON.stringify(payload)?.slice(0, 500))
-
-      const segments = payload?.segments ?? []
-      if (!segments.length) {
-        startError.value = payload?.warning || 'Không thể tạo câu chuyện. Vui lòng thử lại.'
-        return
-      }
-      reviewStore.setStory(payload, meta)
-      await router.push('/review/story')
-
+      taskId = payload?.taskId
     } else {
-      // ── Quiz mode ────────────────────────────────────────────
-      const response = await reviewService.generateQuiz({
+      // ── Quiz mode (Async) ───────────────────────────────────
+      const response = await reviewService.generateQuizAsync({
         deckId: selectedDeckId.value,
         level: selectedLevel.value,
         questionCount: effectiveQuestionCount.value,
         recentMistakes,
       })
-      const payload = response?.data?.data ?? response?.data ?? response
-      const questions = payload?.questions ?? []
+      const envelope = response?.data ?? response
+      const payload = envelope?.data ?? envelope
+      taskId = payload?.taskId
+    }
+
+    if (!taskId) {
+      startError.value = 'Không thể khởi tạo tiến trình tạo bài tập bằng AI.'
+      return
+    }
+
+    // ── Polling loop ─────────────────────────────────────────
+    let status = 'PENDING'
+    let taskResult = null
+    let pollAttempts = 0
+    const maxPollAttempts = 40 // 40 * 3s = 120s max duration
+
+    while ((status === 'PENDING' || status === 'PROCESSING') && pollAttempts < maxPollAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      pollAttempts++
+
+      const pollRes = await reviewService.getTaskStatus(taskId)
+      const envelope = pollRes?.data ?? pollRes
+      const payload = envelope?.data ?? envelope
+
+      status = payload?.status || 'FAILED'
+      taskResult = payload?.result
+
+      if (status === 'SUCCESS') {
+        break
+      } else if (status === 'FAILED') {
+        startError.value = payload?.warning || 'Tiến trình tạo bài tập bằng AI thất bại.'
+        return
+      }
+    }
+
+    if (status !== 'SUCCESS') {
+      startError.value = 'Thời gian xử lý của AI quá lâu. Vui lòng thử lại.'
+      return
+    }
+
+    // ── Handle task result ───────────────────────────────────
+    if (selectedMode.value === 'story') {
+      const segments = taskResult?.segments ?? []
+      if (!segments.length) {
+        startError.value = taskResult?.warning || 'Không thể tạo câu chuyện. Vui lòng thử lại.'
+        return
+      }
+      reviewStore.setStory(taskResult, meta)
+      await router.push('/review/story')
+    } else {
+      const questions = taskResult?.questions ?? []
       if (!questions.length) {
         startError.value = 'Không thể tạo câu hỏi. Vui lòng thử lại.'
         return
       }
-      reviewStore.warning = payload?.warning ?? null
+      reviewStore.warning = taskResult?.warning ?? null
       reviewStore.setQuestions(questions, meta)
       await router.push('/review/quiz')
     }

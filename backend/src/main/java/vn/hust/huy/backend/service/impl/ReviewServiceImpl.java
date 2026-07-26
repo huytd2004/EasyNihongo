@@ -54,6 +54,8 @@ public class ReviewServiceImpl implements ReviewService {
     private final StoryReviewRepository storyReviewRepository;
     private final ObjectMapper objectMapper;
     private final StreakService streakService;
+    private final org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate;
+    private final org.springframework.data.redis.core.StringRedisTemplate stringRedisTemplate;
 
     @Value("${app.tutor.ai-base-url:http://localhost:8001}")
     private String aiBaseUrl;
@@ -451,6 +453,101 @@ public class ReviewServiceImpl implements ReviewService {
                 .questionsData(s.getStoryData())
                 .answersData(s.getAnswersData())
                 .build();
+    }
+
+    @Override
+    public String enqueueQuizGeneration(ReviewQuizRequest request, String userEmail) {
+        User user = userRepository.findByEmail(userEmail).orElseThrow();
+        List<Map<String, Object>> words = loadDeckWords(request.getDeckId(), user);
+        List<Map<String, Object>> recentMistakes = loadRecentMistakes(user, request.getRecentMistakes());
+
+        int questionCount = request.getQuestionCount() != null ? request.getQuestionCount() : 20;
+        if (!words.isEmpty()) {
+            questionCount = Math.min(questionCount, words.size());
+        }
+
+        String taskId = UUID.randomUUID().toString();
+        Map<String, Object> payload = Map.of(
+            "taskId", taskId,
+            "words", words,
+            "level", request.getLevel() != null ? request.getLevel() : "N3",
+            "questionCount", questionCount,
+            "recentMistakes", recentMistakes
+        );
+
+        try {
+            String jsonPayload = objectMapper.writeValueAsString(payload);
+            stringRedisTemplate.opsForValue().set("task:status:" + taskId, "PENDING", java.time.Duration.ofHours(1));
+            rabbitTemplate.convertAndSend(
+                vn.hust.huy.backend.config.RabbitMQConfig.REVIEW_EXCHANGE,
+                vn.hust.huy.backend.config.RabbitMQConfig.QUIZ_ROUTING_KEY,
+                jsonPayload
+            );
+            return taskId;
+        } catch (Exception e) {
+            log.error("Failed to enqueue quiz generation to RabbitMQ for user {}", userEmail, e);
+            throw new RuntimeException("Không thể gửi yêu cầu tạo quiz vào hàng đợi.", e);
+        }
+    }
+
+    @Override
+    public String enqueueStoryGeneration(ReviewQuizRequest request, String userEmail) {
+        User user = userRepository.findByEmail(userEmail).orElseThrow();
+        List<Map<String, Object>> words = loadDeckWords(request.getDeckId(), user);
+        List<Map<String, Object>> recentMistakes = loadRecentMistakes(user, request.getRecentMistakes());
+
+        String taskId = UUID.randomUUID().toString();
+        Map<String, Object> payload = Map.of(
+            "taskId", taskId,
+            "words", words,
+            "level", request.getLevel() != null ? request.getLevel() : "N3",
+            "recentMistakes", recentMistakes
+        );
+
+        try {
+            String jsonPayload = objectMapper.writeValueAsString(payload);
+            stringRedisTemplate.opsForValue().set("task:status:" + taskId, "PENDING", java.time.Duration.ofHours(1));
+            rabbitTemplate.convertAndSend(
+                vn.hust.huy.backend.config.RabbitMQConfig.REVIEW_EXCHANGE,
+                vn.hust.huy.backend.config.RabbitMQConfig.STORY_ROUTING_KEY,
+                jsonPayload
+            );
+            return taskId;
+        } catch (Exception e) {
+            log.error("Failed to enqueue story generation to RabbitMQ for user {}", userEmail, e);
+            throw new RuntimeException("Không thể gửi yêu cầu tạo câu chuyện vào hàng đợi.", e);
+        }
+    }
+
+    @Override
+    public vn.hust.huy.backend.dto.response.TaskStatusResponse getTaskStatus(String taskId) {
+        String status = stringRedisTemplate.opsForValue().get("task:status:" + taskId);
+        if (status == null) {
+            return vn.hust.huy.backend.dto.response.TaskStatusResponse.builder()
+                .status("NOT_FOUND")
+                .build();
+        }
+
+        if ("SUCCESS".equals(status)) {
+            String resultJson = stringRedisTemplate.opsForValue().get("task:result:" + taskId);
+            try {
+                Object resultObj = objectMapper.readValue(resultJson, Object.class);
+                return vn.hust.huy.backend.dto.response.TaskStatusResponse.builder()
+                    .status(status)
+                    .result(resultObj)
+                    .build();
+            } catch (Exception e) {
+                log.error("Failed to parse task result JSON from Redis for task {}", taskId, e);
+                return vn.hust.huy.backend.dto.response.TaskStatusResponse.builder()
+                    .status("FAILED")
+                    .warning("Lỗi phân giải kết quả nhiệm vụ.")
+                    .build();
+            }
+        }
+
+        return vn.hust.huy.backend.dto.response.TaskStatusResponse.builder()
+            .status(status)
+            .build();
     }
 }
 

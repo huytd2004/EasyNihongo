@@ -13,6 +13,12 @@ import java.util.List;
 public interface ReviewService {
     ReviewQuizResponse generateQuiz(ReviewQuizRequest request, String userEmail);
     ReviewStoryResponse generateStory(ReviewQuizRequest request, String userEmail);
+    
+    // Async RabbitMQ Methods
+    String enqueueQuizGeneration(ReviewQuizRequest request, String userEmail);
+    String enqueueStoryGeneration(ReviewQuizRequest request, String userEmail);
+    vn.hust.huy.backend.dto.response.TaskStatusResponse getTaskStatus(String taskId);
+
     void saveQuizResult(QuizResultSaveRequest request, String userEmail);
     void saveStoryResult(StoryResultSaveRequest request, String userEmail);
     List<ReviewHistoryItemResponse> getHistory(String userEmail, int size);

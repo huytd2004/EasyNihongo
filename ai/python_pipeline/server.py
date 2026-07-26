@@ -25,6 +25,16 @@ app.add_middleware(
 )
 
 
+@app.on_event("startup")
+def startup_event():
+    try:
+        from rabbitmq_consumer import start_rabbitmq_thread
+    except ImportError:
+        from .rabbitmq_consumer import start_rabbitmq_thread
+    start_rabbitmq_thread()
+
+
+
 class TargetWord(BaseModel):
     id: Optional[str]
     surface: str

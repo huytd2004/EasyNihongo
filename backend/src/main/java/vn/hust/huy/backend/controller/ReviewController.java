@@ -33,6 +33,15 @@ public class ReviewController {
         return ResponseEntity.ok(ApiResponse.success(resp, "Quiz generated"));
     }
 
+    /** POST /api/v1/review/quiz/generate-async */
+    @PostMapping("/quiz/generate-async")
+    public ResponseEntity<ApiResponse<java.util.Map<String, String>>> generateQuizAsync(
+            @RequestBody ReviewQuizRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        String taskId = reviewService.enqueueQuizGeneration(request, userDetails.getUsername());
+        return ResponseEntity.ok(ApiResponse.success(java.util.Map.of("taskId", taskId), "Quiz generation enqueued"));
+    }
+
     /** POST /api/v1/review/story/generate */
     @PostMapping("/story/generate")
     public ResponseEntity<ApiResponse<ReviewStoryResponse>> generateStory(
@@ -40,6 +49,23 @@ public class ReviewController {
             @AuthenticationPrincipal UserDetails userDetails) {
         ReviewStoryResponse resp = reviewService.generateStory(request, userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.success(resp, "Story generated"));
+    }
+
+    /** POST /api/v1/review/story/generate-async */
+    @PostMapping("/story/generate-async")
+    public ResponseEntity<ApiResponse<java.util.Map<String, String>>> generateStoryAsync(
+            @RequestBody ReviewQuizRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        String taskId = reviewService.enqueueStoryGeneration(request, userDetails.getUsername());
+        return ResponseEntity.ok(ApiResponse.success(java.util.Map.of("taskId", taskId), "Story generation enqueued"));
+    }
+
+    /** GET /api/v1/review/task/{taskId} */
+    @GetMapping("/task/{taskId}")
+    public ResponseEntity<ApiResponse<vn.hust.huy.backend.dto.response.TaskStatusResponse>> getTaskStatus(
+            @PathVariable String taskId) {
+        vn.hust.huy.backend.dto.response.TaskStatusResponse resp = reviewService.getTaskStatus(taskId);
+        return ResponseEntity.ok(ApiResponse.success(resp, "Task status retrieved"));
     }
 
     /** POST /api/v1/review/quiz/result */
