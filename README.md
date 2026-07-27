@@ -19,22 +19,22 @@
 
 ## 📝 Giới Thiệu Dự Án
 
-**AI Tutor** là một nền tảng học tập thông minh và cá nhân hóa ngôn ngữ, được thiết kế theo kiến trúc Microservices/Service-Oriented. Hệ thống tích hợp sâu các mô hình trí tuệ nhân tạo (LLM, STT, TTS), cơ sở dữ liệu đồ thị ngữ nghĩa (Graph Database - Neo4j) để thực hiện GraphRAG hỗ trợ dịch chuyên ngành chuẩn xác, kết hợp với thuật toán Spaced Repetition (Lặp lại ngắt quãng SM-2) để tối ưu hóa quá trình học flashcard và từ vựng.
+**AI Tutor** là một nền tảng học tập thông minh và cá nhân hóa ngôn ngữ, được thiết kế theo cấu trúc đa dịch vụ (Service-Oriented). Hệ thống tích hợp các mô hình trí tuệ nhân tạo (LLM), kết hợp cơ sở dữ liệu đồ thị ngữ nghĩa (Graph Database - Neo4j) để hỗ trợ dịch thuật ngữ chuyên ngành chuẩn xác, cùng thuật toán Spaced Repetition (Lặp lại ngắt quãng SM-2) giúp tối ưu hóa quá trình ôn tập từ vựng.
 
 Dự án bao gồm 3 thành phần chính:
-1. **Frontend**: Phát triển bằng **Vite + Vue.js 3**, giao diện trực quan, hỗ trợ ghi âm trực tiếp, học flashcard tương tác.
+1. **Frontend**: Phát triển bằng **Vite + Vue.js 3**, giao diện trực quan, hỗ trợ tương tác trực tiếp qua giọng nói.
 2. **Backend**: Phát triển bằng **Spring Boot (Java 17)**, chịu trách nhiệm quản lý nghiệp vụ, xác thực JWT, chấm điểm SM-2, quản lý lịch sử học viên và hàng đợi.
-3. **AI Pipeline**: Phát triển bằng **FastAPI (Python)**, điều phối pipeline LLM (Google Gemini / Groq), thực hiện GraphRAG trích xuất ngữ cảnh Neo4j, Speech-to-Text (STT) với Faster-Whisper và Text-to-Speech (TTS).
+3. **AI Pipeline**: Phát triển bằng **FastAPI (Python)**, điều phối pipeline LLM (Google Gemini / Groq), truy vấn trích xuất ngữ nghĩa từ Neo4j để tối ưu hóa bản dịch chuyên ngành.
 
 ---
 
 ## ✨ Các Tính Năng Nổi Bật
 
-*   **🎙️ Tương Tác & Luyện Nói Bằng Giọng Nói (STT & TTS)**: Người dùng có thể trò chuyện trực tiếp với AI thông qua microphone. AI Pipeline sử dụng **Faster-Whisper (STT)** để chuyển âm thanh thành văn bản và phản hồi lại bằng giọng nói sinh từ **TTS**, đồng thời đánh giá lỗi phát âm, ngữ pháp hoặc ngữ nghĩa và gợi ý sửa lỗi chi tiết.
-*   **🌐 Dịch Chuyên Ngành Với GraphRAG & LLM**: Trích xuất các khái niệm và mối quan hệ ngữ nghĩa từ cơ sở dữ liệu đồ thị **Neo4j** (Word Sense Disambiguation), kết hợp vào prompt ngữ cảnh gửi tới LLM (Gemini/Qwen) giúp tạo ra các bản dịch thuật ngữ chuyên ngành cực kỳ chuẩn xác và tự nhiên.
+*   **🎙️ Tương Tác & Luyện Nói Bằng Giọng Nói (STT & TTS)**: Người dùng có thể trò chuyện trực tiếp với AI thông qua microphone. Hệ thống sử dụng **Browser API (Web Speech API)** trực tiếp trên trình duyệt để nhận diện giọng nói (STT) và phát âm thanh phản hồi (TTS), giúp giảm tải cho server, đồng thời gửi dữ liệu văn bản về backend để AI phân tích lỗi ngữ pháp, từ vựng và gợi ý sửa lỗi chi tiết.
+*   **🌐 Dịch Chuyên Ngành Với Đồ Thị Tri Thức & LLM**: Trích xuất các khái niệm và mối quan hệ ngữ nghĩa từ cơ sở dữ liệu đồ thị **Neo4j** (Word Sense Disambiguation) để làm ngữ cảnh bổ sung cho LLM (Gemini/Qwen), giúp tạo ra bản dịch thuật ngữ chuyên ngành chính xác theo đúng ngữ cảnh.
 *   **📇 Hệ Thống Học Flashcard Tích Hợp SM-2 (Spaced Repetition)**: Tự động tính toán khoảng thời gian ôn tập tối ưu cho từng từ vựng dựa trên mức độ tiếp thu và lịch sử đánh giá của người học, giảm thiểu tối đa hiện tượng quên kiến thức.
 *   **📖 Tự Động Sinh Bài Tập & Câu Chuyện AI**: Phân tích lịch sử lỗi sai (phát âm chưa chuẩn, trả lời từ vựng sai) của người học để tự động tạo ra câu hỏi trắc nghiệm hoặc một câu chuyện ngữ cảnh chứa các từ vựng yếu đó nhằm củng cố kiến thức.
-*   **⚡ Xử Lý Bất Đồng Bộ Với RabbitMQ & Caching Redis**: Các tác vụ AI nặng (như sinh câu chuyện dài, tổng hợp giọng nói phức tạp) được đẩy vào hàng đợi RabbitMQ để công nhân (worker) xử lý bất đồng bộ, sử dụng Redis lưu trữ tạm trạng thái kết quả và cache dữ liệu giúp tăng tốc độ phản hồi REST API.
+*   **⚡ Xử Lý Bất Đồng Bộ Với RabbitMQ & Caching Redis**: Các tác vụ AI nặng (như sinh câu chuyện dài, xử lý phản hồi phức tạp) được đẩy vào hàng đợi RabbitMQ để worker xử lý bất đồng bộ, sử dụng Redis lưu trữ tạm trạng thái kết quả và cache dữ liệu giúp tăng tốc độ phản hồi REST API.
 
 ---
 
@@ -44,37 +44,16 @@ Dưới đây là mô hình tương tác giữa các dịch vụ trong hệ th�
 
 ```mermaid
 graph TD
-    User([Người dùng / Client]) <--> |HTTP/WS| Frontend[Frontend: Vue 3 + Vite]
-    Frontend <--> |Rest API / JWT| Backend[Backend: Spring Boot]
-    
-    %% Communication paths
-    Backend <--> |REST Client| AI_Pipeline[AI Pipeline: FastAPI]
-    Backend <--> |Publish/Subscribe| RabbitMQ[RabbitMQ Message Broker]
-    AI_Pipeline <--> |Queue Worker| RabbitMQ
-    
-    %% Databases
-    Backend <--> |Read/Write| Postgres[(PostgreSQL DB)]
-    Backend <--> |Cache / Poll Status| Redis[(Redis Cache)]
-    AI_Pipeline <--> |Graph Queries Cypher| Neo4j[(Neo4j Graph Database)]
-    AI_Pipeline <--> |Read/Write Audio| Uploads[Shared Volume: uploads/]
-    Backend <--> |Read/Write Audio| Uploads
-    
-    %% AI Services
-    AI_Pipeline <--> |API Request| Gemini[Google Gemini API]
-    AI_Pipeline <--> |API Request| Groq[Groq API / Qwen]
-    AI_Pipeline <--> |Local Model Inference| Whisper[Faster-Whisper STT]
-    
-    %% Monitoring
-    Dozzle[Dozzle: Log Viewer] -.-> |Read Logs| DockerHost[Docker Containers]
-    Netdata[Netdata: Monitor] -.-> |Resource Stats| DockerHost
-    
-    style Frontend fill:#42b883,stroke:#35495e,stroke-width:2px,color:#fff
-    style Backend fill:#6db33f,stroke:#1d3557,stroke-width:2px,color:#fff
-    style AI_Pipeline fill:#009485,stroke:#1d3557,stroke-width:2px,color:#fff
-    style Postgres fill:#336791,stroke:#1d3557,stroke-width:2px,color:#fff
-    style Neo4j fill:#018bff,stroke:#1d3557,stroke-width:2px,color:#fff
-    style Redis fill:#d82c20,stroke:#1d3557,stroke-width:2px,color:#fff
-    style RabbitMQ fill:#ff6600,stroke:#1d3557,stroke-width:2px,color:#fff
+    User[Người dùng / Client] --> Frontend[Frontend: Vue 3 + Vite]
+    Frontend --> Backend[Backend: Spring Boot]
+    Backend --> Frontend
+    Backend --> AI_Pipeline[AI Pipeline: FastAPI]
+    AI_Pipeline --> Backend
+    Backend --> Postgres[(PostgreSQL DB)]
+    Backend --> Redis[(Redis Cache)]
+    Backend --> RabbitMQ[(RabbitMQ Queue)]
+    AI_Pipeline --> Neo4j[(Neo4j Graph Database)]
+    AI_Pipeline --> LLMs[APIs: Google Gemini / Groq]
 ```
 
 ---
@@ -203,7 +182,7 @@ Script sẽ khởi chạy đồng thời cả 3 dịch vụ chính dưới nền
 
 ## 📊 Khởi Tạo Cơ Sở Dữ Liệu (Database Seeding)
 
-### 1. Nạp Dữ Liệu Từ Điển Đồ Thị Vào Neo4j (GraphRAG)
+### 1. Nạp Dữ Liệu Từ Điển Đồ Thị Vào Neo4j
 Dự án có sẵn script import bộ dữ liệu mẫu vào Neo4j:
 ```bash
 cd ai/scripts/seed_neo4j
